@@ -1,27 +1,157 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <meta name="description" content="Morgun's personal page with links to Twitch, Twitter, and osu! profile">
-    <link href="https://fonts.googleapis.com/css2?family=Signika+Negative:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-    <link rel="shortcut icon" href="https://i.imgur.com/u5kZ9Gj.png" type="image/png">
-    <title>Morgun</title>
+    <title>morhun</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Custom styles to apply the Inter font */
+        body {
+            font-family: 'Inter', sans-serif;
+            /* We will control scroll behavior with JavaScript now, but this is a good fallback */
+            scroll-behavior: smooth;
+        }
+
+        /* Keyframes for the waving hand animation */
+        @keyframes wave-animation {
+            0% { transform: rotate(0.0deg); }
+            10% { transform: rotate(14.0deg); }
+            20% { transform: rotate(-8.0deg); }
+            30% { transform: rotate(14.0deg); }
+            40% { transform: rotate(-4.0deg); }
+            50% { transform: rotate(10.0deg); }
+            60% { transform: rotate(0.0deg); }
+            100% { transform: rotate(0.0deg); }
+        }
+
+        /* Class for the waving hand emoji */
+        .waving-hand {
+            display: inline-block;
+            animation: wave-animation 2.5s infinite;
+            transform-origin: 70% 70%;
+            font-size: 0.8em; /* Adjust size relative to the h1 */
+            margin-left: 10px;
+        }
+    </style>
 </head>
 <body>
-    <main>
-        <div class="item">
-            <div class="image-container">
-                <img src="https://i.imgur.com/z9IdnBq.png" alt="Morgun's image">
-                <div class="image-overlay"></div>
-            </div>
-            <br>
-            <a target="_blank" href="https://www.twitch.tv/2chlife">Twitch</a>
-            <a target="_blank" href="https://twitter.com/morgundesign">Twitter</a>
-            <a target="_blank" href="https://www.fiverr.com/osumorgun">Fiverr</a>
-            <a target="_blank" href="https://osu.gatari.pw/u/29824">osu! Profile</a>
+
+    <!-- Section 1: Landing Page with Black Background -->
+    <div class="flex flex-col justify-center items-center min-h-screen text-white bg-black">
+        <!-- Header Section -->
+        <header class="text-center mb-8 px-4">
+            <h1 class="text-7xl md:text-8xl font-bold flex items-center justify-center">
+                morhun
+                <span class="waving-hand">👋</span>
+            </h1>
+            <p class="text-2xl md:text-3xl text-gray-400 mt-2">ya ebu, hahaha</p>
+        </header>
+
+        <!-- Links Section -->
+        <nav class="flex flex-wrap justify-center gap-4 px-4">
+            <a href="https://osu.ppy.sh/users/13017880" target="_blank" rel="noopener noreferrer" class="bg-black text-white border border-white py-3 px-8 text-lg font-semibold transition-all duration-300 ease-in-out hover:scale-110 hover:bg-white/20 hover:backdrop-blur-sm hover:border-white/30">osu! profile</a>
+            <a href="https://x.com/OsuMorgun" target="_blank" rel="noopener noreferrer" class="bg-black text-white border border-white py-3 px-8 text-lg font-semibold transition-all duration-300 ease-in-out hover:scale-110 hover:bg-white/20 hover:backdrop-blur-sm hover:border-white/30">twitter</a>
+            <a href="https://www.twitch.tv/morgun_osu" target="_blank" rel="noopener noreferrer" class="bg-black text-white border border-white py-3 px-8 text-lg font-semibold transition-all duration-300 ease-in-out hover:scale-110 hover:bg-white/20 hover:backdrop-blur-sm hover:border-white/30">twitch</a>
+            <a href="https://www.tiktok.com/@morhunap" target="_blank" rel="noopener noreferrer" class="bg-black text-white border border-white py-3 px-8 text-lg font-semibold transition-all duration-300 ease-in-out hover:scale-110 hover:bg-white/20 hover:backdrop-blur-sm hover:border-white/30">tiktok</a>
+        </nav>
+        
+        <!-- Scroll Down Arrow -->
+        <div class="absolute bottom-10">
+            <!-- Added an ID for JavaScript targeting -->
+            <a id="scroll-arrow" href="#skins" class="text-gray-500 animate-bounce">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+            </a>
         </div>
+    </div>
+
+    <!-- Section 2: OSU Skins -->
+    <div id="skins" class="bg-black text-white py-16 md:py-24">
+        <div class="container mx-auto px-4">
+            <h2 class="text-center text-4xl font-bold mb-4">MY OSU SKINS</h2>
+            <hr class="border-gray-700 w-24 mx-auto mb-12">
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                
+                <!-- Skin 1: Ashecho -->
+                <!-- ЗАМЕНИТЕ '#' НА ВАШУ ССЫЛКУ ДЛЯ СКАЧИВАНИЯ СКИНА -->
+                <a href="https://skins.osuck.net/skins/4245?v=0" target="_blank" rel="noopener noreferrer" class="block hover:opacity-80 transition-opacity duration-300">
+                    <div class="flex flex-col items-center">
+                        <div class="w-full h-48 bg-gray-900 mb-4 flex items-center justify-center">
+                            <!-- ЗАМЕНИТЕ ЭТУ ССЫЛКУ НА ССЫЛКУ НА ВАШЕ ИЗОБРАЖЕНИЕ СКИНА -->
+                            <img src="https://skins.osuck.net/images/screenshots/942f0131248d07d4426ed6882545d7d1.webp" alt="Превью скина Ashecho v1" class="w-full h-full object-cover">
+                        </div>
+                        <h3 class="text-xl font-bold">Ashecho v1</h3>
+                        <hr class="w-full border-gray-700 my-2">
+                        <p class="text-gray-400">2025</p>
+                    </div>
+                </a>
+
+                <!-- Skin 2: Rafis -->
+                <!-- ЗАМЕНИТЕ '#' НА ВАШУ ССЫЛКУ ДЛЯ СКАЧИВАНИЯ СКИНА -->
+                <a href="https://skins.osuck.net/skins/166?v=0" target="_blank" rel="noopener noreferrer" class="block hover:opacity-80 transition-opacity duration-300">
+                    <div class="flex flex-col items-center">
+                         <div class="w-full h-48 bg-gray-900 mb-4 flex items-center justify-center">
+                            <!-- ЗАМЕНИТЕ ЭТУ ССЫЛКУ НА ССЫЛКУ НА ВАШЕ ИЗОБРАЖЕНИЕ СКИНА -->
+                            <img src="https://skins.osuck.net/images/screenshots/562f42b4af68706e5a6d079fc627937d.webp" alt="Превью скина Rafis 2018-03-26 HDDT v1" class="w-full h-full object-cover">
+                        </div>
+                        <h3 class="text-xl font-bold">Rafis 2018-03-26 HDDT v1</h3>
+                        <hr class="w-full border-gray-700 my-2">
+                        <p class="text-gray-400">2018</p>
+                    </div>
+                </a>
+
+                <!-- Skin 3: Rohulk -->
+                <!-- ЗАМЕНИТЕ '#' НА ВАШУ ССЫЛКУ ДЛЯ СКАЧИВАНИЯ СКИНА -->
+                <a href="https://skins.osuck.net/skins/802?v=0" target="_blank" rel="noopener noreferrer" class="block hover:opacity-80 transition-opacity duration-300">
+                    <div class="flex flex-col items-center">
+                         <div class="w-full h-48 bg-gray-900 mb-4 flex items-center justify-center">
+                            <!-- ЗАМЕНИТЕ ЭТУ ССЫЛКУ НА ССЫЛКУ НА ВАШЕ ИЗОБРАЖЕНИЕ СКИНА -->
+                            <img src="https://skins.osuck.net/images/screenshots/73d084dc255b999ec5e49f31cbf73d51.webp" alt="Превью скина Rohulk b v5.0" class="w-full h-full object-cover">
+                        </div>
+                        <h3 class="text-xl font-bold">Rohulk b v5.0</h3>
+                        <hr class="w-full border-gray-700 my-2">
+                        <p class="text-gray-400">2019</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript for smooth scrolling -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const scrollArrow = document.getElementById('scroll-arrow');
+            if (scrollArrow) {
+                scrollArrow.addEventListener('click', function(event) {
+                    // Prevent the default anchor link behavior
+                    event.preventDefault();
+                    
+                    // Find the target element
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    
+                    if (targetElement) {
+                        // Use scrollIntoView for a smooth scroll
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            }
+        });
+    </script>
+
 </body>
 </html>
