@@ -7,6 +7,9 @@
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cstyle%3E@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700');%3C/style%3E%3Ctext x='5' y='52' font-family='Space Grotesk, sans-serif' font-weight='700' font-size='55' fill='white'%3Em%3C/text%3E%3Ccircle cx='56' cy='42' r='6' fill='%236366f1'/%3E%3C/svg%3E" type="image/svg+xml">
     
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <script>
         tailwind.config = {
             theme: {
@@ -19,24 +22,133 @@
                         'pulse-fast': 'pulse 0.1s ease-in-out',
                     },
                     keyframes: {
-                        blob: { '0%, 100%': { transform: 'translate(0px, 0px) scale(1)' }, '33%': { transform: 'translate(30px, -50px) scale(1.05)' }, '66%': { transform: 'translate(-20px, 20px) scale(0.95)' } },
-                        fadeIn: { '0%': { opacity: '0', transform: 'scale(0.95)' }, '100%': { opacity: '1', transform: 'scale(1)' } }
+                        blob: {
+                            '0%, 100%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.05)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.95)' }
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'scale(0.95)' },
+                            '100%': { opacity: '1', transform: 'scale(1)' }
+                        }
                     }
                 }
             }
         }
     </script>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ОСНОВНОЙ СТИЛЬ */
+        body {
+            background: radial-gradient(circle at center, #0a0a0a 0%, #000000 100%);
+            color: #fff;
+            cursor: none; /* Скрываем стандартный курсор */
+            min-height: 100vh;
+            overflow-x: hidden;
+            user-select: none;
+        }
 
-    <link rel="stylesheet" href="style.css">
+        /* КУРСОР */
+        #osu-cursor {
+            position: fixed; top: 0; left: 0; width: 30px; height: 30px;
+            pointer-events: none; z-index: 99999; /* Поверх всего */
+            transform: translate(-50%, -50%); will-change: top, left;
+        }
+        #osu-cursor img { width: 100%; height: 100%; filter: drop-shadow(0 0 8px rgba(255,102,170,0.6)); }
+        
+        .trail-dot {
+            position: fixed; pointer-events: none; z-index: 99998;
+            width: 14px; height: 14px; background: rgba(255, 102, 170, 0.5);
+            border-radius: 50%; transform: translate(-50%, -50%);
+            animation: fadeTrail 0.3s linear forwards;
+        }
+        @keyframes fadeTrail { to { transform: translate(-50%, -50%) scale(0.2); opacity: 0; } }
+
+        /* ФОНОВЫЙ ШУМ */
+        .bg-noise {
+            position: fixed; inset: 0; z-index: 0; opacity: 0.015;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            pointer-events: none; mix-blend-mode: overlay;
+        }
+
+        /* BENTO КАРТОЧКИ */
+        .bento-card {
+            background-color: rgba(20, 20, 23, 0.6); 
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(24px); 
+            border-radius: 24px; 
+            overflow: hidden; 
+            position: relative;
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), border-color 0.3s;
+        }
+        .bento-card:hover { 
+            transform: translateY(-4px) scale-[1.005]; 
+            background-color: rgba(255, 255, 255, 0.08); 
+            border-color: rgba(255, 255, 255, 0.15); 
+        }
+
+        /* АНИМАЦИЯ ПЯТЕН */
+        .blob { position: absolute; border-radius: 50%; mix-blend-mode: screen; filter: blur(100px); opacity: 0.25; animation: blob 12s infinite; }
+        .blob-1 { background: #4f46e5; width: 500px; height: 500px; top: -200px; left: -200px; }
+        .blob-2 { background: #ec4899; width: 400px; height: 400px; top: 20%; right: -100px; animation-delay: 2s; }
+        .blob-3 { background: #06b6d4; width: 450px; height: 450px; bottom: -100px; left: 10%; animation-delay: 4s; }
+
+        /* ЭЛЕМЕНТЫ ИНТЕРФЕЙСА */
+        .nav-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); padding: 10px 24px; border-radius: 99px; font-weight: 600; font-size: 14px; letter-spacing: 0.05em; transition: all 0.3s; color: #888; cursor: none; }
+        .nav-btn:hover { color: #fff; background: rgba(255, 255, 255, 0.1); }
+        .nav-btn.active { background: #fff; color: #000; border-color: #fff; box-shadow: 0 0 20px rgba(255,255,255,0.2); }
+
+        .tab-content { display: none; width: 100%; }
+        .tab-content.active { display: block; animation: fadeIn 0.5s ease-out forwards; }
+        
+        #toast { visibility: hidden; min-width: 250px; background-color: rgba(20, 20, 23, 0.9); backdrop-filter: blur(10px); color: #fff; text-align: center; border-radius: 50px; padding: 16px; position: fixed; z-index: 100; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 16px; border: 1px solid rgba(255,255,255,0.1); opacity: 0; transition: all 0.3s; }
+        #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
+        #image-modal { transition: opacity 0.3s ease; }
+
+        /* --- СТИЛИ ДЛЯ ТЕСТЕРА --- */
+        .key-col { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        
+        .key-display {
+            width: 80px; height: 80px; border-radius: 16px;
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 32px; font-weight: 900; color: #444;
+            transition: all 0.05s; text-transform: uppercase;
+        }
+        .key-display.active {
+            background: #6366f1; color: white; border-color: #818cf8;
+            box-shadow: 0 0 30px rgba(99, 102, 241, 0.4); transform: scale(0.95);
+        }
+        
+        .key-bind {
+            font-size: 10px; color: #666; cursor: none; padding: 4px 12px; border-radius: 6px;
+            border: 1px solid transparent; transition: all 0.2s; text-transform: uppercase;
+        }
+        .key-bind:hover { color: #fff; background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.1); }
+        .key-bind.binding { color: #ff66aa; border-color: #ff66aa; animation: pulse-fast 1s infinite; }
+
+        .graph-container {
+            width: 100%; height: 200px; background: rgba(10,10,12,0.5);
+            border: 1px solid rgba(255,255,255,0.05); border-radius: 12px;
+            position: relative; overflow: hidden;
+        }
+        canvas { display: block; width: 100%; height: 100%; }
+        
+        .stat-box {
+            background: rgba(255,255,255,0.03); border-radius: 12px; padding: 16px;
+            border: 1px solid rgba(255,255,255,0.05); text-align: center;
+            display: flex; flex-direction: column; justify-content: center;
+        }
+        .stat-value { font-size: 28px; font-weight: 700; line-height: 1; margin-bottom: 4px; }
+        .stat-label { font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 0.05em; }
+    </style>
 </head>
 <body class="flex flex-col items-center justify-start p-4 md:p-8 relative">
 
     <div id="osu-cursor">
         <img src="data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='60' cy='60' r='22' fill='%23FF66AA' fill-opacity='0.9'/%3E%3Ccircle cx='60' cy='60' r='18' stroke='white' stroke-width='3'/%3E%3C/svg%3E">
     </div>
+
     <div id="toast"><i class="fas fa-check-circle text-green-400 mr-2"></i> Copied!</div>
 
     <div id="image-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/90 backdrop-blur-sm p-4" onclick="closeImageModal()">
@@ -93,6 +205,7 @@
                 <a href="https://x.com/OsuMorgun" target="_blank" class="bento-card col-span-1 p-5 flex flex-col justify-between group hover:bg-blue-500/10 hover:border-blue-500/30 cursor-none">
                     <div class="flex justify-between items-start"><i class="fab fa-twitter text-3xl text-gray-400 group-hover:text-blue-400 transition-colors"></i><i class="fas fa-arrow-up-right-from-square text-xs text-gray-600 group-hover:text-white"></i></div><span class="font-bold text-lg mt-2">Twitter</span>
                 </a>
+
                 <a href="https://www.twitch.tv/omorgun" target="_blank" class="bento-card col-span-1 p-5 flex flex-col justify-between group hover:bg-purple-500/10 hover:border-purple-500/30 cursor-none">
                     <div class="flex justify-between items-start"><i class="fab fa-twitch text-3xl text-gray-400 group-hover:text-purple-400 transition-colors"></i><i class="fas fa-arrow-up-right-from-square text-xs text-gray-600 group-hover:text-white"></i></div><span class="font-bold text-lg mt-2">Twitch</span>
                 </a>
@@ -102,8 +215,8 @@
                         <div class="flex items-center gap-3">
                             <i class="fas fa-chart-line text-indigo-400 text-xl"></i>
                             <div>
-                                <h2 class="text-xl font-bold uppercase tracking-wider leading-none">Realtime Stream Benchmark</h2>
-                                <p class="text-[10px] text-gray-500 font-mono mt-1">Engine v3.0 • Precision Timing</p>
+                                <h2 class="text-xl font-bold uppercase tracking-wider leading-none">Stream Speed Benchmark</h2>
+                                <p class="text-[10px] text-gray-500 font-mono mt-1">ENGINE: osuStreamSpeed.js (Replica)</p>
                             </div>
                         </div>
                         <button onclick="resetTest()" class="text-xs font-bold text-gray-400 hover:text-white transition-colors cursor-none"><i class="fas fa-rotate-right mr-1"></i> RESET</button>
@@ -145,13 +258,13 @@
                                 <canvas id="bpmChart"></canvas>
                             </div>
                             <div class="mt-2 flex justify-between text-[10px] text-gray-600 font-mono uppercase">
-                                <span>Unstable (Slower)</span>
+                                <span>Unstable</span>
                                 <span>Realtime Deviation</span>
-                                <span>Unstable (Faster)</span>
+                                <span>Stable</span>
                             </div>
                             
                             <div class="mt-4 p-3 bg-black/20 rounded-lg border border-white/5 text-[10px] text-gray-500 leading-relaxed font-mono">
-                                <span class="text-indigo-400 font-bold">ALGORITHM:</span> Calculates standard deviation of keystroke intervals. BPM assumes 1/4 stream divisor (15,000 / avg_ms). Graph visualizes timing jitter per click.
+                                <span class="text-indigo-400 font-bold">INFO:</span> BPM = (Clicks / Time) * (15000). Unstable Rate = Standard Deviation * 10. Graph shows instantaneous BPM variations.
                             </div>
                         </div>
                     </div>
@@ -174,7 +287,7 @@
             </div>
 
             <div class="flex items-center justify-between mb-8 px-2">
-                <div class="flex items-center gap-3"><i class="fas fa-layer-group text-indigo-400 text-xl"></i><h2 class="text-3xl font-bold">Skin Library</h2></div>
+                <div class="flex items-center gap-3"><i class="fas fa-gem text-indigo-400 text-xl"></i><h2 class="text-3xl font-bold">Skin Library</h2></div>
                 <div class="text-sm font-mono text-gray-500 border border-white/10 px-3 py-1 rounded-full">v. 2025</div>
             </div>
 
@@ -197,6 +310,234 @@
     
     <footer class="mt-12 mb-6 text-gray-600 text-xs font-mono uppercase tracking-widest z-10">MORGUN © 2025</footer>
 
-    <script src="main.js"></script>
+    <script>
+        const DISCORD_ID = "1193659050878054551";
+
+        /* --- CURSOR --- */
+        const cursor = document.getElementById('osu-cursor');
+        let mouseX = 0, mouseY = 0;
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX; mouseY = e.clientY;
+            cursor.style.left = mouseX + 'px'; cursor.style.top = mouseY + 'px';
+            if(Math.random() > 0.5) {
+                const dot = document.createElement('div'); dot.className = 'trail-dot';
+                dot.style.left = mouseX+'px'; dot.style.top = mouseY+'px';
+                document.body.appendChild(dot); setTimeout(()=>dot.remove(),300);
+            }
+        });
+
+        /* --- LANYARD STATUS --- */
+        async function fetchLanyardStatus() {
+            try {
+                const res = await fetch(`https://api.lanyard.rest/v1/users/${DISCORD_ID}`);
+                const data = await res.json();
+                if (data.success) updateStatusBadges(data.data);
+            } catch (e) { console.error(e); }
+        }
+
+        function updateStatusBadges(discordData) {
+            const status = discordData.discord_status;
+            const activities = discordData.activities || [];
+            
+            const profileWrapper = document.getElementById('profile-status-wrapper');
+            const profileDot = document.getElementById('profile-status-dot');
+            const profileText = document.getElementById('profile-status-text');
+            const avatarBadge = document.getElementById('avatar-status-badge');
+
+            let primary = activities.find(a => a.name.toLowerCase().includes('osu'));
+            if (!primary) primary = activities.find(a => a.type === 0);
+            if (!primary) primary = activities.find(a => a.type === 1);
+            let spotify = activities.find(a => a.type === 2);
+
+            let color = 'text-gray-400', bg = 'bg-gray-500/10', border = 'border-gray-500/30';
+            let txt = 'OFFLINE', dot = 'bg-gray-400', avTxt = 'OFF', avBg = 'bg-gray-500', pulse = false;
+
+            if (primary) {
+                const name = primary.name.toUpperCase();
+                if (name.includes('OSU')) { color='text-pink-400'; bg='bg-pink-500/10'; border='border-pink-500/30'; dot='bg-pink-400'; avBg='bg-pink-500'; }
+                else { color='text-indigo-400'; bg='bg-indigo-500/10'; border='border-indigo-500/30'; dot='bg-indigo-400'; avBg='bg-indigo-500'; }
+                txt = primary.type === 1 ? `STREAMING ${name}` : `PLAYING ${name}`; avTxt='GAME'; pulse=true;
+            } else if (spotify) {
+                color='text-green-400'; bg='bg-green-500/10'; border='border-green-500/30'; dot='bg-green-400'; txt='LISTENING SPOTIFY'; avTxt='MUSIC'; avBg='bg-green-500'; pulse=true;
+            } else if (status === 'online') {
+                color='text-green-400'; bg='bg-green-500/10'; border='border-green-500/30'; dot='bg-green-400'; txt='ONLINE'; avTxt='LIVE'; avBg='bg-green-500'; pulse=true;
+            } else if (status === 'idle') {
+                color='text-yellow-400'; bg='bg-yellow-500/10'; border='border-yellow-500/30'; dot='bg-yellow-400'; txt='IDLE'; avTxt='AWAY'; avBg='bg-yellow-500';
+            } else if (status === 'dnd') {
+                color='text-red-400'; bg='bg-red-500/10'; border='border-red-500/30'; dot='bg-red-400'; txt='BUSY'; avTxt='DND'; avBg='bg-red-500';
+            }
+
+            profileWrapper.className = `inline-flex items-center px-3 py-1 rounded-full border text-xs font-bold mb-6 backdrop-blur-md transition-colors duration-300 ${bg} ${border} ${color}`;
+            profileText.innerText = txt.length > 28 ? txt.substring(0,28)+'...' : txt;
+            profileDot.className = `w-2 h-2 rounded-full mr-2 ${dot} ${pulse ? 'animate-pulse' : ''}`;
+            avatarBadge.className = `absolute -bottom-2 -right-2 text-black text-[10px] font-bold px-2 py-0.5 rounded-full border border-black transition-colors duration-300 ${avBg} ${pulse ? 'animate-pulse' : ''}`;
+            avatarBadge.innerText = avTxt;
+        }
+        fetchLanyardStatus(); setInterval(fetchLanyardStatus, 5000);
+
+        function switchTab(t) { document.querySelectorAll('.tab-content').forEach(e=>e.classList.remove('active')); document.querySelectorAll('.nav-btn').forEach(e=>e.classList.remove('active')); document.getElementById('tab-'+t).classList.add('active'); document.getElementById('btn-'+t).classList.add('active'); }
+        function copyDiscord() { navigator.clipboard.writeText(".morgun.").then(()=>{ var t=document.getElementById("toast"); t.className="show"; setTimeout(()=>t.className=t.className.replace("show",""),3000); }); }
+        function openImageModal() { document.getElementById('image-modal').classList.remove('hidden'); }
+        function closeImageModal() { document.getElementById('image-modal').classList.add('hidden'); }
+        document.addEventListener('keydown', e=>{if(e.key==="Escape")closeImageModal()});
+
+        /* --- STREAM ENGINE (OSU LOGIC REPLICA) --- */
+        let clickTimes = [];
+        let timeDiffs = [];
+        let beginTime = -1;
+        let keys = { k1: 'z', k2: 'x' };
+        let counts = { k1: 0, k2: 0 };
+        let binding = null;
+        let chartData = []; 
+
+        const canvas = document.getElementById('bpmChart');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+
+        function resize() {
+            width = canvas.parentElement.clientWidth;
+            height = canvas.parentElement.clientHeight;
+            canvas.width = width; canvas.height = height;
+        }
+        window.addEventListener('resize', resize); resize();
+
+        function bindKey(k) {
+            binding = k;
+            const btn = document.getElementById('bind-'+k);
+            btn.innerText = "..."; btn.classList.add('binding');
+        }
+
+        function resetTest() {
+            clickTimes = []; timeDiffs = []; chartData = [];
+            counts = { k1: 0, k2: 0 };
+            beginTime = -1;
+            document.getElementById('val-bpm').innerText = "0";
+            document.getElementById('val-ur').innerText = "0.00";
+            document.getElementById('val-time').innerText = "0.000 s";
+            document.getElementById('count-k1').innerText = "0";
+            document.getElementById('count-k2').innerText = "0";
+            ctx.clearRect(0,0,width,height);
+        }
+
+        function update(click) {
+            if (click) {
+                const now = Date.now();
+                clickTimes.push(now);
+                if (clickTimes.length > 1) {
+                    timeDiffs.push(clickTimes[clickTimes.length - 1] - clickTimes[clickTimes.length - 2]);
+                }
+                
+                // --- MATH LOGIC FROM OSUSTREAMSPEED.JS ---
+                if (timeDiffs.length > 0) {
+                    const sum = timeDiffs.reduce((a, b) => a + b, 0);
+                    const avg = sum / timeDiffs.length;
+                    
+                    // Variance & Standard Deviation
+                    const deviations = timeDiffs.map(v => (v - avg) * (v - avg));
+                    const variance = deviations.reduce((a, b) => a + b, 0) / deviations.length;
+                    const std = Math.sqrt(variance);
+                    const unstableRate = std * 10;
+                    document.getElementById('val-ur').innerText = unstableRate.toFixed(2);
+                }
+
+                if (clickTimes.length > 2) {
+                    // Instant BPM for Graph (Last 10 clicks rolling avg)
+                    const slice = timeDiffs.slice(-10);
+                    const instantAvg = slice.reduce((a,b)=>a+b,0) / slice.length;
+                    const currentBPM = Math.round(15000 / instantAvg); 
+                    
+                    chartData.push(currentBPM);
+                    if(chartData.length > 100) chartData.shift(); 
+                    drawChart();
+                }
+
+            } else {
+                // Timer Loop
+                if(beginTime !== -1) {
+                    const streamTime = (Date.now() - beginTime) / 1000;
+                    document.getElementById('val-time').innerText = streamTime.toFixed(3) + " s";
+                    
+                    // Overall Avg BPM
+                    if (clickTimes.length > 2) {
+                        const totalMinutes = (Date.now() - beginTime) / 60000;
+                        const bpm = Math.round((clickTimes.length / totalMinutes) / 4);
+                        document.getElementById('val-bpm').innerText = bpm;
+                    }
+                }
+            }
+        }
+
+        function drawChart() {
+            ctx.clearRect(0, 0, width, height);
+            if (chartData.length < 2) return;
+
+            ctx.beginPath();
+            const stepX = width / (chartData.length - 1);
+            
+            // Dynamic Scaling
+            const min = Math.min(...chartData) * 0.9;
+            const max = Math.max(...chartData) * 1.1;
+            const range = max - min || 1;
+
+            chartData.forEach((val, i) => {
+                const x = i * stepX;
+                const normalizedY = (val - min) / range;
+                const y = height - (normalizedY * height); 
+                if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+            });
+
+            ctx.strokeStyle = '#6366f1'; ctx.lineWidth = 2; ctx.stroke();
+            
+            // Gradient Fill
+            ctx.lineTo(width, height); ctx.lineTo(0, height);
+            const grad = ctx.createLinearGradient(0, 0, 0, height);
+            grad.addColorStop(0, 'rgba(99, 102, 241, 0.5)');
+            grad.addColorStop(1, 'rgba(99, 102, 241, 0)');
+            ctx.fillStyle = grad; ctx.fill();
+        }
+
+        // Input Listener
+        document.addEventListener('keydown', (e) => {
+            if (e.repeat) return;
+            const key = e.key.toLowerCase();
+
+            // Key Binding
+            if (binding) {
+                keys[binding] = key;
+                document.getElementById(binding+'-visual').innerText = key.toUpperCase();
+                const btn = document.getElementById('bind-'+binding);
+                btn.innerText = "Change Key"; btn.classList.remove('binding');
+                binding = null; return;
+            }
+
+            // Test Logic
+            const isK1 = key === keys.k1;
+            const isK2 = key === keys.k2;
+
+            if (isK1 || isK2) {
+                e.preventDefault();
+                
+                if (beginTime === -1) {
+                    beginTime = Date.now();
+                    // Timer Loop (approx 30fps update for UI)
+                    setInterval(() => update(false), 30);
+                }
+
+                if (isK1) {
+                    counts.k1++;
+                    document.getElementById('count-k1').innerText = counts.k1;
+                    const el = document.getElementById('k1-visual');
+                    el.classList.add('active'); setTimeout(()=>el.classList.remove('active'), 80);
+                } else {
+                    counts.k2++;
+                    document.getElementById('count-k2').innerText = counts.k2;
+                    const el = document.getElementById('k2-visual');
+                    el.classList.add('active'); setTimeout(()=>el.classList.remove('active'), 80);
+                }
+
+                update(true);
+            }
+        });
+    </script>
 </body>
 </html>
