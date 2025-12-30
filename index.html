@@ -1,157 +1,202 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>morgun</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cstyle%3E@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700');%3C/style%3E%3Ctext x='5' y='52' font-family='Space Grotesk, sans-serif' font-weight='700' font-size='55' fill='white'%3Em%3C/text%3E%3Ccircle cx='56' cy='42' r='6' fill='%236366f1'/%3E%3C/svg%3E" type="image/svg+xml">
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Google Fonts: Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
-    
-    <style>
-        /* Custom styles to apply the Inter font */
-        body {
-            font-family: 'Inter', sans-serif;
-            /* We will control scroll behavior with JavaScript now, but this is a good fallback */
-            scroll-behavior: smooth;
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Space Grotesk', 'sans-serif'] },
+                    colors: { discord: '#5865F2', osu: '#ff66aa' },
+                    animation: {
+                        'blob': 'blob 12s infinite',
+                        'fade-in': 'fadeIn 0.3s ease-out forwards',
+                        'pulse-fast': 'pulse 0.1s ease-in-out',
+                    },
+                    keyframes: {
+                        blob: { '0%, 100%': { transform: 'translate(0px, 0px) scale(1)' }, '33%': { transform: 'translate(30px, -50px) scale(1.05)' }, '66%': { transform: 'translate(-20px, 20px) scale(0.95)' } },
+                        fadeIn: { '0%': { opacity: '0', transform: 'scale(0.95)' }, '100%': { opacity: '1', transform: 'scale(1)' } }
+                    }
+                }
+            }
         }
+    </script>
 
-        /* Keyframes for the waving hand animation */
-        @keyframes wave-animation {
-            0% { transform: rotate(0.0deg); }
-            10% { transform: rotate(14.0deg); }
-            20% { transform: rotate(-8.0deg); }
-            30% { transform: rotate(14.0deg); }
-            40% { transform: rotate(-4.0deg); }
-            50% { transform: rotate(10.0deg); }
-            60% { transform: rotate(0.0deg); }
-            100% { transform: rotate(0.0deg); }
-        }
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-        /* Class for the waving hand emoji */
-        .waving-hand {
-            display: inline-block;
-            animation: wave-animation 2.5s infinite;
-            transform-origin: 70% 70%;
-            font-size: 0.8em; /* Adjust size relative to the h1 */
-            margin-left: 10px;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="flex flex-col items-center justify-start p-4 md:p-8 relative">
 
-    <!-- Section 1: Landing Page with Black Background -->
-    <div class="flex flex-col justify-center items-center min-h-screen text-white bg-black">
-        <!-- Header Section -->
-        <header class="text-center mb-8 px-4">
-            <h1 class="text-7xl md:text-8xl font-bold flex items-center justify-center">
-                morgun
-                <span class="waving-hand">👋</span>
-            </h1>
-            <p class="text-2xl md:text-3xl text-gray-400 mt-2">kvass energy</p>
-        </header>
+    <div id="osu-cursor">
+        <img src="data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='60' cy='60' r='22' fill='%23FF66AA' fill-opacity='0.9'/%3E%3Ccircle cx='60' cy='60' r='18' stroke='white' stroke-width='3'/%3E%3C/svg%3E">
+    </div>
+    <div id="toast"><i class="fas fa-check-circle text-green-400 mr-2"></i> Copied!</div>
 
-        <!-- Links Section -->
-        <nav class="flex flex-wrap justify-center gap-4 px-4">
-            <a href="https://osu.ppy.sh/users/13017880" target="_blank" rel="noopener noreferrer" class="bg-black text-white border border-white py-3 px-8 text-lg font-semibold transition-all duration-300 ease-in-out hover:scale-110 hover:bg-white/20 hover:backdrop-blur-sm hover:border-white/30">osu! profile</a>
-            <a href="https://x.com/OsuMorgun" target="_blank" rel="noopener noreferrer" class="bg-black text-white border border-white py-3 px-8 text-lg font-semibold transition-all duration-300 ease-in-out hover:scale-110 hover:bg-white/20 hover:backdrop-blur-sm hover:border-white/30">twitter</a>
-            <a href="https://www.twitch.tv/omorgun" target="_blank" rel="noopener noreferrer" class="bg-black text-white border border-white py-3 px-8 text-lg font-semibold transition-all duration-300 ease-in-out hover:scale-110 hover:bg-white/20 hover:backdrop-blur-sm hover:border-white/30">twitch</a>
-            <a href="https://www.tiktok.com/@morhunap" target="_blank" rel="noopener noreferrer" class="bg-black text-white border border-white py-3 px-8 text-lg font-semibold transition-all duration-300 ease-in-out hover:scale-110 hover:bg-white/20 hover:backdrop-blur-sm hover:border-white/30">tiktok</a>
-        </nav>
-        
-        <!-- Scroll Down Arrow -->
-        <div class="absolute bottom-10">
-            <!-- Added an ID for JavaScript targeting -->
-            <a id="scroll-arrow" href="#skins" class="text-gray-500 animate-bounce">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-            </a>
+    <div id="image-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/90 backdrop-blur-sm p-4" onclick="closeImageModal()">
+        <div class="relative max-w-5xl w-full animate-fade-in flex flex-col items-center">
+            <button onclick="closeImageModal()" class="absolute -top-12 right-0 md:-right-4 text-white hover:text-red-400 transition-colors text-2xl p-2 cursor-none"><i class="fas fa-times"></i></button>
+            <img id="modal-img" src="https://osu-sig.vercel.app/card?user=13017880&mode=std&lang=en&hex=4f46e5" alt="Full Stats" class="w-full h-auto rounded-xl border border-white/10" onclick="event.stopPropagation()">
         </div>
     </div>
 
-    <!-- Section 2: OSU Skins -->
-    <div id="skins" class="bg-black text-white py-16 md:py-24">
-        <div class="container mx-auto px-4">
-            <h2 class="text-center text-4xl font-bold mb-4">MY OSU SKINS</h2>
-            <hr class="border-gray-700 w-24 mx-auto mb-12">
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+    <div class="fixed inset-0 overflow-hidden -z-10">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+    <div class="bg-noise"></div>
+
+    <nav class="sticky top-4 z-50 flex gap-4 mb-8 backdrop-blur-md p-2 rounded-full border border-white/5 bg-black/20">
+        <button onclick="switchTab('profile')" id="btn-profile" class="nav-btn active">PROFILE</button>
+        <button onclick="switchTab('skins')" id="btn-skins" class="nav-btn">SKINS & STATS</button>
+    </nav>
+
+    <div class="w-full max-w-6xl z-10 min-h-[600px]">
+        
+        <div id="tab-profile" class="tab-content active">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:auto-rows-[minmax(180px,auto)]">
                 
-                <!-- Skin 1: Ashecho -->
-                <!-- ЗАМЕНИТЕ '#' НА ВАШУ ССЫЛКУ ДЛЯ СКАЧИВАНИЯ СКИНА -->
-                <a href="https://skins.osuck.net/skins/4245?v=0" target="_blank" rel="noopener noreferrer" class="block hover:opacity-80 transition-opacity duration-300">
-                    <div class="flex flex-col items-center">
-                        <div class="w-full h-48 bg-gray-900 mb-4 flex items-center justify-center">
-                            <!-- ЗАМЕНИТЕ ЭТУ ССЫЛКУ НА ССЫЛКУ НА ВАШЕ ИЗОБРАЖЕНИЕ СКИНА -->
-                            <img src="https://skins.osuck.net/images/screenshots/942f0131248d07d4426ed6882545d7d1.webp" alt="Превью скина Ashecho v1" class="w-full h-full object-cover">
+                <div class="bento-card col-span-2 row-span-2 p-8 flex flex-col justify-between group relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-32 bg-indigo-500/10 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-indigo-500/20 transition-all duration-500"></div>
+                    <div class="relative z-10">
+                        <div id="profile-status-wrapper" class="inline-flex items-center px-3 py-1 rounded-full border border-gray-500/30 bg-gray-500/10 text-gray-400 text-xs font-bold mb-6 backdrop-blur-md transition-colors duration-300">
+                            <span id="profile-status-dot" class="w-2 h-2 rounded-full bg-gray-400 mr-2"></span> 
+                            <span id="profile-status-text">OFFLINE</span>
                         </div>
-                        <h3 class="text-xl font-bold">Ashecho v1</h3>
-                        <hr class="w-full border-gray-700 my-2">
-                        <p class="text-gray-400">2025</p>
+                        <h1 class="text-5xl md:text-7xl font-bold tracking-tight mb-2 text-white">morgun<span class="text-indigo-500">.</span></h1>
+                        <p class="text-gray-300 text-lg md:text-xl font-light">Kvass energy enjoyer <span class="inline-block hover:animate-spin cursor-none">👋</span></p>
                     </div>
+                    <div class="mt-8 relative z-10">
+                        <button onclick="copyDiscord()" class="flex items-center gap-3 bg-white/5 hover:bg-discord hover:text-white border border-white/10 px-5 py-3 rounded-xl transition-all duration-300 group/btn w-full md:w-auto cursor-none">
+                            <i class="fab fa-discord text-xl text-gray-400 group-hover/btn:text-white transition-colors"></i>
+                            <div class="text-left"><p class="text-xs text-gray-500 group-hover/btn:text-white/80 font-mono uppercase">Add me on Discord</p><p class="font-bold leading-none mt-1 tracking-wide">.morgun.</p></div>
+                            <i class="fas fa-copy ml-auto opacity-0 group-hover/btn:opacity-100 transition-opacity"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <a href="https://osu.ppy.sh/users/13017880" target="_blank" class="bento-card col-span-2 md:col-span-1 md:row-span-2 p-6 flex flex-col items-center justify-center text-center gap-4 group hover:border-osu/50 relative overflow-hidden cursor-none">
+                    <div class="absolute inset-0 bg-osu/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div class="w-24 h-24 flex items-center justify-center group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 z-10">
+                         <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Osu%21_Logo_2016.svg/2048px-Osu%21_Logo_2016.svg.png" alt="osu! logo" class="w-full h-full object-contain drop-shadow-2xl">
+                    </div>
+                    <div class="z-10"><h3 class="text-2xl font-bold text-pink-100">Profile</h3><p class="text-gray-400 text-sm mt-1">Check main stats</p></div>
                 </a>
 
-                <!-- Skin 2: Rafis -->
-                <!-- ЗАМЕНИТЕ '#' НА ВАШУ ССЫЛКУ ДЛЯ СКАЧИВАНИЯ СКИНА -->
-                <a href="https://skins.osuck.net/skins/166?v=0" target="_blank" rel="noopener noreferrer" class="block hover:opacity-80 transition-opacity duration-300">
-                    <div class="flex flex-col items-center">
-                         <div class="w-full h-48 bg-gray-900 mb-4 flex items-center justify-center">
-                            <!-- ЗАМЕНИТЕ ЭТУ ССЫЛКУ НА ССЫЛКУ НА ВАШЕ ИЗОБРАЖЕНИЕ СКИНА -->
-                            <img src="https://skins.osuck.net/images/screenshots/562f42b4af68706e5a6d079fc627937d.webp" alt="Превью скина Rafis 2018-03-26 HDDT v1" class="w-full h-full object-cover">
-                        </div>
-                        <h3 class="text-xl font-bold">Rafis 2018-03-26 HDDT v1</h3>
-                        <hr class="w-full border-gray-700 my-2">
-                        <p class="text-gray-400">2018</p>
-                    </div>
+                <a href="https://x.com/OsuMorgun" target="_blank" class="bento-card col-span-1 p-5 flex flex-col justify-between group hover:bg-blue-500/10 hover:border-blue-500/30 cursor-none">
+                    <div class="flex justify-between items-start"><i class="fab fa-twitter text-3xl text-gray-400 group-hover:text-blue-400 transition-colors"></i><i class="fas fa-arrow-up-right-from-square text-xs text-gray-600 group-hover:text-white"></i></div><span class="font-bold text-lg mt-2">Twitter</span>
+                </a>
+                <a href="https://www.twitch.tv/omorgun" target="_blank" class="bento-card col-span-1 p-5 flex flex-col justify-between group hover:bg-purple-500/10 hover:border-purple-500/30 cursor-none">
+                    <div class="flex justify-between items-start"><i class="fab fa-twitch text-3xl text-gray-400 group-hover:text-purple-400 transition-colors"></i><i class="fas fa-arrow-up-right-from-square text-xs text-gray-600 group-hover:text-white"></i></div><span class="font-bold text-lg mt-2">Twitch</span>
                 </a>
 
-                <!-- Skin 3: Rohulk -->
-                <!-- ЗАМЕНИТЕ '#' НА ВАШУ ССЫЛКУ ДЛЯ СКАЧИВАНИЯ СКИНА -->
-                <a href="https://skins.osuck.net/skins/802?v=0" target="_blank" rel="noopener noreferrer" class="block hover:opacity-80 transition-opacity duration-300">
-                    <div class="flex flex-col items-center">
-                         <div class="w-full h-48 bg-gray-900 mb-4 flex items-center justify-center">
-                            <!-- ЗАМЕНИТЕ ЭТУ ССЫЛКУ НА ССЫЛКУ НА ВАШЕ ИЗОБРАЖЕНИЕ СКИНА -->
-                            <img src="https://skins.osuck.net/images/screenshots/73d084dc255b999ec5e49f31cbf73d51.webp" alt="Превью скина Rohulk b v5.0" class="w-full h-full object-cover">
+                <div class="bento-card col-span-2 md:col-span-4 p-6 mt-2 relative overflow-hidden">
+                    <div class="flex justify-between items-center mb-6 border-b border-white/5 pb-4">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-chart-line text-indigo-400 text-xl"></i>
+                            <div>
+                                <h2 class="text-xl font-bold uppercase tracking-wider leading-none">Realtime Stream Benchmark</h2>
+                                <p class="text-[10px] text-gray-500 font-mono mt-1">Engine v3.0 • Precision Timing</p>
+                            </div>
                         </div>
-                        <h3 class="text-xl font-bold">Rohulk b v5.0</h3>
-                        <hr class="w-full border-gray-700 my-2">
-                        <p class="text-gray-400">2019</p>
+                        <button onclick="resetTest()" class="text-xs font-bold text-gray-400 hover:text-white transition-colors cursor-none"><i class="fas fa-rotate-right mr-1"></i> RESET</button>
                     </div>
+
+                    <div class="flex flex-col lg:flex-row gap-8">
+                        <div class="flex flex-col gap-6 w-full lg:w-1/3">
+                            <div class="flex justify-center gap-6">
+                                <div class="key-col">
+                                    <div id="k1-visual" class="key-display">Z</div>
+                                    <div class="text-xs text-gray-500 font-mono"><span id="count-k1">0</span> taps</div>
+                                    <div id="bind-k1" class="key-bind" onclick="bindKey('k1')">Change Key</div>
+                                </div>
+                                <div class="key-col">
+                                    <div id="k2-visual" class="key-display">X</div>
+                                    <div class="text-xs text-gray-500 font-mono"><span id="count-k2">0</span> taps</div>
+                                    <div id="bind-k2" class="key-bind" onclick="bindKey('k2')">Change Key</div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="stat-box bg-indigo-500/10 border-indigo-500/20">
+                                    <div class="stat-value text-indigo-400" id="val-bpm">0</div>
+                                    <div class="stat-label">Stream BPM</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-value text-white" id="val-ur">0.00</div>
+                                    <div class="stat-label">Unstable Rate</div>
+                                </div>
+                                <div class="stat-box col-span-2">
+                                    <div class="stat-value text-gray-300" id="val-time">0.000 s</div>
+                                    <div class="stat-label">Test Duration</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col w-full lg:w-2/3 justify-between">
+                            <div class="graph-container">
+                                <canvas id="bpmChart"></canvas>
+                            </div>
+                            <div class="mt-2 flex justify-between text-[10px] text-gray-600 font-mono uppercase">
+                                <span>Unstable (Slower)</span>
+                                <span>Realtime Deviation</span>
+                                <span>Unstable (Faster)</span>
+                            </div>
+                            
+                            <div class="mt-4 p-3 bg-black/20 rounded-lg border border-white/5 text-[10px] text-gray-500 leading-relaxed font-mono">
+                                <span class="text-indigo-400 font-bold">ALGORITHM:</span> Calculates standard deviation of keystroke intervals. BPM assumes 1/4 stream divisor (15,000 / avg_ms). Graph visualizes timing jitter per click.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-skins" class="tab-content">
+            <div class="bento-card w-full mb-8 p-0 overflow-hidden relative group">
+                <div class="absolute inset-0 bg-gradient-to-r from-indigo-900/20 to-purple-900/20"></div>
+                <div class="p-6 md:p-8 relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div class="flex items-center gap-6">
+                        <div class="relative"><img src="https://a.ppy.sh/13017880" alt="Avatar" class="w-20 h-20 rounded-2xl border-2 border-white/10 shadow-2xl"><div id="avatar-status-badge" class="absolute -bottom-2 -right-2 bg-gray-500 text-black text-[10px] font-bold px-2 py-0.5 rounded-full border border-black transition-colors duration-300">OFF</div></div>
+                        <div><h2 class="text-3xl font-bold">Player Statistics</h2><p class="text-gray-400">Data provided by osu! API</p></div>
+                    </div>
+                    <div class="bg-black/40 rounded-xl p-2 border border-white/10 cursor-none hover:scale-105 hover:bg-white/10 transition-all duration-300 group/card" onclick="openImageModal()">
+                        <div class="relative"><img src="https://osu-sig.vercel.app/card?user=13017880&mode=std&lang=en&hex=4f46e5" alt="Osu Stats Card" class="h-24 md:h-28 rounded-lg"><div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover/card:opacity-100 transition-opacity"><i class="fas fa-expand-alt text-white drop-shadow-md text-2xl"></i></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between mb-8 px-2">
+                <div class="flex items-center gap-3"><i class="fas fa-layer-group text-indigo-400 text-xl"></i><h2 class="text-3xl font-bold">Skin Library</h2></div>
+                <div class="text-sm font-mono text-gray-500 border border-white/10 px-3 py-1 rounded-full">v. 2025</div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <a href="https://skins.osuck.net/skins/4245?v=0" target="_blank" class="group relative bg-white/5 border border-white/5 rounded-2xl p-3 hover:bg-white/10 hover:border-indigo-500/30 transition-all duration-300 cursor-none">
+                    <div class="h-40 w-full rounded-xl overflow-hidden relative mb-4 border border-white/5 shadow-lg group-hover:shadow-indigo-500/20 transition-all duration-500"><img src="https://skins.osuck.net/images/screenshots/942f0131248d07d4426ed6882545d7d1.webp" class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"><div class="absolute inset-0 bg-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div><div class="absolute top-2 right-2 bg-black/60 backdrop-blur-md text-[10px] font-bold px-2 py-1 rounded border border-white/10 text-gray-300">2025</div></div>
+                    <div class="flex justify-between items-end"><div><h3 class="font-bold text-lg text-gray-100 group-hover:text-indigo-400 transition-colors">Ashecho v1</h3><div class="flex gap-2 mt-1"><span class="text-[10px] bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded">MAIN</span><span class="text-[10px] bg-white/5 border border-white/10 text-gray-400 px-2 py-0.5 rounded">BALANCED</span></div></div><div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 group-hover:bg-indigo-500 group-hover:text-white transition-all"><i class="fas fa-download text-xs"></i></div></div>
+                </a>
+                <a href="https://skins.osuck.net/skins/166?v=0" target="_blank" class="group relative bg-white/5 border border-white/5 rounded-2xl p-3 hover:bg-white/10 hover:border-pink-500/30 transition-all duration-300 cursor-none">
+                    <div class="h-40 w-full rounded-xl overflow-hidden relative mb-4 border border-white/5 shadow-lg group-hover:shadow-pink-500/20 transition-all duration-500"><img src="https://skins.osuck.net/images/screenshots/562f42b4af68706e5a6d079fc627937d.webp" class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"><div class="absolute inset-0 bg-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div><div class="absolute top-2 right-2 bg-black/60 backdrop-blur-md text-[10px] font-bold px-2 py-1 rounded border border-white/10 text-gray-300">2018</div></div>
+                    <div class="flex justify-between items-end"><div><h3 class="font-bold text-lg text-gray-100 group-hover:text-pink-400 transition-colors">Rafis HDDT</h3><div class="flex gap-2 mt-1"><span class="text-[10px] bg-pink-500/10 border border-pink-500/20 text-pink-300 px-2 py-0.5 rounded">SPEED</span><span class="text-[10px] bg-white/5 border border-white/10 text-gray-400 px-2 py-0.5 rounded">DT</span></div></div><div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 group-hover:bg-pink-500 group-hover:text-white transition-all"><i class="fas fa-download text-xs"></i></div></div>
+                </a>
+                <a href="https://skins.osuck.net/skins/802?v=0" target="_blank" class="group relative bg-white/5 border border-white/5 rounded-2xl p-3 hover:bg-white/10 hover:border-cyan-500/30 transition-all duration-300 cursor-none">
+                    <div class="h-40 w-full rounded-xl overflow-hidden relative mb-4 border border-white/5 shadow-lg group-hover:shadow-cyan-500/20 transition-all duration-500"><img src="https://skins.osuck.net/images/screenshots/73d084dc255b999ec5e49f31cbf73d51.webp" class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"><div class="absolute inset-0 bg-cyan-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div><div class="absolute top-2 right-2 bg-black/60 backdrop-blur-md text-[10px] font-bold px-2 py-1 rounded border border-white/10 text-gray-300">2019</div></div>
+                    <div class="flex justify-between items-end"><div><h3 class="font-bold text-lg text-gray-100 group-hover:text-cyan-400 transition-colors">Rohulk v5.0</h3><div class="flex gap-2 mt-1"><span class="text-[10px] bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded">AIM</span><span class="text-[10px] bg-white/5 border border-white/10 text-gray-400 px-2 py-0.5 rounded">STABLE</span></div></div><div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 group-hover:bg-cyan-500 group-hover:text-white transition-all"><i class="fas fa-download text-xs"></i></div></div>
                 </a>
             </div>
         </div>
     </div>
+    
+    <footer class="mt-12 mb-6 text-gray-600 text-xs font-mono uppercase tracking-widest z-10">MORGUN © 2025</footer>
 
-    <!-- JavaScript for smooth scrolling -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const scrollArrow = document.getElementById('scroll-arrow');
-            if (scrollArrow) {
-                scrollArrow.addEventListener('click', function(event) {
-                    // Prevent the default anchor link behavior
-                    event.preventDefault();
-                    
-                    // Find the target element
-                    const targetId = this.getAttribute('href');
-                    const targetElement = document.querySelector(targetId);
-                    
-                    if (targetElement) {
-                        // Use scrollIntoView for a smooth scroll
-                        targetElement.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
-                    }
-                });
-            }
-        });
-    </script>
-
+    <script src="main.js"></script>
 </body>
 </html>
