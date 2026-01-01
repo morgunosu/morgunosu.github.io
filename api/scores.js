@@ -38,18 +38,21 @@ export default async function handler(request, response) {
             if (!userRes.ok) throw new Error("User request failed");
             const user = await userRes.json();
 
+            // Безопасное получение очков для профиля
+            const totalScore = user.statistics.total_score || user.statistics.ranked_score || 0;
+
             return response.status(200).json({
                 username: user.username,
                 avatar_url: user.avatar_url,
-                cover_url: user.cover.url,
+                cover_url: user.cover?.url || "", 
                 is_online: user.is_online,
                 global_rank: user.statistics.global_rank,
                 country_rank: user.statistics.country_rank,
                 pp: Math.round(user.statistics.pp),
                 accuracy: user.statistics.hit_accuracy.toFixed(2),
-                play_count: user.statistics.play_count.toLocaleString(),
-                play_time: (user.statistics.play_time / 3600).toFixed(0), // Часы
-                total_score: user.statistics.total_score.toLocaleString(),
+                play_count: (user.statistics.play_count || 0).toLocaleString(),
+                play_time: ((user.statistics.play_time || 0) / 3600).toFixed(0),
+                total_score: totalScore.toLocaleString(),
                 max_combo: user.statistics.maximum_combo,
                 level: user.statistics.level.current,
                 level_progress: user.statistics.level.progress,
@@ -66,33 +69,34 @@ export default async function handler(request, response) {
         const scores = await scoresRes.json();
 
         const detailedScores = scores.map(s => {
+            // !!! ИСПРАВЛЕНИЕ ОШИБКИ !!!
+            // Проверяем все возможные варианты названия поля score
+            const finalScore = s.classic_score || s.total_score || s.score || 0;
+
             return {
                 id: s.id,
-                rank: s.rank, // SH, A, S...
+                rank: s.rank, 
                 pp: Math.round(s.pp),
                 accuracy: (s.accuracy * 100).toFixed(2),
-                score: s.score.toLocaleString(),
+                score: finalScore.toLocaleString(), // Теперь это безопасно
                 max_combo: s.max_combo,
-                mods: s.mods.length > 0 ? s.mods : ["NM"],
-                // Форматируем дату
+                mods: s.mods && s.mods.length > 0 ? s.mods : ["NM"],
                 date: new Date(s.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' }),
                 time: new Date(s.created_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
-                // Детальная статистика нажатий
                 stats: {
                     great: s.statistics.count_300 + (s.statistics.count_geki || 0),
                     ok: s.statistics.count_100 + (s.statistics.count_katu || 0),
                     meh: s.statistics.count_50 || 0,
                     miss: s.statistics.count_miss || 0
                 },
-                // Инфо о карте
                 beatmap: {
                     title: s.beatmapset.title,
                     artist: s.beatmapset.artist,
                     version: s.beatmap.version,
-                    stars: s.beatmap.difficulty_rating, // Звезды
-                    cover: s.beatmapset.covers.cover, // Картинка
+                    stars: s.beatmap.difficulty_rating,
+                    cover: s.beatmapset.covers.cover,
                     url: s.beatmap.url,
-                    status: s.beatmapset.status // ranked, loved...
+                    status: s.beatmapset.status
                 }
             };
         });
