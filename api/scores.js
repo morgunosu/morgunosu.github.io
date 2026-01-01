@@ -6,9 +6,12 @@ export default async function handler(request, response) {
     const url = new URL(request.url, `http://${request.headers.host || 'localhost'}`);
     const type = url.searchParams.get('type') || 'best';
 
-    if (!CLIENT_ID || !CLIENT_SECRET) return response.status(500).json({ error: "Server config missing" });
+    if (!CLIENT_ID || !CLIENT_SECRET) {
+        return response.status(500).json({ error: "Server config missing" });
+    }
 
     try {
+        // 1. ПОЛУЧЕНИЕ ТОКЕНА
         const tokenResponse = await fetch("https://osu.ppy.sh/oauth/token", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -27,6 +30,7 @@ export default async function handler(request, response) {
             "x-api-version": "20240130"
         };
 
+        // --- ПРОФИЛЬ ---
         if (type === 'user') {
             const userRes = await fetch(`https://osu.ppy.sh/api/v2/users/${USER_ID}/osu`, { headers });
             const user = await userRes.json();
@@ -41,9 +45,7 @@ export default async function handler(request, response) {
                 pp: Math.round(stats.pp || 0),
                 accuracy: (stats.hit_accuracy || 0).toFixed(2),
                 play_count: (stats.play_count || 0).toLocaleString(),
-                play_time: ((stats.play_time || 0) / 3600).toFixed(0),
                 total_score: (stats.total_score || 0).toLocaleString(),
-                max_combo: stats.maximum_combo || 0,
                 level: stats.level?.current || 0,
                 level_progress: stats.level?.progress || 0,
                 country: user.country?.code || "XX",
@@ -51,13 +53,15 @@ export default async function handler(request, response) {
             });
         }
 
+        // --- ТОП СКОРЫ (50 шт) ---
         const scoresRes = await fetch(`https://osu.ppy.sh/api/v2/users/${USER_ID}/scores/best?limit=50`, { headers });
         const scores = await scoresRes.json();
 
         const detailedScores = scores.map(s => {
             const mods = s.mods && s.mods.length > 0 ? s.mods.map(m => m.acronym || m) : ["NM"];
             const st = s.statistics;
-            // Объединяем Lazer и Classic статы
+            
+            // Подсчет статистики для разных режимов
             const count300 = (st.great || 0) + (st.perfect || 0); 
             const count100 = (st.ok || 0) + (st.good || 0);
             const count50  = st.meh || 0;
@@ -90,7 +94,7 @@ export default async function handler(request, response) {
                     hp: s.beatmap.drain,
                     bpm: s.beatmap.bpm,
                     length: s.beatmap.total_length,
-                    max_combo: s.beatmap.count_spinners + s.beatmap.count_sliders + s.beatmap.count_circles // Примерный макс комбо
+                    max_combo: s.beatmap.count_sliders + s.beatmap.count_circles + s.beatmap.count_spinners // Примерный макс
                 }
             };
         });
