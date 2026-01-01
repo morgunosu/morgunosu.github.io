@@ -6,9 +6,7 @@ export default async function handler(request, response) {
     const url = new URL(request.url, `http://${request.headers.host || 'localhost'}`);
     const type = url.searchParams.get('type') || 'best';
 
-    if (!CLIENT_ID || !CLIENT_SECRET) {
-        return response.status(500).json({ error: "Server config missing" });
-    }
+    if (!CLIENT_ID || !CLIENT_SECRET) return response.status(500).json({ error: "Server config missing" });
 
     try {
         const tokenResponse = await fetch("https://osu.ppy.sh/oauth/token", {
@@ -53,47 +51,31 @@ export default async function handler(request, response) {
             });
         }
 
-        // Запрашиваем 50 лучших скоров
         const scoresRes = await fetch(`https://osu.ppy.sh/api/v2/users/${USER_ID}/scores/best?limit=50`, { headers });
         const scores = await scoresRes.json();
 
         const detailedScores = scores.map(s => {
             const mods = s.mods && s.mods.length > 0 ? s.mods.map(m => m.acronym || m) : ["NM"];
-
-            // Статистика нажатий
             const st = s.statistics;
+            // Объединяем Lazer и Classic статы
             const count300 = (st.great || 0) + (st.perfect || 0); 
             const count100 = (st.ok || 0) + (st.good || 0);
             const count50  = st.meh || 0;
             const countMiss = st.miss || 0;
-
-            // Калькуляция FC PP (примерная, так как API не отдает pp_fc)
-            // Мы просто передадим данные, а фронтенд покажет "Perfect" если миссов 0
 
             return {
                 id: s.id,
                 rank: s.rank, 
                 pp: Math.round(s.pp),
                 accuracy: (s.accuracy * 100).toFixed(2),
-                
-                // ВАЖНО: Classic score часто лежит в поле classic_total_score или classic_score
-                // В новых версиях API v2 может потребоваться пересчет, но обычно поле есть
                 score_classic: s.classic_score || s.score || 0, 
                 score_lazer: s.total_score || s.score || 0,
-                
                 max_combo: s.max_combo,
                 mods: mods,
                 date_iso: s.created_at,
-                
-                stats: {
-                    great: count300,
-                    ok: count100,
-                    meh: count50,
-                    miss: countMiss
-                },
+                stats: { great: count300, ok: count100, meh: count50, miss: countMiss },
                 beatmap: {
                     id: s.beatmap.id,
-                    set_id: s.beatmapset.id,
                     title: s.beatmapset.title,
                     artist: s.beatmapset.artist,
                     version: s.beatmap.version,
@@ -102,14 +84,13 @@ export default async function handler(request, response) {
                     url: s.beatmap.url,
                     status: s.beatmapset.status,
                     creator: s.beatmapset.creator,
-                    // Сырые статы
                     cs: s.beatmap.cs,
                     ar: s.beatmap.ar,
                     od: s.beatmap.accuracy,
                     hp: s.beatmap.drain,
                     bpm: s.beatmap.bpm,
                     length: s.beatmap.total_length,
-                    max_combo: s.beatmapset.max_combo || 0 // Иногда API не отдает макс комбо карты в списке
+                    max_combo: s.beatmap.count_spinners + s.beatmap.count_sliders + s.beatmap.count_circles // Примерный макс комбо
                 }
             };
         });
