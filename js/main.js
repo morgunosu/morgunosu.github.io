@@ -92,7 +92,7 @@ const translations = {
         statistics: "Статистика", view_profile: "Открыть профиль", connecting: "Подключение к osu!...",
         top_perf: "Лучшие результаты", auto_update: "АВТО-ОБНОВЛЕНИЕ", fetching: "Загрузка из osu! API...",
         skin_lib: "Библиотека скинов", curr_skin: "Текущий скин",
-        config: "Конфигурация", gear_specs: "ДЕВАЙСЫ И НАСТРОЙКИ",
+        config: "Конфигурация", gear_specs: "ДЕВАЙСИ И НАСТРОЙКИ",
         pc: "ПК", workstation: "ОСНОВНАЯ СТАНЦИЯ", ingame_config: "Настройки игры",
         keypad: "Кейпад", switches: "Свитчи", rapid_trigger: "Rapid Trigger",
         tablet: "Планшет", driver: "Драйвер", area: "Настройки зоны", filters: "Фильтры ввода",
