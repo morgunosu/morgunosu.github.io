@@ -11,7 +11,6 @@ export default async function handler(request, response) {
     }
 
     try {
-        // 1. ПОЛУЧЕНИЕ ТОКЕНА
         const tokenResponse = await fetch("https://osu.ppy.sh/oauth/token", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -45,7 +44,9 @@ export default async function handler(request, response) {
                 pp: Math.round(stats.pp || 0),
                 accuracy: (stats.hit_accuracy || 0).toFixed(2),
                 play_count: (stats.play_count || 0).toLocaleString(),
+                play_time: ((stats.play_time || 0) / 3600).toFixed(0),
                 total_score: (stats.total_score || 0).toLocaleString(),
+                max_combo: stats.maximum_combo || 0,
                 level: stats.level?.current || 0,
                 level_progress: stats.level?.progress || 0,
                 country: user.country?.code || "XX",
@@ -61,7 +62,7 @@ export default async function handler(request, response) {
             const mods = s.mods && s.mods.length > 0 ? s.mods.map(m => m.acronym || m) : ["NM"];
             const st = s.statistics;
             
-            // Подсчет статистики для разных режимов
+            // Статистика (300/100/50/Miss)
             const count300 = (st.great || 0) + (st.perfect || 0); 
             const count100 = (st.ok || 0) + (st.good || 0);
             const count50  = st.meh || 0;
@@ -94,7 +95,7 @@ export default async function handler(request, response) {
                     hp: s.beatmap.drain,
                     bpm: s.beatmap.bpm,
                     length: s.beatmap.total_length,
-                    max_combo: s.beatmap.count_sliders + s.beatmap.count_circles + s.beatmap.count_spinners // Примерный макс
+                    max_combo: s.beatmap.count_sliders + s.beatmap.count_circles + s.beatmap.count_spinners 
                 }
             };
         });
