@@ -1,29 +1,20 @@
-const DISCORD_ID = "1193659050878054551"; // Ваш Discord ID
+const DISCORD_ID = "1193659050878054551";
 const cursor = document.getElementById('osu-cursor');
-
-// --- Глобальное хранилище данных ---
 window.topScoresData = [];
 
-// --- ЛОГИКА КУРСОРА ---
+// --- КУРСОР ---
 let mouseX = 0, mouseY = 0, isMoving = false;
 let cursorEnabled = localStorage.getItem('customCursor') !== 'false';
 
-document.addEventListener('mousemove', (e) => {
-    mouseX = e.clientX; mouseY = e.clientY;
-    isMoving = true;
-});
+document.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; isMoving = true; });
 
 function updateCursorLoop() {
     if (isMoving && cursorEnabled && cursor) {
         cursor.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0)`;
-        // Создаем след (trail) с вероятностью
         if (Math.random() > 0.85 && !document.body.classList.contains('system-cursor')) {
-            const dot = document.createElement('div'); 
-            dot.className = 'trail-dot';
-            dot.style.left = mouseX+'px'; 
-            dot.style.top = mouseY+'px';
-            document.body.appendChild(dot); 
-            setTimeout(()=>dot.remove(), 300);
+            const dot = document.createElement('div'); dot.className = 'trail-dot';
+            dot.style.left = mouseX+'px'; dot.style.top = mouseY+'px';
+            document.body.appendChild(dot); setTimeout(()=>dot.remove(), 300);
         }
     }
     isMoving = false;
@@ -36,11 +27,9 @@ function toggleCursor() {
     localStorage.setItem('customCursor', cursorEnabled);
     updateCursorUI();
 }
-
 function updateCursorUI() {
     const icon = document.getElementById('cursor-toggle-icon');
     if (!cursor || !icon) return;
-    
     if (cursorEnabled) {
         document.body.classList.remove('system-cursor');
         cursor.style.display = 'block';
@@ -53,64 +42,56 @@ function updateCursorUI() {
         icon.innerHTML = '<div class="absolute left-0.5 top-0.5 w-3 h-3 bg-white rounded-full transition-all"></div>';
     }
 }
-// Инициализация курсора при загрузке
 updateCursorUI();
 
-
-// --- ТОП СКОРЫ (КОМПАКТНЫЙ СПИСОК + МОДАЛКА) ---
+// --- НОВЫЙ ДИЗАЙН ТОП СКОРОВ ---
 async function loadTopScores() {
     const container = document.getElementById('scores-container');
     if (!container) return;
     
-    // Лоадер
     container.innerHTML = '<div class="flex items-center justify-center h-20"><div class="animate-spin rounded-full h-6 w-6 border-b-2 border-osu"></div></div>';
 
     try {
         const res = await fetch('/api/scores?type=best');
         if (!res.ok) throw new Error('API Error');
         const scores = await res.json();
-        
-        // Сохраняем данные глобально, чтобы открывать модалку
         window.topScoresData = scores;
 
-        // Заголовок таблицы
-        let html = `
-            <div class="px-3 py-2 flex justify-between text-[10px] font-bold text-gray-500 uppercase tracking-wider border-b border-white/5 mb-1">
-                <span class="w-10 text-center">Rank</span>
-                <span class="flex-grow ml-2">Map</span>
-                <span class="w-[100px] text-right">Mods / Acc</span>
-                <span class="w-[80px] text-right">PP</span>
-            </div>
-            <div class="flex flex-col gap-1">
-        `;
+        let html = `<div class="flex flex-col gap-2 p-2">`;
 
-        // Генерация строк
         html += scores.map((s, index) => {
-            const rankColor = getRankColorClass(s.rank);
+            // Формируем моды (без object Object)
+            const modsHtml = s.mods.map(m => 
+                `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-[#2a2a30] text-[#ffcc22] border border-[#ffcc22]/20">${m}</span>`
+            ).join('');
+
             return `
-            <div onclick="openScoreModal(${index})" class="score-row group relative overflow-hidden rounded hover:bg-white/5 transition-colors cursor-pointer border-l-2 border-transparent hover:border-osu">
+            <div onclick="openScoreModal(${index})" class="group relative flex items-center bg-[#18181b] hover:bg-[#202024] border border-white/5 hover:border-white/10 rounded-xl p-3 cursor-pointer transition-all duration-200 overflow-hidden">
+                <div class="w-12 flex-shrink-0 text-center relative z-10">
+                    <span class="text-2xl font-black italic ${getRankColorClass(s.rank)} drop-shadow-lg">${s.rank}</span>
+                </div>
                 
-                <div class="text-xl font-black italic text-center w-10 flex-shrink-0 ${rankColor} drop-shadow-md">${s.rank}</div>
-                
-                <div class="flex flex-col min-w-0 flex-grow px-2">
-                    <div class="truncate text-sm font-bold text-gray-200 group-hover:text-white transition-colors">${s.beatmap.title}</div>
-                    <div class="truncate text-[10px] text-gray-500 group-hover:text-gray-400">${s.beatmap.artist} [${s.beatmap.version}]</div>
+                <div class="flex-grow min-w-0 px-3 flex flex-col justify-center relative z-10">
+                    <div class="text-sm font-bold text-gray-200 truncate group-hover:text-white transition-colors leading-tight">${s.beatmap.title}</div>
+                    <div class="text-[11px] text-gray-500 truncate mt-0.5">${s.beatmap.artist} <span class="text-gray-600">•</span> ${s.beatmap.version}</div>
                 </div>
 
-                <div class="text-right flex flex-col items-end w-[100px] flex-shrink-0">
-                    <div class="flex gap-1 mb-0.5 h-4">${s.mods.map(m => `<span class="text-[9px] bg-white/10 px-1 rounded text-yellow-300 font-bold border border-white/5">${m}</span>`).join('')}</div>
-                    <div class="text-xs font-bold ${getAccColor(s.accuracy)}">${s.accuracy}%</div>
+                <div class="flex flex-col items-end gap-1 relative z-10 min-w-[80px]">
+                    <div class="text-[15px] font-bold text-[#8fbfff] leading-none">${s.pp}<span class="text-[10px] text-gray-500 ml-0.5">pp</span></div>
+                    <div class="flex items-center gap-2">
+                         <div class="flex gap-1">${modsHtml}</div>
+                         <div class="text-[10px] font-bold ${getAccColor(s.accuracy)}">${s.accuracy}%</div>
+                    </div>
                 </div>
 
-                <div class="text-right text-lg font-bold text-indigo-400 w-[80px] flex-shrink-0">${s.pp}<span class="text-[10px] text-gray-500 ml-0.5 font-normal">pp</span></div>
+                <div class="absolute inset-0 bg-cover bg-center opacity-0 group-hover:opacity-10 transition-opacity duration-300 pointer-events-none grayscale" style="background-image: url('${s.beatmap.cover}')"></div>
             </div>
             `;
         }).join('');
 
         html += `</div>`;
         container.innerHTML = html;
-        // Сброс паддингов родителя для красоты списка
-        container.parentElement.style.padding = "10px";
+        container.parentElement.style.padding = "0"; // Убираем отступы родителя
 
     } catch (e) {
         console.error(e);
@@ -118,133 +99,145 @@ async function loadTopScores() {
     }
 }
 
-// === ФУНКЦИИ МОДАЛЬНОГО ОКНА ===
+// --- НОВОЕ МОДАЛЬНОЕ ОКНО ---
 window.openScoreModal = function(index) {
     const s = window.topScoresData[index];
     if (!s) return;
 
+    // Форматирование даты
+    const dateObj = new Date(s.date_iso);
+    const dateStr = dateObj.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+    const timeStr = dateObj.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+
+    // Форматирование длительности
+    const mins = Math.floor(s.beatmap.length / 60);
+    const secs = (s.beatmap.length % 60).toString().padStart(2, '0');
+
     const modalHtml = `
     <div class="modal-overlay active" id="score-modal-overlay" onclick="closeScoreModal(event)">
-        <div class="score-modal relative bg-[#141417] w-full max-w-4xl mx-4 rounded-xl overflow-hidden shadow-2xl border border-white/10" onclick="event.stopPropagation()">
-            <div class="close-modal-btn" onclick="closeScoreModal()"><i class="fas fa-times"></i></div>
-            
-            <div class="relative h-48 w-full bg-cover bg-center" style="background-image: url('${s.beatmap.cover}');">
-                <div class="absolute inset-0 bg-gradient-to-t from-[#141417] via-[#141417]/70 to-transparent"></div>
-                <div class="absolute bottom-0 left-0 p-6 w-full flex items-end justify-between">
-                    <div class="max-w-[70%]">
-                        <h2 class="text-2xl md:text-3xl font-black text-white leading-tight drop-shadow-lg truncate">${s.beatmap.title}</h2>
-                        <p class="text-lg text-gray-300 drop-shadow-md truncate">${s.beatmap.artist}</p>
-                        <div class="flex flex-wrap gap-2 mt-2">
-                             <span class="bg-yellow-500 text-black text-xs font-bold px-2 py-0.5 rounded shadow-lg flex items-center gap-1"><i class="fas fa-star text-[10px]"></i> ${s.beatmap.stars}</span>
-                             <span class="bg-white/20 backdrop-blur-md text-white text-xs font-bold px-2 py-0.5 rounded border border-white/10">${s.beatmap.version}</span>
-                             <a href="${s.beatmap.url}" target="_blank" class="bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-bold px-3 py-0.5 rounded transition-colors ml-2 shadow-lg"><i class="fas fa-download mr-1"></i> Beatmap</a>
-                        </div>
+        <div class="score-modal bg-[#121214] border border-white/10 rounded-2xl overflow-hidden shadow-2xl w-full max-w-3xl mx-4" onclick="event.stopPropagation()">
+            <div class="relative h-40 w-full overflow-hidden">
+                <div class="absolute inset-0 bg-cover bg-center blur-[2px] opacity-60 scale-105" style="background-image: url('${s.beatmap.cover}');"></div>
+                <div class="absolute inset-0 bg-gradient-to-b from-black/20 via-[#121214]/60 to-[#121214]"></div>
+                
+                <button onclick="closeScoreModal()" class="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-white/10 transition-colors cursor-pointer"><i class="fas fa-times"></i></button>
+
+                <div class="absolute bottom-4 left-6 right-6 z-10 flex items-end justify-between">
+                    <div class="min-w-0">
+                        <h2 class="text-2xl font-black text-white leading-tight truncate shadow-black drop-shadow-md">${s.beatmap.title}</h2>
+                        <p class="text-sm text-gray-300 font-medium truncate">${s.beatmap.artist}</p>
                     </div>
-                    <div class="text-right text-xs text-gray-400 font-mono hidden sm:block">
-                        <div>Mapped by <span class="text-white font-bold">${s.beatmap.creator}</span></div>
-                        <div class="mt-1"><span class="bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded border border-blue-500/30">${s.beatmap.status.toUpperCase()}</span></div>
+                    <div class="hidden sm:block text-right">
+                        <div class="inline-flex gap-2">
+                            <a href="${s.beatmap.url}" target="_blank" class="px-3 py-1 rounded-md bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-bold transition-colors shadow-lg">Beatmap Page</a>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+            <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
                 
-                <div class="flex flex-col items-center justify-center md:border-r border-white/5 md:pr-4">
-                    <div class="modal-rank-circle text-rank-${s.rank} mb-4">
-                        ${s.rank}
+                <div class="flex flex-col items-center justify-center md:border-r border-white/5 md:pr-6">
+                    <div class="w-24 h-24 rounded-full border-[6px] border-[#202024] bg-[#18181b] flex items-center justify-center shadow-inner mb-4 relative">
+                        <div class="absolute inset-0 rounded-full border-2 border-white/5"></div>
+                        <span class="text-5xl font-black italic ${getRankColorClass(s.rank)}">${s.rank}</span>
                     </div>
-                    <div class="text-center">
-                        <div class="text-3xl md:text-4xl font-black text-white tracking-widest font-mono tabular-nums">${s.score}</div>
-                        <div class="text-[10px] text-gray-500 font-bold uppercase mt-1 tracking-widest">Total Score</div>
-                    </div>
-                    <div class="mt-6 text-xs text-gray-400 bg-white/5 px-3 py-1.5 rounded-full border border-white/5">
-                        <i class="far fa-calendar-alt mr-2 opacity-50"></i>${s.full_date}
-                    </div>
+                    <div class="text-3xl font-black text-white tracking-wider font-mono">${s.score}</div>
+                    <div class="text-[10px] text-gray-500 uppercase font-bold tracking-widest mt-1">Total Score</div>
                 </div>
 
-                <div class="col-span-2 flex flex-col justify-between gap-6">
-                    <div class="detail-grid">
-                        <div class="detail-item">
-                            <div class="detail-label">PP</div>
-                            <div class="detail-val text-indigo-400 text-2xl">${s.pp}</div>
+                <div class="col-span-2 flex flex-col gap-5">
+                    
+                    <div class="grid grid-cols-4 gap-3">
+                        <div class="bg-[#18181b] p-3 rounded-lg border border-white/5 text-center">
+                            <div class="text-[10px] text-gray-500 font-bold uppercase">PP</div>
+                            <div class="text-lg font-bold text-[#8fbfff]">${s.pp}</div>
                         </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Accuracy</div>
-                            <div class="detail-val ${getAccColor(s.accuracy)} text-2xl">${s.accuracy}%</div>
+                        <div class="bg-[#18181b] p-3 rounded-lg border border-white/5 text-center">
+                            <div class="text-[10px] text-gray-500 font-bold uppercase">Acc</div>
+                            <div class="text-lg font-bold ${getAccColor(s.accuracy)}">${s.accuracy}%</div>
                         </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Max Combo</div>
-                            <div class="detail-val text-green-400 text-2xl">${s.max_combo}x</div>
+                        <div class="bg-[#18181b] p-3 rounded-lg border border-white/5 text-center">
+                            <div class="text-[10px] text-gray-500 font-bold uppercase">Combo</div>
+                            <div class="text-lg font-bold text-[#b3ff66]">${s.max_combo}x</div>
                         </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Misses</div>
-                            <div class="detail-val text-red-500 text-2xl">${s.stats.miss}</div>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-between items-center bg-black/40 p-4 rounded-xl border border-white/5 shadow-inner">
-                        <div class="text-center flex-1 border-r border-white/5">
-                            <div class="text-blue-300 font-bold text-xl">${s.stats.great}</div>
-                            <div class="text-[9px] text-gray-500 font-bold">300</div>
-                        </div>
-                        <div class="text-center flex-1 border-r border-white/5">
-                            <div class="text-green-300 font-bold text-xl">${s.stats.ok}</div>
-                            <div class="text-[9px] text-gray-500 font-bold">100</div>
-                        </div>
-                        <div class="text-center flex-1 border-r border-white/5">
-                            <div class="text-yellow-300 font-bold text-xl">${s.stats.meh}</div>
-                            <div class="text-[9px] text-gray-500 font-bold">50</div>
-                        </div>
-                        <div class="text-center flex-1">
-                            <div class="text-red-500 font-bold text-xl">${s.stats.miss}</div>
-                            <div class="text-[9px] text-gray-500 font-bold">MISS</div>
+                        <div class="bg-[#18181b] p-3 rounded-lg border border-white/5 text-center">
+                            <div class="text-[10px] text-gray-500 font-bold uppercase">Miss</div>
+                            <div class="text-lg font-bold text-[#ff6666]">${s.stats.miss}</div>
                         </div>
                     </div>
 
-                    <div class="bg-white/5 rounded-xl p-4 border border-white/5">
-                        <h4 class="text-[10px] font-bold text-gray-500 uppercase mb-3 flex items-center gap-2"><i class="fas fa-info-circle"></i> Map Info</h4>
-                        <div class="grid grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-3">
-                            <div class="map-stat-row"><span class="text-gray-400">CS</span><span class="text-white font-bold">${s.beatmap.cs}</span></div>
-                            <div class="map-stat-row"><span class="text-gray-400">AR</span><span class="text-white font-bold">${s.beatmap.ar}</span></div>
-                            <div class="map-stat-row"><span class="text-gray-400">OD</span><span class="text-white font-bold">${s.beatmap.od}</span></div>
-                            <div class="map-stat-row"><span class="text-gray-400">HP</span><span class="text-white font-bold">${s.beatmap.hp}</span></div>
-                            <div class="map-stat-row"><span class="text-gray-400">BPM</span><span class="text-white font-bold">${s.beatmap.bpm}</span></div>
-                            <div class="map-stat-row"><span class="text-gray-400">Length</span><span class="text-white font-bold">${s.beatmap.length}</span></div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-[10px] font-bold uppercase px-1">
+                            <span class="text-[#66ccff]">300 <span class="text-white ml-1">${s.stats.great}</span></span>
+                            <span class="text-[#88ff44]">100 <span class="text-white ml-1">${s.stats.ok}</span></span>
+                            <span class="text-[#ffcc22]">50 <span class="text-white ml-1">${s.stats.meh}</span></span>
+                            <span class="text-[#ff4444]">Miss <span class="text-white ml-1">${s.stats.miss}</span></span>
                         </div>
+                        <div class="h-2 w-full flex rounded-full overflow-hidden bg-[#202024]">
+                            <div class="h-full bg-[#66ccff]" style="width: ${(s.stats.great / (s.stats.great+s.stats.ok+s.stats.meh+s.stats.miss))*100}%"></div>
+                            <div class="h-full bg-[#88ff44]" style="width: ${(s.stats.ok / (s.stats.great+s.stats.ok+s.stats.meh+s.stats.miss))*100}%"></div>
+                            <div class="h-full bg-[#ffcc22]" style="width: ${(s.stats.meh / (s.stats.great+s.stats.ok+s.stats.meh+s.stats.miss))*100}%"></div>
+                            <div class="h-full bg-[#ff4444]" style="width: ${(s.stats.miss / (s.stats.great+s.stats.ok+s.stats.meh+s.stats.miss))*100}%"></div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-y-2 gap-x-4 text-[11px] border-t border-white/5 pt-4 mt-auto">
+                        <div class="flex justify-between"><span class="text-gray-500">CS</span> <span class="text-gray-300 font-bold">${s.beatmap.cs}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-500">AR</span> <span class="text-gray-300 font-bold">${s.beatmap.ar}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-500">Length</span> <span class="text-gray-300 font-bold">${mins}:${secs}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-500">OD</span> <span class="text-gray-300 font-bold">${s.beatmap.od}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-500">HP</span> <span class="text-gray-300 font-bold">${s.beatmap.hp}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-500">BPM</span> <span class="text-gray-300 font-bold">${s.beatmap.bpm}</span></div>
                     </div>
                 </div>
+            </div>
+            
+            <div class="bg-[#0e0e10] px-6 py-3 flex justify-between items-center text-[10px] text-gray-600 font-mono border-t border-white/5">
+                <span>Played on ${dateStr} at ${timeStr}</span>
+                <span>Mapped by ${s.beatmap.creator}</span>
             </div>
         </div>
     </div>
     `;
 
-    // Удаляем старую, если есть
     const existing = document.getElementById('score-modal-overlay');
     if (existing) existing.remove();
-    
-    // Вставляем новую
     document.body.insertAdjacentHTML('beforeend', modalHtml);
-    document.body.style.overflow = 'hidden'; // Блок скролла фона
-    
-    // Анимация появления
-    requestAnimationFrame(() => {
-        document.getElementById('score-modal-overlay').classList.add('active');
-    });
+    document.body.style.overflow = 'hidden';
+    requestAnimationFrame(() => document.getElementById('score-modal-overlay').classList.add('active'));
 };
 
 window.closeScoreModal = function(e) {
     if (e && !e.target.classList.contains('modal-overlay') && !e.target.closest('.close-modal-btn')) return;
-    
     const modal = document.getElementById('score-modal-overlay');
     if (modal) {
         modal.classList.remove('active');
-        setTimeout(() => modal.remove(), 300);
+        setTimeout(() => modal.remove(), 250);
     }
     document.body.style.overflow = '';
 };
 
+// --- ВСПОМОГАТЕЛЬНЫЕ ---
+function getRankColorClass(rank) {
+    if(rank.includes('X')) return 'text-[#e4e4e4] drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]';
+    if(rank.includes('S')) return 'text-[#ffcc22] drop-shadow-[0_0_8px_rgba(255,204,34,0.4)]';
+    if(rank === 'A') return 'text-[#22c55e]';
+    if(rank === 'B') return 'text-[#3b82f6]';
+    if(rank === 'C') return 'text-[#a855f7]';
+    return 'text-[#ef4444]';
+}
+function getAccColor(acc) {
+    if(acc >= 99) return 'text-[#22c55e]';
+    if(acc >= 97) return 'text-[#8fbfff]';
+    if(acc >= 94) return 'text-[#ffcc22]';
+    return 'text-[#ff4444]';
+}
 
-// --- ПРОФИЛЬ (BENTO GRID) ---
+// ... ОСТАВЬТЕ ВСЕ ОСТАЛЬНЫЕ ФУНКЦИИ (switchTab, loadUserStats, Lanyard) БЕЗ ИЗМЕНЕНИЙ ...
+// Скопируйте функции switchTab, copyDiscord, fetchLanyardStatus из предыдущего кода, 
+// так как я обновил только логику скоров и модалки.
+// ...
 async function loadUserStats() {
     const container = document.getElementById('live-stats-container');
     if(!container) return;
@@ -314,31 +307,8 @@ async function loadUserStats() {
         container.innerHTML = '<div class="col-span-4 text-center text-xs text-red-400 py-4">Failed to load stats</div>';
     }
 }
-
-
-// --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
-function getRankColorClass(rank) {
-    if(rank.includes('X')) return 'text-rank-SS';
-    if(rank.includes('S')) return 'text-rank-S';
-    if(rank === 'A') return 'text-rank-A';
-    if(rank === 'B') return 'text-rank-B';
-    if(rank === 'C') return 'text-rank-C';
-    return 'text-rank-D';
-}
-function getAccColor(acc) {
-    if(acc >= 99) return 'text-green-400';
-    if(acc >= 97) return 'text-blue-300';
-    if(acc >= 94) return 'text-yellow-300';
-    return 'text-red-400';
-}
-
 function switchTab(t) { 
-    // Поддержка анимации View Transitions API
-    if (document.startViewTransition) { 
-        document.startViewTransition(() => performSwitch(t)); 
-    } else { 
-        performSwitch(t); 
-    }
+    if (document.startViewTransition) { document.startViewTransition(() => performSwitch(t)); } else { performSwitch(t); }
 }
 function performSwitch(t) {
     document.querySelectorAll('.tab-content').forEach(e=>e.classList.remove('active')); 
@@ -347,8 +317,9 @@ function performSwitch(t) {
     document.getElementById('btn-'+t).classList.add('active');
     if (t === 'stream' && typeof resize === 'function') setTimeout(resize, 100);
 }
-
-// Lanyard (Статус Discord)
+function copyDiscord() { navigator.clipboard.writeText(".morgun.").then(()=>{ var t=document.getElementById("toast"); t.className="show"; setTimeout(()=>t.className=t.className.replace("show",""),3000); }); }
+function toggleFilter(id, btn) { const d = document.getElementById(id); d.classList.toggle('open'); btn.classList.toggle('active'); }
+function setLang(lang) { localStorage.setItem('lang', lang); }
 async function fetchLanyardStatus() {
     try {
         const res = await fetch(`https://api.lanyard.rest/v1/users/${DISCORD_ID}`);
@@ -396,17 +367,6 @@ function updateStatusBadges(discordData) {
     if(profileWrapper) { profileWrapper.className = wrapperClasses; profileWrapper.innerHTML = htmlContent; }
 }
 
-function copyDiscord() { 
-    navigator.clipboard.writeText(".morgun.").then(()=>{ 
-        var t=document.getElementById("toast"); 
-        t.className="show"; 
-        setTimeout(()=>t.className=t.className.replace("show",""),3000); 
-    }); 
-}
-function toggleFilter(id, btn) { const d = document.getElementById(id); d.classList.toggle('open'); btn.classList.toggle('active'); }
-function setLang(lang) { localStorage.setItem('lang', lang); }
-
-// ЗАПУСК
 fetchLanyardStatus(); 
 setInterval(fetchLanyardStatus, 10000);
 loadTopScores(); 
