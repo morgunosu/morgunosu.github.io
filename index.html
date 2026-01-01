@@ -14,7 +14,11 @@
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-    <style>body { visibility: hidden; opacity: 0; transition: opacity 0.3s ease-in; }</style>
+    <style>
+        body { visibility: hidden; opacity: 0; transition: opacity 0.3s ease-in; }
+        details > summary { list-style: none; cursor: pointer; }
+        details > summary::-webkit-details-marker { display: none; }
+    </style>
 </head>
 <body class="flex flex-col items-center justify-start p-4 md:p-8 relative selection:bg-indigo-500 selection:text-white">
     <div id="osu-cursor"><img src="data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='60' cy='60' r='22' fill='%23FF66AA' fill-opacity='0.9'/%3E%3Ccircle cx='60' cy='60' r='18' stroke='white' stroke-width='3'/%3E%3C/svg%3E"></div>
@@ -45,6 +49,7 @@
     </nav>
 
     <div class="w-full max-w-6xl z-10 min-h-[600px]">
+        
         <div id="tab-profile" class="tab-content active">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:auto-rows-[minmax(180px,auto)]">
                 <div class="bento-card col-span-2 row-span-2 p-8 flex flex-col justify-between relative overflow-hidden">
@@ -180,6 +185,24 @@
                     </div>
                     <div class="flex justify-between items-end"><div><h3 class="font-bold text-lg text-gray-100 group-hover:text-indigo-400 transition-colors">Current Skin</h3><div class="flex gap-2 mt-1"><span class="text-[10px] bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded">MAIN</span></div></div><div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 group-hover:bg-indigo-500 group-hover:text-white transition-all"><i class="fas fa-download text-xs"></i></div></div>
                 </a>
+                
+                <a href="https://skins.osuck.net/skins/4245?v=0" target="_blank" class="group relative bg-white/5 border border-white/5 rounded-2xl p-3 hover:bg-white/10 hover:border-indigo-500/30 transition-all duration-300 cursor-pointer">
+                    <div class="h-40 w-full rounded-xl overflow-hidden relative mb-4 border border-white/5 shadow-lg group-hover:shadow-indigo-500/20 transition-all duration-500">
+                        <img src="https://skins.osuck.net/images/screenshots/942f0131248d07d4426ed6882545d7d1.webp" class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div class="absolute top-2 right-2 bg-black/60 backdrop-blur-md text-[10px] font-bold px-2 py-1 rounded border border-white/10 text-gray-300">2025</div>
+                    </div>
+                    <div class="flex justify-between items-end"><div><h3 class="font-bold text-lg text-gray-100 group-hover:text-indigo-400 transition-colors">Ashecho v1</h3><div class="flex gap-2 mt-1"><span class="text-[10px] bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded">MAIN</span></div></div><div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 group-hover:bg-indigo-500 group-hover:text-white transition-all"><i class="fas fa-download text-xs"></i></div></div>
+                </a>
+
+                <a href="https://skins.osuck.net/skins/166?v=0" target="_blank" class="group relative bg-white/5 border border-white/5 rounded-2xl p-3 hover:bg-white/10 hover:border-pink-500/30 transition-all duration-300 cursor-pointer">
+                    <div class="h-40 w-full rounded-xl overflow-hidden relative mb-4 border border-white/5 shadow-lg group-hover:shadow-pink-500/20 transition-all duration-500">
+                        <img src="https://skins.osuck.net/images/screenshots/562f42b4af68706e5a6d079fc627937d.webp" class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div class="absolute top-2 right-2 bg-black/60 backdrop-blur-md text-[10px] font-bold px-2 py-1 rounded border border-white/10 text-gray-300">2018</div>
+                    </div>
+                    <div class="flex justify-between items-end"><div><h3 class="font-bold text-lg text-gray-100 group-hover:text-pink-400 transition-colors">Rafis HDDT</h3><div class="flex gap-2 mt-1"><span class="text-[10px] bg-pink-500/10 border border-pink-500/20 text-pink-300 px-2 py-0.5 rounded">SPEED</span></div></div><div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 group-hover:bg-pink-500 group-hover:text-white transition-all"><i class="fas fa-download text-xs"></i></div></div>
+                </a>
             </div>
         </div>
 
@@ -189,14 +212,19 @@
                 <div class="text-sm font-mono text-gray-500 border border-white/10 px-3 py-1 rounded-full">GEAR & SETTINGS</div>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                
                 <div class="bento-card col-span-2 p-6 flex flex-col relative group">
                     <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                     <div class="flex items-center gap-3 mb-6 relative z-10"><div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-indigo-400"><i class="fas fa-server text-lg"></i></div><div><h3 class="font-bold text-xl leading-none">PC</h3><p class="text-xs text-gray-500 font-mono mt-1">MAIN WORKSTATION</p></div></div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 relative z-10 text-xs">
                         <div class="flex justify-between border-b border-white/5 pb-2"><span class="text-gray-400 font-bold">CPU</span><span class="text-white">AMD Ryzen 5 8400F</span></div>
                         <div class="flex justify-between border-b border-white/5 pb-2"><span class="text-gray-400 font-bold">GPU</span><span class="text-white">Asus Radeon RX 7600 Dual EVO</span></div>
+                        <div class="flex justify-between border-b border-white/5 pb-2"><span class="text-gray-400 font-bold">MOBO</span><span class="text-white">MSI PRO A620M-B</span></div>
                         <div class="flex justify-between border-b border-white/5 pb-2"><span class="text-gray-400 font-bold">RAM</span><span class="text-white">Kingston DDR5 16GB 5200Mhz</span></div>
                         <div class="flex justify-between border-b border-white/5 pb-2"><span class="text-gray-400 font-bold">SSD</span><span class="text-white">Kingston NV3 1TB</span></div>
+                        <div class="flex justify-between border-b border-white/5 pb-2"><span class="text-gray-400 font-bold">COOLER</span><span class="text-white">ID-Cooling SE-903-XT</span></div>
+                        <div class="flex justify-between border-b border-white/5 pb-2"><span class="text-gray-400 font-bold">CASE</span><span class="text-white">Montech Air 100 Lite</span></div>
+                        <div class="flex justify-between border-b border-white/5 pb-2"><span class="text-gray-400 font-bold">PSU</span><span class="text-white">MSI MAG 650W</span></div>
                     </div>
                 </div>
                 
@@ -207,25 +235,57 @@
                         <div class="bg-white/5 p-2 rounded border border-white/5"><span class="block text-gray-500 text-[10px] uppercase">Input</span><span class="block text-white font-bold">Raw: OFF</span><span class="block text-gray-400 text-[10px]">Offset: 0ms</span></div>
                         <div class="bg-white/5 p-2 rounded border border-white/5"><span class="block text-gray-500 text-[10px] uppercase">Binds</span><div class="flex gap-2 mt-1"><span class="bg-white/10 px-2 py-0.5 rounded text-white font-bold">Z</span><span class="bg-white/10 px-2 py-0.5 rounded text-white font-bold">C</span></div></div>
                     </div>
+                    <div class="mt-3 text-right"><span class="text-[10px] text-gray-600 font-mono">OS: Windows 11 23H2</span></div>
                 </div>
                 
                 <div class="bento-card col-span-1 p-5 hover:border-yellow-500/50 group flex flex-col h-full">
                     <div class="flex justify-between items-start"><i class="fas fa-keyboard text-2xl text-gray-600 group-hover:text-yellow-400 transition-colors"></i><span class="text-[9px] bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 px-1.5 py-0.5 rounded">RT ON</span></div>
                     <div class="mt-2"><p class="text-[10px] text-gray-500 uppercase font-bold">Keypad</p><h4 class="font-bold text-white leading-tight">Wooting UwU</h4></div>
                     <div class="relative h-[200px] w-full bg-black/20 rounded-xl mt-4 overflow-hidden border border-white/5"><img src="https://morgun.s-ul.eu/7uwtldqP" class="w-full h-full object-contain p-4"></div>
+                    <div class="mt-4 pt-4 border-t border-white/10">
+                        <div class="mb-3">
+                            <p class="text-[10px] font-bold text-yellow-400 mb-1 uppercase">Switches</p>
+                            <a href="https://www.gateron.com/products/gateron-magnetic-jade-pro-switch-set?VariantsId=11135" target="_blank" class="flex items-center justify-between w-full bg-yellow-500/10 hover:bg-yellow-500/20 border border-yellow-500/20 px-3 py-2 rounded-lg transition-all group/driver"><span class="text-xs text-yellow-300 font-bold">Gateron Jade Pro HE</span><i class="fas fa-external-link-alt text-[10px] text-yellow-400 group-hover/driver:text-white transition-colors"></i></a>
+                        </div>
+                        <p class="text-[10px] font-bold text-yellow-400 mb-2 uppercase">Rapid Trigger</p>
+                        <table class="specs-table"><tr><td>Actuation</td><td>1.00 mm</td></tr><tr><td>RT Press</td><td>0.50 mm</td></tr><tr><td>RT Release</td><td>0.50 mm</td></tr><tr><td>Tachyon</td><td>Enabled</td></tr></table>
+                    </div>
                 </div>
                 
                 <div class="bento-card col-span-1 p-5 hover:border-pink-500/50 group flex flex-col h-full">
                     <div class="flex justify-between"><i class="fas fa-pen-nib text-2xl text-gray-600 group-hover:text-pink-400 transition-colors mb-2"></i><div><p class="text-[10px] text-gray-500 uppercase font-bold">Tablet</p><h4 class="font-bold text-white leading-tight">Wacom CTL-472</h4></div></div>
                     <div class="relative h-[200px] w-full bg-black/20 rounded-xl mt-4 overflow-hidden border border-white/5"><img src="https://morgun.s-ul.eu/bFmoHgS9" class="w-full h-full object-contain p-4"></div>
+                    <div class="mt-4 pt-4 border-t border-white/10">
+                        <div class="mb-3">
+                            <p class="text-[10px] font-bold text-pink-400 mb-1 uppercase">Driver</p>
+                            <a href="https://opentabletdriver.net/" target="_blank" class="flex items-center justify-between w-full bg-pink-500/10 hover:bg-pink-500/20 border border-pink-500/20 px-3 py-2 rounded-lg transition-all group/driver"><span class="text-xs text-pink-300 font-bold">OpenTabletDriver</span><i class="fas fa-external-link-alt text-[10px] text-pink-400 group-hover/driver:text-white transition-colors"></i></a>
+                        </div>
+                        <p class="text-[10px] font-bold text-pink-400 mb-2 uppercase">Area Settings</p>
+                        <table class="specs-table"><tr><td>Width</td><td>94 mm</td></tr><tr><td>Height</td><td>52.875 mm</td></tr><tr><td>Mode</td><td>Absolute</td></tr><tr><td>Grip</td><td>Drag</td></tr></table>
+                        <div class="mt-3">
+                            <p class="text-[9px] text-gray-500 uppercase font-bold mb-1">Input Filters</p>
+                            <details class="group/details">
+                                <summary class="flex justify-between items-center bg-white/5 border border-white/10 px-2 py-1.5 rounded hover:bg-white/10 transition-colors text-xs cursor-pointer">
+                                    <span class="text-gray-300">Kuuube's Exterminator</span>
+                                    <i class="fas fa-chevron-down text-[8px] text-gray-500 group-open/details:rotate-180 transition-transform"></i>
+                                </summary>
+                                <div class="bg-black/20 p-2 mt-1 rounded border border-white/5">
+                                    <div class="flex justify-between items-center text-xs mb-1"><span class="text-gray-400">Strength (Raw)</span><span class="text-white font-bold bg-white/10 px-2 py-0.5 rounded">4</span></div>
+                                    <p class="text-[9px] text-gray-600 italic">Smoothing: Advanced</p>
+                                </div>
+                            </details>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="bento-card col-span-2 p-5 flex flex-col justify-between hover:border-blue-500/50 group">
                     <div class="flex items-center gap-3"><i class="fas fa-keyboard text-gray-500 group-hover:text-blue-400 transition-colors"></i><div><p class="text-[10px] text-gray-500 uppercase font-bold">Typing Board</p><h4 class="font-bold text-white text-sm">AJAZZ AK680 MAX</h4></div></div>
                     <div class="relative h-[200px] w-full bg-black/20 rounded-xl mt-4 overflow-hidden border border-white/5"><img src="https://morgun.s-ul.eu/gwns7oQl" class="w-full h-full object-contain p-4"></div>
+                    <div class="mt-4 text-xs text-gray-600 border border-white/5 px-2 py-1 rounded inline-block">Stock Switches</div>
                 </div>
             </div>
         </div>
+
     </div>
     
     <footer class="mt-12 mb-6 text-gray-600 text-xs font-mono uppercase tracking-widest z-10">MORGUN © 2026</footer>
