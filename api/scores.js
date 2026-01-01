@@ -2,11 +2,11 @@ export default async function handler(request, response) {
     const API_KEY = process.env.OSU_API_KEY; 
     const USER_ID = "13017880";
 
-    // ИСПРАВЛЕНИЕ: Добавляем фиктивный хост 'http://localhost', 
-    // чтобы new URL() мог обработать относительный путь request.url
-    const { searchParams } = new URL(request.url, `http://${request.headers.host || 'localhost'}`);
-    
-    const type = searchParams.get('type') || 'best';
+    // --- ИСПРАВЛЕНИЕ НИЖЕ ---
+    // Добавляем 'http://localhost', чтобы путь стал полным URL и ошибка исчезла
+    const url = new URL(request.url, `http://${request.headers.host || 'localhost'}`);
+    const type = url.searchParams.get('type') || 'best';
+    // ------------------------
 
     if (!API_KEY) return response.status(500).json({ error: "API Key missing" });
 
@@ -39,11 +39,10 @@ export default async function handler(request, response) {
         const scores = await scoresRes.json();
 
         if (!scores || !Array.isArray(scores)) {
-             return response.status(200).json([]); // Возвращаем пустой массив, если скоров нет
+             return response.status(200).json([]); 
         }
 
         const detailedScores = await Promise.all(scores.map(async (score) => {
-            // Для каждого скора запрашиваем детали карты
             try {
                 const mapRes = await fetch(`https://osu.ppy.sh/api/get_beatmaps?k=${API_KEY}&b=${score.beatmap_id}`);
                 const mapData = await mapRes.json();
@@ -60,11 +59,10 @@ export default async function handler(request, response) {
                     link: `https://osu.ppy.sh/b/${score.beatmap_id}`
                 };
             } catch (e) {
-                return null; // Пропускаем, если ошибка с картой
+                return null;
             }
         }));
 
-        // Фильтруем возможные null значения
         return response.status(200).json(detailedScores.filter(s => s !== null));
 
     } catch (error) {
