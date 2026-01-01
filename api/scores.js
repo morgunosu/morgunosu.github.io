@@ -11,7 +11,6 @@ export default async function handler(request, response) {
     }
 
     try {
-        // 1. ПОЛУЧАЕМ ТОКЕН
         const tokenResponse = await fetch("https://osu.ppy.sh/oauth/token", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -30,7 +29,6 @@ export default async function handler(request, response) {
             "x-api-version": "20240130"
         };
 
-        // --- ПРОФИЛЬ ---
         if (type === 'user') {
             const userRes = await fetch(`https://osu.ppy.sh/api/v2/users/${USER_ID}/osu`, { headers });
             const user = await userRes.json();
@@ -55,22 +53,22 @@ export default async function handler(request, response) {
             });
         }
 
-        // --- ТОП СКОРЫ ---
+        // Запрашиваем 50 лучших скоров
         const scoresRes = await fetch(`https://osu.ppy.sh/api/v2/users/${USER_ID}/scores/best?limit=50`, { headers });
         const scores = await scoresRes.json();
 
         const detailedScores = scores.map(s => {
-            // Моды
-            const mods = s.mods ? s.mods.map(m => m.acronym || m) : ["NM"];
-            if (mods.length === 0) mods.push("NM");
+            const mods = s.mods && s.mods.length > 0 ? s.mods.map(m => m.acronym || m) : ["NM"];
 
-            // Статистика (Lazer vs Legacy naming)
+            // Статистика нажатий
             const st = s.statistics;
-            // Объединяем 300+Geki и 100+Katu
             const count300 = (st.great || 0) + (st.perfect || 0); 
             const count100 = (st.ok || 0) + (st.good || 0);
             const count50  = st.meh || 0;
             const countMiss = st.miss || 0;
+
+            // Калькуляция FC PP (примерная, так как API не отдает pp_fc)
+            // Мы просто передадим данные, а фронтенд покажет "Perfect" если миссов 0
 
             return {
                 id: s.id,
@@ -78,8 +76,9 @@ export default async function handler(request, response) {
                 pp: Math.round(s.pp),
                 accuracy: (s.accuracy * 100).toFixed(2),
                 
-                // ОТДАЕМ ОБА ТИПА ОЧКОВ
-                score_classic: s.classic_score || 0,
+                // ВАЖНО: Classic score часто лежит в поле classic_total_score или classic_score
+                // В новых версиях API v2 может потребоваться пересчет, но обычно поле есть
+                score_classic: s.classic_score || s.score || 0, 
                 score_lazer: s.total_score || s.score || 0,
                 
                 max_combo: s.max_combo,
@@ -94,6 +93,7 @@ export default async function handler(request, response) {
                 },
                 beatmap: {
                     id: s.beatmap.id,
+                    set_id: s.beatmapset.id,
                     title: s.beatmapset.title,
                     artist: s.beatmapset.artist,
                     version: s.beatmap.version,
@@ -102,13 +102,14 @@ export default async function handler(request, response) {
                     url: s.beatmap.url,
                     status: s.beatmapset.status,
                     creator: s.beatmapset.creator,
-                    // Сырые статы (для калькулятора)
+                    // Сырые статы
                     cs: s.beatmap.cs,
                     ar: s.beatmap.ar,
                     od: s.beatmap.accuracy,
                     hp: s.beatmap.drain,
                     bpm: s.beatmap.bpm,
-                    length: s.beatmap.total_length
+                    length: s.beatmap.total_length,
+                    max_combo: s.beatmapset.max_combo || 0 // Иногда API не отдает макс комбо карты в списке
                 }
             };
         });
