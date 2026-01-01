@@ -1,36 +1,28 @@
 /* --- FONTS --- */
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&display=swap');
 
-/* ВАЖНО: Шрифт Space Grotesk для всего сайта и для рангов */
-.font-rank {
-    font-family: 'Space Grotesk', sans-serif; 
-    /* Жирнее для рангов, чтобы было красиво */
-    font-weight: 700; 
+/* Все шрифты теперь Space Grotesk для единообразия */
+body, .font-rank {
+    font-family: 'Space Grotesk', sans-serif;
 }
 
 /* --- BASE --- */
 body { 
-    background: #050505; 
+    background: radial-gradient(circle at center, #0a0a0a 0%, #000000 100%); 
     color: #fff; 
     cursor: none; 
     min-height: 100vh; 
     overflow-x: hidden; 
-    font-family: 'Space Grotesk', sans-serif;
-    -webkit-font-smoothing: antialiased;
 }
 body.system-cursor { cursor: auto; }
 ::selection { background: #ff66aa; color: #fff; }
 
-/* --- CURSOR --- */
+/* --- CUSTOM CURSOR --- */
 #osu-cursor { 
     position: fixed; top: 0; left: 0; width: 30px; height: 30px; 
-    pointer-events: none; z-index: 99999; 
-    margin-left: -15px; margin-top: -15px; 
+    pointer-events: none; z-index: 99999; margin-left: -15px; margin-top: -15px; 
 }
-#osu-cursor img { 
-    width: 100%; height: 100%; 
-    filter: drop-shadow(0 0 8px rgba(255,102,170,0.6)); 
-}
+#osu-cursor img { width: 100%; height: 100%; filter: drop-shadow(0 0 8px rgba(255,102,170,0.6)); }
 .trail-dot { 
     position: fixed; pointer-events: none; z-index: 99998; 
     width: 14px; height: 14px; background: rgba(255, 102, 170, 0.5); 
@@ -39,20 +31,36 @@ body.system-cursor { cursor: auto; }
 }
 @keyframes fadeTrail { to { transform: scale(0.2); opacity: 0; } }
 
-/* --- UI CARDS --- */
+/* --- BENTO CARDS (OLD DESIGN) --- */
 .bento-card {
-    background-color: rgba(20, 20, 23, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(20px);
+    background-color: rgba(20, 20, 23, 0.7); /* Более плотный фон */
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
     border-radius: 20px;
     overflow: hidden; position: relative;
     transition: all 0.3s ease;
 }
 .bento-card:hover {
-    background-color: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.15);
+    background-color: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.1);
     transform: translateY(-4px);
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
 }
+
+.bento-box {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+}
+
+.bento-btn-small {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 6px 16px; border-radius: 99px;
+    font-weight: 700; font-size: 11px;
+    transition: all 0.2s; color: #888; cursor: pointer;
+}
+.bento-btn-small:hover { color: #fff; background: rgba(255, 255, 255, 0.1); }
 
 .nav-btn {
     background: rgba(255, 255, 255, 0.03);
@@ -62,25 +70,13 @@ body.system-cursor { cursor: auto; }
     transition: all 0.2s; color: #888; cursor: pointer;
 }
 .nav-btn:hover { color: #fff; background: rgba(255, 255, 255, 0.08); }
-.nav-btn.active { background: #fff; color: #000; box-shadow: 0 0 20px rgba(255,255,255,0.2); }
+.nav-btn.active { background: #fff; color: #000; box-shadow: 0 0 20px rgba(255,255,255,0.15); }
 
 .tab-content { display: none; width: 100%; animation: fadeIn 0.3s ease; }
 .tab-content.active { display: block; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-/* --- SCORE LIST (GLASS STYLE) --- */
-.glass-score-row {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(5px);
-    transition: all 0.2s ease;
-}
-.glass-score-row:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.1);
-}
-
-/* Mod Badges */
+/* --- MOD BADGES --- */
 .mod-badge {
     font-size: 10px; font-weight: 800; padding: 2px 6px;
     border-radius: 6px; background: rgba(255,255,255,0.08);
@@ -91,38 +87,39 @@ body.system-cursor { cursor: auto; }
 .mod-badge.HD { color: #facc15; background: rgba(250, 204, 21, 0.15); border-color: rgba(250, 204, 21, 0.3); }
 .mod-badge.EZ { color: #4ade80; background: rgba(74, 222, 128, 0.15); }
 
-/* --- MODAL (GLASS) --- */
-.glass-overlay {
+/* --- MODAL (BENTO STYLE) --- */
+.modal-overlay {
     position: fixed; inset: 0; z-index: 9999;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(15px); /* Сильный блюр фона */
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(5px);
     display: flex; align-items: center; justify-content: center;
     opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
 }
-.glass-overlay.active { opacity: 1; pointer-events: auto; }
+.modal-overlay.active { opacity: 1; pointer-events: auto; }
 
-.glass-modal {
+.modal-card {
     width: 900px; max-width: 95vw;
-    background: rgba(10, 10, 10, 0.95);
+    background: #141417; /* Solid Dark Background */
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 24px;
+    border-radius: 20px;
     overflow: hidden;
-    box-shadow: 0 40px 80px -20px rgba(0,0,0,0.8);
+    box-shadow: 0 50px 100px -20px rgba(0,0,0,0.8);
     transform: scale(0.95) translateY(20px);
-    transition: transform 0.4s cubic-bezier(0.2, 1, 0.3, 1);
+    transition: transform 0.3s cubic-bezier(0.2, 1, 0.3, 1);
 }
-.glass-overlay.active .glass-modal { transform: scale(1) translateY(0); }
+.modal-overlay.active .modal-card { transform: scale(1) translateY(0); }
 
-.detail-box {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 16px;
-    padding: 12px;
-    text-align: center;
-    display: flex; flex-direction: column; justify-content: center;
+/* Calculator Buttons */
+.calc-btn {
+    width: 40px; height: 30px;
+    border-radius: 8px;
+    font-size: 11px; font-weight: 800;
+    color: #666; background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.05);
+    transition: all 0.1s; cursor: pointer;
 }
-.detail-box .lbl { font-size: 10px; font-weight: 800; text-transform: uppercase; color: #666; letter-spacing: 0.05em; }
-.detail-box .val { font-size: 18px; font-weight: 700; margin-top: 4px; line-height: 1; }
+.calc-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+.calc-btn.active { background: #4f46e5; color: white; border-color: #6366f1; }
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 6px; }
@@ -130,7 +127,7 @@ body.system-cursor { cursor: auto; }
 ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: #555; }
 
-/* TOAST */
+/* Toast */
 #toast { 
     visibility: hidden; min-width: 250px; 
     background-color: rgba(20, 20, 23, 0.9); backdrop-filter: blur(10px); 
@@ -142,12 +139,7 @@ body.system-cursor { cursor: auto; }
 }
 #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
 
-/* SPECS TABLE */
-.specs-table { width: 100%; font-size: 11px; color: #aaa; border-collapse: collapse; }
-.specs-table td { padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-.specs-table td:last-child { text-align: right; color: #fff; font-weight: 600; font-family: monospace; }
-
-/* KEY DISPLAY */
+/* Key Display & Specs */
 .key-display { 
     width: 80px; height: 80px; 
     border-radius: 16px; 
@@ -163,3 +155,6 @@ body.system-cursor { cursor: auto; }
     box-shadow: 0 0 30px rgba(99, 102, 241, 0.4); 
     transform: scale(0.95); 
 }
+.specs-table { width: 100%; font-size: 11px; color: #aaa; border-collapse: collapse; }
+.specs-table td { padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.specs-table td:last-child { text-align: right; color: #fff; font-weight: 600; font-family: monospace; }
