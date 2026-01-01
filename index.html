@@ -212,13 +212,14 @@
                         <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center"><i class="fas fa-chart-bar text-xl text-white"></i></div><div><h2 class="text-2xl font-bold" data-i18n="statistics">Statistics</h2></div></div>
                         <a href="https://osu.ppy.sh/users/13017880" target="_blank" class="text-xs bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-1 rounded-full transition-colors cursor-pointer" data-i18n="view_profile">View Profile</a>
                     </div>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="live-stats-container"><div class="col-span-4 text-center text-xs text-gray-500 py-8 animate-pulse" data-i18n="connecting">Connecting to osu! servers...</div></div>
+                    <div id="live-stats-container"><div class="col-span-4 text-center text-xs text-gray-500 py-8 animate-pulse" data-i18n="connecting">Connecting to osu! servers...</div></div>
                 </div>
             </div>
-            <div class="bento-card w-full mb-8 p-5 relative overflow-hidden group">
-                <div class="flex items-center justify-between mb-4"><div class="flex items-center gap-2"><i class="fas fa-trophy text-yellow-400"></i><h3 class="font-bold text-lg" data-i18n="top_perf">Top Performance</h3></div><span class="text-[10px] bg-white/10 px-2 py-1 rounded text-gray-400" data-i18n="auto_update">AUTO-UPDATE</span></div>
-                <div id="scores-container" class="flex flex-col gap-2 h-full justify-center"><div class="text-center text-xs text-gray-500 animate-pulse" data-i18n="fetching">Fetching from osu! API...</div></div>
+            
+            <div class="bento-card w-full mb-8 p-0 relative overflow-hidden group">
+                <div id="scores-container" class="flex flex-col h-full"><div class="text-center text-xs text-gray-500 animate-pulse py-10" data-i18n="fetching">Fetching from osu! API...</div></div>
             </div>
+
             <div class="flex items-center justify-between mb-8 px-2"><div class="flex items-center gap-3"><i class="fas fa-layer-group text-indigo-400 text-xl"></i><h2 class="text-3xl font-bold" data-i18n="skin_lib">Skin Library</h2></div><div class="text-sm font-mono text-gray-500 border border-white/10 px-3 py-1 rounded-full">v. 2025</div></div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <a href="https://drive.google.com/file/d/1J4F-tMz2tU0lkuit2PNtHGXPqw-yx14-/view" target="_blank" class="group relative bg-white/5 border border-white/5 rounded-2xl p-3 hover:bg-white/10 hover:border-indigo-500/30 transition-all duration-300 cursor-pointer">
