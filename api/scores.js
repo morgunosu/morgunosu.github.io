@@ -3,6 +3,7 @@ export default async function handler(request, response) {
     const CLIENT_SECRET = process.env.OSU_CLIENT_SECRET;
     const USER_ID = "13017880";
 
+    // Фикс URL для Vercel
     const url = new URL(request.url, `http://${request.headers.host || 'localhost'}`);
     const type = url.searchParams.get('type') || 'best';
 
@@ -25,15 +26,13 @@ export default async function handler(request, response) {
 
         if (!tokenResponse.ok) throw new Error("Failed to get token");
         const tokenData = await tokenResponse.json();
-        const accessToken = tokenData.access_token;
-
         const headers = {
-            "Authorization": `Bearer ${accessToken}`,
+            "Authorization": `Bearer ${tokenData.access_token}`,
             "Content-Type": "application/json",
             "x-api-version": "20240130"
         };
 
-        // --- 2. СТАТИСТИКА ПРОФИЛЯ ---
+        // --- 2. ПРОФИЛЬ ПОЛЬЗОВАТЕЛЯ ---
         if (type === 'user') {
             const userRes = await fetch(`https://osu.ppy.sh/api/v2/users/${USER_ID}/osu`, { headers });
             if (!userRes.ok) throw new Error("User request failed");
@@ -41,34 +40,60 @@ export default async function handler(request, response) {
 
             return response.status(200).json({
                 username: user.username,
+                avatar_url: user.avatar_url,
+                cover_url: user.cover.url,
+                is_online: user.is_online,
                 global_rank: user.statistics.global_rank,
-                country_rank: user.statistics.country_rank || 0,
+                country_rank: user.statistics.country_rank,
                 pp: Math.round(user.statistics.pp),
                 accuracy: user.statistics.hit_accuracy.toFixed(2),
-                playcount: user.statistics.play_count.toLocaleString(),
-                level: Math.floor(user.statistics.level.current),
-                country: user.country_code
+                play_count: user.statistics.play_count.toLocaleString(),
+                play_time: (user.statistics.play_time / 3600).toFixed(0), // Часы
+                total_score: user.statistics.total_score.toLocaleString(),
+                max_combo: user.statistics.maximum_combo,
+                level: user.statistics.level.current,
+                level_progress: user.statistics.level.progress,
+                join_date: new Date(user.join_date).toLocaleDateString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' }),
+                country: user.country.code,
+                country_name: user.country.name,
+                medals: user.user_achievements.length
             });
         }
 
-        // --- 3. ЛУЧШИЕ СКОРЫ ---
-        const scoresRes = await fetch(`https://osu.ppy.sh/api/v2/users/${USER_ID}/scores/best?limit=3`, { headers });
+        // --- 3. ТОП 20 СКОРОВ ---
+        const scoresRes = await fetch(`https://osu.ppy.sh/api/v2/users/${USER_ID}/scores/best?limit=20`, { headers });
         if (!scoresRes.ok) throw new Error("Scores request failed");
         const scores = await scoresRes.json();
 
-        const detailedScores = scores.map(score => {
-            // !!! ИСПРАВЛЕНИЕ: Ищем очки в разных полях (classic_score приоритетнее для v2)
-            const scoreValue = score.classic_score || score.total_score || score.score || 0;
-
+        const detailedScores = scores.map(s => {
             return {
-                pp: Math.round(score.pp),
-                rank: score.rank,
-                score: scoreValue.toLocaleString(), // Теперь точно не упадет
-                title: score.beatmapset.title,
-                artist: score.beatmapset.artist,
-                version: score.beatmap.version,
-                cover: score.beatmapset.covers.cover,
-                link: score.beatmap.url
+                id: s.id,
+                rank: s.rank, // SH, A, S...
+                pp: Math.round(s.pp),
+                accuracy: (s.accuracy * 100).toFixed(2),
+                score: s.score.toLocaleString(),
+                max_combo: s.max_combo,
+                mods: s.mods.length > 0 ? s.mods : ["NM"],
+                // Форматируем дату
+                date: new Date(s.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' }),
+                time: new Date(s.created_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
+                // Детальная статистика нажатий
+                stats: {
+                    great: s.statistics.count_300 + (s.statistics.count_geki || 0),
+                    ok: s.statistics.count_100 + (s.statistics.count_katu || 0),
+                    meh: s.statistics.count_50 || 0,
+                    miss: s.statistics.count_miss || 0
+                },
+                // Инфо о карте
+                beatmap: {
+                    title: s.beatmapset.title,
+                    artist: s.beatmapset.artist,
+                    version: s.beatmap.version,
+                    stars: s.beatmap.difficulty_rating, // Звезды
+                    cover: s.beatmapset.covers.cover, // Картинка
+                    url: s.beatmap.url,
+                    status: s.beatmapset.status // ranked, loved...
+                }
             };
         });
 
