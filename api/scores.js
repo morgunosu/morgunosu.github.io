@@ -1,6 +1,6 @@
 export default async function handler(request, response) {
     const API_KEY = process.env.OSU_API_KEY; 
-    const USER_ID = "47239";
+    const USER_ID = "13017880";
 
     // Получаем тип запроса из URL (например, /api/scores?type=user)
     const { searchParams } = new URL(request.url);
@@ -55,3 +55,4 @@ export default async function handler(request, response) {
     }
 
 }
+
