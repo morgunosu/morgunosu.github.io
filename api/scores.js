@@ -23,7 +23,6 @@ export default async function handler(request, response) {
             })
         });
 
-        if (!tokenResponse.ok) throw new Error("Failed to get token");
         const tokenData = await tokenResponse.json();
         const headers = {
             "Authorization": `Bearer ${tokenData.access_token}`,
@@ -34,44 +33,57 @@ export default async function handler(request, response) {
         // --- ПРОФИЛЬ ---
         if (type === 'user') {
             const userRes = await fetch(`https://osu.ppy.sh/api/v2/users/${USER_ID}/osu`, { headers });
-            if (!userRes.ok) throw new Error("User request failed");
             const user = await userRes.json();
-            const totalScore = user.statistics.total_score || user.statistics.ranked_score || 0;
+            
+            // Защита от отсутствия полей
+            const stats = user.statistics || {};
+            const totalScore = stats.total_score || stats.ranked_score || 0;
 
             return response.status(200).json({
                 username: user.username,
                 avatar_url: user.avatar_url,
-                cover_url: user.cover?.url || "",
-                global_rank: user.statistics.global_rank,
-                country_rank: user.statistics.country_rank,
-                pp: Math.round(user.statistics.pp),
-                accuracy: user.statistics.hit_accuracy.toFixed(2),
-                play_count: (user.statistics.play_count || 0).toLocaleString(),
-                play_time: ((user.statistics.play_time || 0) / 3600).toFixed(0),
+                cover_url: user.cover?.url || "", 
+                global_rank: stats.global_rank || 0,
+                country_rank: stats.country_rank || 0,
+                pp: Math.round(stats.pp || 0),
+                accuracy: (stats.hit_accuracy || 0).toFixed(2),
+                play_count: (stats.play_count || 0).toLocaleString(),
+                play_time: ((stats.play_time || 0) / 3600).toFixed(0),
                 total_score: totalScore.toLocaleString(),
-                max_combo: user.statistics.maximum_combo,
-                level: user.statistics.level.current,
-                level_progress: user.statistics.level.progress,
-                join_date: new Date(user.join_date).toLocaleDateString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' }),
-                country: user.country.code,
-                country_name: user.country.name,
-                medals: user.user_achievements.length
+                max_combo: stats.maximum_combo || 0,
+                level: stats.level?.current || 0,
+                level_progress: stats.level?.progress || 0,
+                country: user.country?.code || "XX",
+                country_name: user.country?.name || "Unknown",
             });
         }
 
-        // --- ТОП СКОРЫ (ДЕТАЛЬНО) ---
+        // --- ТОП СКОРЫ ---
         const scoresRes = await fetch(`https://osu.ppy.sh/api/v2/users/${USER_ID}/scores/best?limit=20`, { headers });
-        if (!scoresRes.ok) throw new Error("Scores request failed");
         const scores = await scoresRes.json();
 
         const detailedScores = scores.map(s => {
+            // 1. ИСПРАВЛЕНИЕ ОЧКОВ
             const finalScore = s.classic_score || s.total_score || s.score || 0;
             
-            // Расчет длительности в минутах:секундах
-            const totalSeconds = s.beatmap.total_length;
-            const minutes = Math.floor(totalSeconds / 60);
-            const seconds = totalSeconds % 60;
-            const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            // 2. ИСПРАВЛЕНИЕ МОДОВ (API v2 возвращает массив объектов)
+            const mods = s.mods ? s.mods.map(m => m.acronym || m) : ["NM"];
+            if (mods.length === 0) mods.push("NM");
+
+            // 3. ИСПРАВЛЕНИЕ СТАТИСТИКИ (Legacy vs Lazer names)
+            // Lazer: great, ok, meh, miss
+            // Legacy: count_300, count_100, count_50, count_miss
+            const st = s.statistics;
+            const count300 = st.great ?? st.count_300 ?? 0;
+            const countGEKI = st.perfect ?? st.count_geki ?? 0; // Для мании/ctb
+            const count100 = st.ok ?? st.count_100 ?? 0;
+            const countKATU = st.good ?? st.count_katu ?? 0;
+            const count50  = st.meh ?? st.count_50 ?? 0;
+            const countMiss = st.miss ?? st.count_miss ?? 0;
+
+            // Объединяем Geki с 300 и Katu с 100 для стандартного osu!
+            const real300 = count300 + countGEKI;
+            const real100 = count100 + countKATU;
 
             return {
                 id: s.id,
@@ -80,38 +92,30 @@ export default async function handler(request, response) {
                 accuracy: (s.accuracy * 100).toFixed(2),
                 score: finalScore.toLocaleString(),
                 max_combo: s.max_combo,
-                mods: s.mods && s.mods.length > 0 ? s.mods : ["NM"],
-                date: new Date(s.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }),
-                full_date: new Date(s.created_at).toLocaleString('ru-RU'),
+                mods: mods, // Теперь это массив строк ['HD', 'DT']
+                date_iso: s.created_at, // Отдаем сырую дату, отформатируем на клиенте
                 
-                // Детальная статистика попаданий
                 stats: {
-                    great: s.statistics.count_300 + (s.statistics.count_geki || 0),
-                    ok: s.statistics.count_100 + (s.statistics.count_katu || 0),
-                    meh: s.statistics.count_50 || 0,
-                    miss: s.statistics.count_miss || 0
+                    great: real300,
+                    ok: real100,
+                    meh: count50,
+                    miss: countMiss
                 },
-                // Инфо о карте
                 beatmap: {
-                    id: s.beatmap.id,
-                    set_id: s.beatmapset.id,
                     title: s.beatmapset.title,
                     artist: s.beatmapset.artist,
                     version: s.beatmap.version,
                     stars: s.beatmap.difficulty_rating,
-                    cover: s.beatmapset.covers.cover, // Широкая
-                    list_cover: s.beatmapset.covers.list, // Узкая для списка
+                    cover: s.beatmapset.covers['cover@2x'] || s.beatmapset.covers.cover, // Высокое качество
                     url: s.beatmap.url,
                     status: s.beatmapset.status,
                     creator: s.beatmapset.creator,
-                    // Технические данные
                     cs: s.beatmap.cs,
                     ar: s.beatmap.ar,
                     od: s.beatmap.accuracy,
                     hp: s.beatmap.drain,
                     bpm: s.beatmap.bpm,
-                    length: timeString,
-                    max_combo: s.beatmap.count_spinners + s.beatmap.count_sliders + s.beatmap.count_circles // примерный макс комбо карты
+                    length: s.beatmap.total_length
                 }
             };
         });
