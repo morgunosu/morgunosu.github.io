@@ -188,7 +188,6 @@ async function loadUserStats() {
                 <div class="bento-card col-span-2 md:col-span-4 p-6 relative group overflow-hidden">
                     <div class="absolute inset-0 bg-cover bg-center opacity-30 group-hover:opacity-40 transition-opacity duration-700" style="background-image: url('${u.cover_url}');"></div>
                     <div class="absolute inset-0 bg-gradient-to-r from-[#141417] via-[#141417]/95 to-transparent"></div>
-                    
                     <div class="relative z-10 flex flex-col md:flex-row items-center gap-6">
                         <img src="${u.avatar_url}" class="w-24 h-24 rounded-2xl border-2 border-white/10 shadow-2xl">
                         <div class="flex-grow text-center md:text-left">
@@ -199,81 +198,88 @@ async function loadUserStats() {
                             <div class="mt-3 flex flex-wrap justify-center md:justify-start gap-3">
                                 <div class="bg-indigo-500/20 border border-indigo-500/30 px-3 py-1.5 rounded-lg text-sm font-bold text-indigo-300">Global #${u.global_rank.toLocaleString()}</div>
                                 <div class="bg-white/10 border border-white/10 px-3 py-1.5 rounded-lg text-sm font-bold text-white">${u.country} #${u.country_rank.toLocaleString()}</div>
-                                <div class="bg-white/10 border border-white/10 px-3 py-1.5 rounded-lg text-sm font-bold text-pink-300">${u.pp.toLocaleString()} pp</div>
-                                <div class="bg-yellow-500/10 border border-yellow-500/20 px-3 py-1.5 rounded-lg text-sm font-bold text-yellow-300">${u.medal_count} Medals</div>
+                                <div class="bg-pink-500/10 border border-pink-500/30 px-3 py-1.5 rounded-lg text-sm font-bold text-pink-300">${u.pp.toLocaleString()} pp</div>
+                                <div class="bg-yellow-500/10 border border-yellow-500/20 px-3 py-1.5 rounded-lg text-sm font-bold text-yellow-300"><i class="fas fa-medal mr-1.5"></i>${u.medal_count} Medals</div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="bento-card col-span-2 md:col-span-4 p-0 relative h-48 group">
+                <div class="bento-card col-span-2 md:col-span-4 p-0 relative h-56 group overflow-hidden">
                     <div class="absolute top-4 left-4 z-10 flex items-center gap-2">
                         <i class="fas fa-chart-line text-yellow-400"></i>
                         <span class="text-xs font-bold text-white uppercase tracking-widest">Rank History (90 Days)</span>
                     </div>
-                    <div class="absolute inset-0 top-10 bottom-2 left-0 right-0">
+                    <div class="absolute inset-0 top-12 bottom-0 left-0 right-0">
                         <canvas id="rank-history-chart" class="w-full h-full"></canvas>
-                        <div id="chart-tooltip"></div>
                     </div>
                 </div>
 
                 <div class="bento-card col-span-2 md:col-span-4 p-5 flex justify-between items-center gap-2 overflow-x-auto">
                     <div class="flex items-center gap-3 px-4 border-r border-white/5 last:border-0 min-w-fit">
-                        <span class="text-2xl font-black text-rank-XH drop-shadow-md">SS</span>
+                        <span class="text-3xl font-black text-rank-XH drop-shadow-md">SS</span>
                         <div class="flex flex-col"><span class="text-[9px] text-gray-500 font-bold uppercase">Silver</span><span class="text-lg font-bold text-white leading-none">${u.grades.ssh.toLocaleString()}</span></div>
                     </div>
                     <div class="flex items-center gap-3 px-4 border-r border-white/5 last:border-0 min-w-fit">
-                        <span class="text-2xl font-black text-rank-X drop-shadow-md">SS</span>
+                        <span class="text-3xl font-black text-rank-X drop-shadow-md">SS</span>
                         <div class="flex flex-col"><span class="text-[9px] text-gray-500 font-bold uppercase">Gold</span><span class="text-lg font-bold text-white leading-none">${u.grades.ss.toLocaleString()}</span></div>
                     </div>
                     <div class="flex items-center gap-3 px-4 border-r border-white/5 last:border-0 min-w-fit">
-                        <span class="text-2xl font-black text-rank-SH drop-shadow-md">S</span>
+                        <span class="text-3xl font-black text-rank-SH drop-shadow-md">S</span>
                         <div class="flex flex-col"><span class="text-[9px] text-gray-500 font-bold uppercase">Silver</span><span class="text-lg font-bold text-white leading-none">${u.grades.sh.toLocaleString()}</span></div>
                     </div>
                     <div class="flex items-center gap-3 px-4 border-r border-white/5 last:border-0 min-w-fit">
-                        <span class="text-2xl font-black text-rank-S drop-shadow-md">S</span>
+                        <span class="text-3xl font-black text-rank-S drop-shadow-md">S</span>
                         <div class="flex flex-col"><span class="text-[9px] text-gray-500 font-bold uppercase">Gold</span><span class="text-lg font-bold text-white leading-none">${u.grades.s.toLocaleString()}</span></div>
                     </div>
                     <div class="flex items-center gap-3 px-4 min-w-fit">
-                        <span class="text-2xl font-black text-rank-A drop-shadow-md">A</span>
+                        <span class="text-3xl font-black text-rank-A drop-shadow-md">A</span>
                         <div class="flex flex-col"><span class="text-[9px] text-gray-500 font-bold uppercase">Rank A</span><span class="text-lg font-bold text-white leading-none">${u.grades.a.toLocaleString()}</span></div>
                     </div>
                 </div>
 
-                <div class="bento-card col-span-1 p-4 flex flex-col justify-center border-l-4 border-l-blue-500">
+                <div class="bento-card col-span-1 p-4 flex flex-col justify-center border-l-4 border-l-blue-500 bg-[#1a1a1d]">
                     <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Ranked Score</p>
                     <h4 class="text-lg font-bold text-white truncate">${parseInt(u.ranked_score).toLocaleString()}</h4>
                 </div>
-                <div class="bento-card col-span-1 p-4 flex flex-col justify-center border-l-4 border-l-green-500">
+                <div class="bento-card col-span-1 p-4 flex flex-col justify-center border-l-4 border-l-green-500 bg-[#1a1a1d]">
                     <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Hit Accuracy</p>
                     <h4 class="text-lg font-bold text-white">${u.accuracy}%</h4>
                 </div>
-                <div class="bento-card col-span-1 p-4 flex flex-col justify-center border-l-4 border-l-yellow-500">
+                <div class="bento-card col-span-1 p-4 flex flex-col justify-center border-l-4 border-l-yellow-500 bg-[#1a1a1d]">
                     <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Play Count</p>
                     <h4 class="text-lg font-bold text-white">${parseInt(u.play_count).toLocaleString()}</h4>
                 </div>
-                <div class="bento-card col-span-1 p-4 flex flex-col justify-center border-l-4 border-l-purple-500">
+                <div class="bento-card col-span-1 p-4 flex flex-col justify-center border-l-4 border-l-purple-500 bg-[#1a1a1d]">
                     <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Total Hits</p>
                     <h4 class="text-lg font-bold text-white">${parseInt(u.total_hits).toLocaleString()}</h4>
                 </div>
                 
-                <div class="bento-card col-span-1 p-4 flex flex-col justify-center">
+                <div class="bento-card col-span-1 p-4 flex flex-col justify-center bg-[#1a1a1d]">
                     <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Max Combo</p>
-                    <h4 class="text-lg font-bold text-white">${u.max_combo}x</h4>
+                    <h4 class="text-lg font-bold text-white">${u.max_combo.toLocaleString()}x</h4>
                 </div>
-                <div class="bento-card col-span-1 p-4 flex flex-col justify-center">
+                <div class="bento-card col-span-1 p-4 flex flex-col justify-center bg-[#1a1a1d]">
+                    <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Total Score</p>
+                    <h4 class="text-sm font-bold text-gray-300 break-all">${parseInt(u.total_score).toLocaleString()}</h4>
+                </div>
+                <div class="bento-card col-span-1 p-4 flex flex-col justify-center bg-[#1a1a1d]">
                     <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Replays Watched</p>
                     <h4 class="text-lg font-bold text-white">${u.replays_watched.toLocaleString()}</h4>
                 </div>
-                <div class="bento-card col-span-2 p-4 flex flex-col justify-center relative overflow-hidden">
+                
+                <div class="bento-card col-span-1 p-4 flex flex-col justify-center relative overflow-hidden bg-[#1a1a1d]">
                     <div class="flex justify-between items-end mb-2 relative z-10">
-                        <div><p class="text-[10px] text-gray-500 uppercase font-bold">Current Level</p><h4 class="text-xl font-bold text-white leading-none">${u.level}</h4></div>
-                        <div class="text-right"><p class="text-[10px] text-gray-500 uppercase font-bold">Play Time</p><h4 class="text-sm font-bold text-white leading-none">${playTimeFormatted}</h4></div>
+                        <div><p class="text-[10px] text-gray-500 uppercase font-bold">Lvl ${u.level}</p></div>
+                        <div class="text-right"><p class="text-[10px] text-gray-500 uppercase font-bold">Time</p></div>
                     </div>
-                    <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden relative z-10">
+                    <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden relative z-10 mb-1">
                         <div class="h-full bg-yellow-400 rounded-full" style="width: ${u.level_progress}%"></div>
                     </div>
-                    <div class="text-[10px] text-yellow-400 font-bold mt-1 text-right relative z-10">${u.level_progress}%</div>
+                    <div class="flex justify-between text-[10px] font-bold text-white relative z-10">
+                        <span>${u.level_progress}%</span>
+                        <span>${playTimeFormatted}</span>
+                    </div>
                 </div>
 
             </div>`;
@@ -286,6 +292,7 @@ async function loadUserStats() {
 function drawRankGraph(history) {
     const canvas = document.getElementById('rank-history-chart');
     const tooltip = document.getElementById('chart-tooltip');
+    
     if (!canvas || !history || history.length < 2) return;
 
     const ctx = canvas.getContext('2d');
@@ -303,7 +310,7 @@ function drawRankGraph(history) {
     const range = maxRank - minRank || 1;
     const padding = 20;
 
-    // Draw Grid (Horizontal lines)
+    // 1. Draw Grid
     ctx.strokeStyle = 'rgba(255,255,255,0.05)';
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -313,32 +320,31 @@ function drawRankGraph(history) {
     }
     ctx.stroke();
 
-    // Draw Graph Line
+    // 2. Draw Line
     ctx.beginPath();
-    ctx.strokeStyle = '#fbbf24'; // Amber-400
+    ctx.strokeStyle = '#fbbf24'; // Golden color
     ctx.lineWidth = 3;
     ctx.lineJoin = 'round';
     ctx.lineCap = 'round';
 
     history.forEach((val, i) => {
         const x = (i / (history.length - 1)) * w;
-        // Invert: Low rank = High Y position (top)
-        // Normalize 0..1
+        // Invert Y axis: Lower rank (better) is Higher on screen (y=0)
         const norm = (val - minRank) / range; 
         const y = padding + norm * (h - padding * 2);
         if(i===0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
     });
     ctx.stroke();
 
-    // Fill Gradient under line
+    // 3. Fill Gradient
     ctx.lineTo(w, h); ctx.lineTo(0, h); 
     const grad = ctx.createLinearGradient(0, 0, 0, h);
-    grad.addColorStop(0, 'rgba(251, 191, 36, 0.15)');
+    grad.addColorStop(0, 'rgba(251, 191, 36, 0.1)');
     grad.addColorStop(1, 'rgba(251, 191, 36, 0)');
     ctx.fillStyle = grad; 
     ctx.fill();
 
-    // Interactive Tooltip Logic (Fixed Positioning)
+    // 4. Interactive Tooltip (FIXED POSITION)
     canvas.onmousemove = (e) => {
         const rect = canvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
@@ -346,13 +352,13 @@ function drawRankGraph(history) {
         
         if (idx >= 0 && idx < history.length) {
             const rank = history[idx];
-            const daysAgo = 90 - idx; 
+            const daysAgo = 90 - idx;
             
             tooltip.style.opacity = 1;
-            // FIXED positioning based on screen coordinates to avoid clipping
-            tooltip.style.left = `${e.clientX}px`; 
-            tooltip.style.top = `${e.clientY - 40}px`; // Shift up slightly
-            tooltip.innerHTML = `<span class="font-bold text-yellow-400">#${rank.toLocaleString()}</span><br><span class="text-xs text-gray-400">${daysAgo} days ago</span>`;
+            // Используем clientX/Y для fixed позиционирования относительно окна, а не канваса
+            tooltip.style.left = `${e.clientX + 15}px`; 
+            tooltip.style.top = `${e.clientY - 15}px`;
+            tooltip.innerHTML = `<div class="text-center"><span class="font-bold text-yellow-400 text-lg">#${rank.toLocaleString()}</span><br><span class="text-[10px] text-gray-400 uppercase tracking-widest">${daysAgo} days ago</span></div>`;
         }
     };
     
