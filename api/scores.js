@@ -11,6 +11,7 @@ export default async function handler(request, response) {
     }
 
     try {
+        // 1. Получаем токен
         const tokenResponse = await fetch("https://osu.ppy.sh/oauth/token", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -29,6 +30,7 @@ export default async function handler(request, response) {
             "x-api-version": "20240130"
         };
 
+        // --- ПРОФИЛЬ И СТАТИСТИКА ---
         if (type === 'user') {
             const userRes = await fetch(`https://osu.ppy.sh/api/v2/users/${USER_ID}/osu`, { headers });
             const user = await userRes.json();
@@ -51,18 +53,40 @@ export default async function handler(request, response) {
                 level_progress: stats.level?.progress || 0,
                 country: user.country?.code || "XX",
                 country_name: user.country?.name || "Unknown",
-                // Считаем медали (achievements)
-                medal_count: (user.user_achievements || []).length, 
+                medal_count: user.badges?.length || 0, // Badges as medals approximation
                 replays_watched: stats.replays_watched_by_others || 0,
                 total_hits: stats.total_hits || 0,
-                // Оценки
                 grades: stats.grade_counts || { ssh: 0, ss: 0, sh: 0, s: 0, a: 0 },
-                // История ранга (последние 90 дней)
                 rank_history: user.rank_history?.data || []
             });
         }
 
-        // Логика для скоров (оставляем как было для скорости)
+        // --- НЕДАВНЯЯ АКТИВНОСТЬ (НОВОЕ) ---
+        if (type === 'recent') {
+            const recentRes = await fetch(`https://osu.ppy.sh/api/v2/users/${USER_ID}/scores/recent?include_fails=1&limit=20`, { headers });
+            const recent = await recentRes.json();
+            
+            const detailedRecent = recent.map(s => {
+                const mods = s.mods && s.mods.length > 0 ? s.mods.map(m => m.acronym || m) : [];
+                return {
+                    id: s.id,
+                    rank: s.rank, // F, A, S, etc.
+                    score: s.score,
+                    accuracy: (s.accuracy * 100).toFixed(2),
+                    mods: mods,
+                    created_at: s.created_at,
+                    beatmap: {
+                        title: s.beatmapset.title,
+                        version: s.beatmap.version,
+                        url: s.beatmap.url,
+                        cover: s.beatmapset.covers['list@2x'] || s.beatmapset.covers.cover
+                    }
+                };
+            });
+            return response.status(200).json(detailedRecent);
+        }
+
+        // --- ЛУЧШИЕ СКОРЫ ---
         const scoresRes = await fetch(`https://osu.ppy.sh/api/v2/users/${USER_ID}/scores/best?limit=50`, { headers });
         const scores = await scoresRes.json();
 
@@ -79,7 +103,6 @@ export default async function handler(request, response) {
                 rank: s.rank, 
                 pp: Math.round(s.pp),
                 accuracy: (s.accuracy * 100).toFixed(2),
-                score_classic: s.classic_score || s.score || 0, 
                 score_lazer: s.total_score || s.score || 0,
                 max_combo: s.max_combo,
                 mods: mods,
@@ -93,8 +116,6 @@ export default async function handler(request, response) {
                     stars: s.beatmap.difficulty_rating,
                     cover: s.beatmapset.covers['cover@2x'] || s.beatmapset.covers.cover,
                     url: s.beatmap.url,
-                    status: s.beatmapset.status,
-                    creator: s.beatmapset.creator,
                     cs: s.beatmap.cs,
                     ar: s.beatmap.ar,
                     od: s.beatmap.accuracy,
