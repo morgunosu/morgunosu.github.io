@@ -67,44 +67,88 @@ function toggleScoreMode() { window.isLazerMode = !window.isLazerMode; renderSco
 function showMoreScores() { window.visibleScoresCount = window.topScoresData.length; renderScoresList(); }
 function showLessScores() { window.visibleScoresCount = 5; renderScoresList(); }
 
+function getRelativeTime(dateString) {
+    const now = new Date();
+    const past = new Date(dateString);
+    const diff = Math.floor((now - past) / 1000);
+    if (diff < 60) return 'just now';
+    const min = Math.floor(diff / 60);
+    if (min < 60) return `${min}m ago`;
+    const h = Math.floor(min / 60);
+    if (h < 24) return `${h}h ago`;
+    const d = Math.floor(h / 24);
+    if (d < 30) return `${d}d ago`;
+    const mo = Math.floor(d / 30);
+    if (mo < 12) return `${mo}mo ago`;
+    return `${Math.floor(mo / 12)}y ago`;
+}
+
 function renderScoresList() {
     const c = document.getElementById('scores-container');
     const data = window.topScoresData.slice(0, window.visibleScoresCount);
     const isLazer = window.isLazerMode;
     
     let html = `
-        <div class="flex items-center justify-between px-2 py-3 mb-2 border-b border-white/5">
-            <div class="flex gap-4 text-[10px] font-bold text-gray-500 uppercase tracking-wider"><span class="w-8 text-center">Rank</span><span>Map</span></div>
-            <button onclick="toggleScoreMode()" class="flex items-center gap-2 bg-white/5 hover:bg-white/10 px-2 py-1 rounded-full transition-all border border-white/5">
-                <span class="text-[9px] font-bold ${!isLazer ? 'text-indigo-400' : 'text-gray-600'}">V1</span>
-                <div class="w-6 h-3 bg-black/50 rounded-full relative"><div class="absolute top-0.5 w-2 h-2 rounded-full bg-white transition-all ${isLazer ? 'left-3.5' : 'left-0.5'}"></div></div>
-                <span class="text-[9px] font-bold ${isLazer ? 'text-pink-400' : 'text-gray-600'}">Lazer</span>
+        <div class="flex items-center justify-between px-1 py-3 mb-2 border-b border-white/5">
+            <div class="flex gap-3 items-center">
+                <i class="fas fa-trophy text-indigo-400"></i>
+                <span class="text-sm font-bold text-white uppercase tracking-widest">Best Performance</span>
+            </div>
+            <button onclick="toggleScoreMode()" class="flex items-center gap-2 bg-black/40 hover:bg-black/60 px-3 py-1 rounded-full transition-all border border-white/5 cursor-pointer">
+                <span class="text-[9px] font-bold ${!isLazer ? 'text-indigo-400' : 'text-gray-600'}">CLASSIC</span>
+                <div class="w-6 h-3 bg-white/10 rounded-full relative"><div class="absolute top-0.5 w-2 h-2 rounded-full bg-white transition-all ${isLazer ? 'left-3.5' : 'left-0.5'}"></div></div>
+                <span class="text-[9px] font-bold ${isLazer ? 'text-pink-400' : 'text-gray-600'}">LAZER</span>
             </button>
-        </div><div class="flex flex-col gap-1.5">`;
+        </div>
+        <div class="flex flex-col gap-2">`;
 
     html += data.map((s, i) => {
         const score = Math.round(isLazer ? s.score_lazer : s.score_classic).toLocaleString();
-        const mods = s.mods.map(m => `<span class="mod-pill ${m}">${m}</span>`).join('');
+        const modsHTML = s.mods.length > 0 
+            ? s.mods.map(m => `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-white/10 text-yellow-300 border border-white/5">${m}</span>`).join('') 
+            : `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-white/5 text-gray-500 border border-white/5">NM</span>`;
+        
+        const timeAgo = getRelativeTime(s.date_iso);
+        const rankClass = `rank-${s.rank.replace('H', 'H')}`;
+
         return `
-        <div onclick="openScoreModal(${i})" class="group relative flex items-center bg-[#121214]/80 hover:bg-[#1a1a1d] border border-white/5 hover:border-white/20 rounded-lg p-2 cursor-pointer transition-all duration-300 overflow-hidden h-14">
-            <div class="absolute inset-0 bg-cover bg-center opacity-20 grayscale group-hover:grayscale-0 group-hover:opacity-40 transition-all duration-500 ease-out" style="background-image: url('${s.beatmap.cover}')"></div>
-            <div class="absolute inset-0 bg-gradient-to-r from-[#121214] via-[#121214]/80 to-transparent"></div>
-            <div class="w-10 flex-shrink-0 text-center relative z-10"><span class="font-rank text-2xl ${getRankColorClass(s.rank)}">${s.rank}</span></div>
-            <div class="flex-grow min-w-0 px-2 flex flex-col justify-center relative z-10">
-                <div class="text-xs font-bold text-gray-200 group-hover:text-white truncate">${s.beatmap.title}</div>
-                <div class="flex items-center gap-2 mt-0.5"><div class="text-[9px] text-gray-500 font-bold bg-black/30 px-1 rounded">${s.beatmap.stars}★</div><div class="text-[10px] text-gray-400 truncate">${s.beatmap.version}</div></div>
+        <div onclick="openScoreModal(${i})" class="group relative w-full h-20 bg-[#121214] hover:bg-[#18181b] border border-white/5 hover:border-indigo-500/30 rounded-xl overflow-hidden cursor-pointer transition-all duration-300 flex items-center">
+            <div class="absolute inset-0 bg-cover bg-center opacity-[0.07] group-hover:opacity-[0.15] transition-opacity duration-500 grayscale group-hover:grayscale-0" style="background-image: url('${s.beatmap.cover}')"></div>
+            <div class="absolute inset-0 bg-gradient-to-r from-[#121214] via-[#121214]/80 to-transparent z-0"></div>
+            <div class="relative z-10 w-14 h-full flex items-center justify-center border-r border-white/5 flex-shrink-0">
+                <span class="rank-text text-3xl ${rankClass}">${s.rank.replace('X', 'SS')}</span>
             </div>
-            <div class="flex flex-col items-end gap-0.5 relative z-10 min-w-[80px]">
-                <div class="flex gap-1 h-3.5 mb-0.5">${mods}</div>
-                <div class="text-sm font-black text-indigo-300 leading-none">${s.pp}pp</div>
-                <div class="text-[9px] font-mono text-gray-500">${s.accuracy}%</div>
+            <div class="relative z-10 flex-grow min-w-0 px-4 py-2 flex flex-col justify-center h-full">
+                <div class="flex items-baseline gap-2 truncate w-full">
+                    <span class="text-sm font-bold text-white group-hover:text-indigo-300 transition-colors truncate">${s.beatmap.title}</span>
+                </div>
+                <div class="text-[10px] text-gray-400 truncate mb-1">
+                    by ${s.beatmap.artist} <span class="text-gray-600 mx-1">•</span> <span class="text-gray-300">[${s.beatmap.version}]</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="flex gap-1">${modsHTML}</div>
+                    <div class="text-[10px] text-gray-500 font-mono hidden sm:block">
+                        <span class="text-gray-300">${score}</span> <span class="mx-1">/</span> 
+                        <span class="text-blue-300">${s.max_combo}x</span> <span class="mx-1">/</span> 
+                        <span class="text-red-400">${s.stats.miss} miss</span>
+                    </div>
+                </div>
+            </div>
+            <div class="relative z-10 flex-shrink-0 w-24 sm:w-32 h-full flex flex-col items-end justify-center pr-4 border-l border-white/5 bg-black/10 backdrop-blur-sm">
+                <div class="text-lg sm:text-xl font-black text-indigo-400 leading-none mb-0.5 text-shadow">${s.pp}<span class="text-xs text-indigo-500/70 ml-0.5">pp</span></div>
+                <div class="text-xs font-bold ${getAccColor(s.accuracy)}">${s.accuracy}%</div>
+                <div class="text-[9px] text-gray-600 mt-1">${timeAgo}</div>
             </div>
         </div>`;
     }).join('');
     html += `</div>`;
 
     if (window.topScoresData.length > 5) {
-        html += `<button onclick="${window.visibleScoresCount < window.topScoresData.length ? 'showMoreScores' : 'showLessScores'}()" class="w-full mt-3 py-2 text-xs font-bold text-gray-500 hover:text-white bg-white/5 hover:bg-white/10 rounded-lg transition-colors uppercase tracking-widest">${window.visibleScoresCount < window.topScoresData.length ? 'Show All' : 'Show Less'}</button>`;
+        html += `
+        <button onclick="${window.visibleScoresCount < window.topScoresData.length ? 'showMoreScores' : 'showLessScores'}()" 
+            class="w-full mt-3 py-2.5 text-[10px] font-bold text-gray-500 hover:text-white bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl transition-all uppercase tracking-widest">
+            ${window.visibleScoresCount < window.topScoresData.length ? '<i class="fas fa-chevron-down mr-1"></i> Show More' : '<i class="fas fa-chevron-up mr-1"></i> Show Less'}
+        </button>`;
     }
     c.innerHTML = html;
 }
@@ -131,7 +175,7 @@ window.openScoreModal = function(i) {
             </div>
             <div class="p-8 grid grid-cols-1 lg:grid-cols-3 gap-8 overflow-y-auto max-h-[60vh] custom-scrollbar">
                 <div class="flex flex-col items-center justify-start lg:border-r border-white/5 lg:pr-8">
-                    <div class="font-rank text-8xl ${getRankColorClass(s.rank)} drop-shadow-2xl mb-2">${s.rank}</div>
+                    <div class="rank-text text-8xl ${`rank-${s.rank.replace('H', 'H')}`} drop-shadow-2xl mb-2">${s.rank.replace('X', 'SS')}</div>
                     <div class="text-4xl font-black text-white tracking-widest font-mono tabular-nums mb-1">${scoreVal}</div>
                     <div class="text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em] mb-6">${window.isLazerMode ? 'Lazer' : 'Classic'}</div>
                     <div class="grid grid-cols-2 gap-4 w-full">
@@ -221,13 +265,6 @@ window.closeScoreModal = function(e) {
     document.body.style.overflow = '';
 };
 
-function getRankColorClass(r) {
-    if(r.includes('X')) return 'text-gray-100 drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]';
-    if(r.includes('S')) return 'text-[#ffcc22] drop-shadow-[0_0_10px_rgba(255,204,34,0.6)]';
-    if(r === 'A') return 'text-[#22c55e] drop-shadow-[0_0_10px_rgba(34,197,94,0.4)]';
-    if(r === 'B') return 'text-[#3b82f6]';
-    return 'text-[#ff4444]';
-}
 function getAccColor(a) { return a>=99 ? 'text-[#22c55e]' : a>=97 ? 'text-[#8fbfff]' : a>=94 ? 'text-[#ffcc22]' : 'text-[#ff4444]'; }
 
 async function loadUserStats() {
