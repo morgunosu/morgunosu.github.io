@@ -223,127 +223,80 @@ async function loadUserStats() {
         if (!res.ok) throw new Error();
         const u = await res.json();
         
+        // Time Calc
         const d = Math.floor(u.play_time_seconds / 86400);
         const h = Math.floor((u.play_time_seconds % 86400) / 3600);
         const m = Math.floor((u.play_time_seconds % 3600) / 60);
         const playTimeFormatted = `${d}d ${h}h ${m}m`;
 
-        setTimeout(() => {
-            const chartCanvas = document.getElementById('rank-history-chart');
-            if(chartCanvas && u.rank_history && u.rank_history.length > 1) {
-                const ctx = chartCanvas.getContext('2d');
-                const w = chartCanvas.width;
-                const h = chartCanvas.height;
-                const ranks = u.rank_history;
-                const minRank = Math.min(...ranks);
-                const maxRank = Math.max(...ranks);
-                const range = maxRank - minRank || 1;
-                
-                ctx.clearRect(0, 0, w, h);
-                ctx.beginPath();
-                ctx.strokeStyle = '#ffd700';
-                ctx.lineWidth = 2;
-                
-                ranks.forEach((r, i) => {
-                    const x = (i / (ranks.length - 1)) * w;
-                    const y = h - ((maxRank - r) / range * (h * 0.8) + (h * 0.1)); 
-                    if(i===0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-                });
-                ctx.stroke();
-                
-                const grad = ctx.createLinearGradient(0, 0, 0, h);
-                grad.addColorStop(0, 'rgba(255, 215, 0, 0.2)');
-                grad.addColorStop(1, 'rgba(255, 215, 0, 0)');
-                ctx.lineTo(w, h); ctx.lineTo(0, h); ctx.fillStyle = grad; ctx.fill();
-            }
-        }, 100);
+        // Render Graph
+        setTimeout(() => { drawRankGraph(u.rank_history); }, 100);
 
         c.innerHTML = `
-            <div class="col-span-2 md:col-span-4 bg-[#1a1a1d] border border-white/5 rounded-2xl overflow-hidden relative group p-6">
-                <div class="absolute inset-0 bg-cover bg-center opacity-20" style="background-image: url('${u.cover_url}');"></div>
-                <div class="absolute inset-0 bg-gradient-to-r from-[#141417] via-[#141417]/95 to-transparent"></div>
-                
-                <div class="relative z-10 flex flex-col md:flex-row gap-8">
-                    <div class="flex items-center gap-6 md:w-1/3">
-                        <img src="${u.avatar_url}" class="w-24 h-24 rounded-2xl border-2 border-white/10 shadow-2xl">
+            <div class="flex flex-col gap-4">
+                <div class="glass-panel relative overflow-hidden p-6 group">
+                    <div class="absolute inset-0 bg-cover bg-center opacity-30 group-hover:opacity-40 transition-opacity duration-700" style="background-image: url('${u.cover_url}');"></div>
+                    <div class="absolute inset-0 bg-gradient-to-r from-[#141417] via-[#141417]/95 to-transparent"></div>
+                    
+                    <div class="relative z-10 flex items-center gap-6">
+                        <img src="${u.avatar_url}" class="w-20 h-20 rounded-xl border border-white/10 shadow-xl">
                         <div>
                             <div class="flex items-center gap-3">
-                                <h2 class="text-4xl font-black text-white tracking-tight">${u.username}</h2>
-                                <img src="https://flagcdn.com/24x18/${u.country.toLowerCase()}.png" class="rounded shadow-sm">
+                                <h2 class="text-3xl font-black text-white tracking-tight">${u.username}</h2>
+                                <img src="https://flagcdn.com/24x18/${u.country.toLowerCase()}.png" class="rounded-[2px] opacity-80">
                             </div>
-                            <div class="mt-3 flex flex-wrap gap-2">
-                                <div class="bg-indigo-500/20 border border-indigo-500/30 px-3 py-1 rounded text-xs font-bold text-indigo-300">Global #${u.global_rank}</div>
-                                <div class="bg-white/10 border border-white/10 px-3 py-1 rounded text-xs font-bold text-white">${u.country} #${u.country_rank}</div>
+                            <div class="flex items-center gap-2 mt-2 text-sm">
+                                <span class="text-indigo-400 font-bold">#${u.global_rank.toLocaleString()}</span>
+                                <span class="text-gray-600">•</span>
+                                <span class="text-white font-bold">${u.pp.toLocaleString()}pp</span>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="flex-1 grid grid-cols-2 md:grid-cols-4 gap-4 text-center items-center">
-                        <div class="bg-white/5 rounded-xl p-3 border border-white/5">
-                            <div class="text-[10px] text-gray-500 uppercase font-bold">Medals</div>
-                            <div class="text-2xl font-black text-white">${u.medal_count}</div>
-                        </div>
-                        <div class="bg-white/5 rounded-xl p-3 border border-white/5">
-                            <div class="text-[10px] text-gray-500 uppercase font-bold">PP</div>
-                            <div class="text-2xl font-black text-indigo-400">${u.pp}</div>
-                        </div>
-                        <div class="bg-white/5 rounded-xl p-3 border border-white/5 col-span-2">
-                            <div class="text-[10px] text-gray-500 uppercase font-bold">Play Time</div>
-                            <div class="text-xl font-bold text-white">${playTimeFormatted}</div>
-                        </div>
+                <div class="glass-panel p-4 relative group">
+                    <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNSkiLz48L3N2Zz4=')] opacity-50"></div>
+                    <div class="relative z-10 h-32 w-full">
+                        <canvas id="rank-history-chart" class="w-full h-full"></canvas>
+                        <div id="chart-tooltip"></div>
                     </div>
                 </div>
 
-                <div class="relative z-10 mt-8 mb-4 h-24 w-full border-b border-white/5">
-                    <canvas id="rank-history-chart" class="w-full h-full" width="800" height="100"></canvas>
-                </div>
+                <div class="glass-panel p-6">
+                    <div class="flex flex-wrap justify-between items-center gap-4 mb-6 pb-6 border-b border-white/5">
+                        <div class="flex gap-4">
+                            <div class="text-center px-2">
+                                <div class="text-rank-XH font-bold text-xl leading-none mb-1">SS</div>
+                                <div class="text-xs text-gray-500 font-bold">${u.grades.ssh + u.grades.ss}</div>
+                            </div>
+                            <div class="text-center px-2">
+                                <div class="text-rank-SH font-bold text-xl leading-none mb-1">S</div>
+                                <div class="text-xs text-gray-500 font-bold">${u.grades.sh + u.grades.s}</div>
+                            </div>
+                            <div class="text-center px-2">
+                                <div class="text-rank-A font-bold text-xl leading-none mb-1">A</div>
+                                <div class="text-xs text-gray-500 font-bold">${u.grades.a}</div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-[10px] text-gray-500 uppercase font-bold mb-1">Medals</div>
+                            <div class="text-xl font-black text-white">${u.medal_count}</div>
+                        </div>
+                    </div>
 
-                <div class="relative z-10 flex justify-between items-center gap-2 mb-8 overflow-x-auto">
-                    <div class="flex items-center gap-2"><span class="rank-text text-xl text-rank-XH">SS</span><span class="font-bold text-white">${u.grades.ssh}</span></div>
-                    <div class="w-px h-4 bg-white/10"></div>
-                    <div class="flex items-center gap-2"><span class="rank-text text-xl text-rank-X">S</span><span class="font-bold text-white">${u.grades.ss}</span></div>
-                    <div class="w-px h-4 bg-white/10"></div>
-                    <div class="flex items-center gap-2"><span class="rank-text text-xl text-rank-SH">S</span><span class="font-bold text-white">${u.grades.sh}</span></div>
-                    <div class="w-px h-4 bg-white/10"></div>
-                    <div class="flex items-center gap-2"><span class="rank-text text-xl text-rank-S">S</span><span class="font-bold text-white">${u.grades.s}</span></div>
-                    <div class="w-px h-4 bg-white/10"></div>
-                    <div class="flex items-center gap-2"><span class="rank-text text-xl text-rank-A">A</span><span class="font-bold text-white">${u.grades.a}</span></div>
-                </div>
-
-                <div class="relative z-10 border-t border-white/10 pt-6"></div>
-
-                <div class="relative z-10 profile-stats-grid">
-                    <div class="profile-stat-item">
-                        <div class="profile-stat-label">Ranked Score</div>
-                        <div class="profile-stat-val">${u.ranked_score}</div>
-                    </div>
-                    <div class="profile-stat-item">
-                        <div class="profile-stat-label">Hit Accuracy</div>
-                        <div class="profile-stat-val">${u.accuracy}%</div>
-                    </div>
-                    <div class="profile-stat-item">
-                        <div class="profile-stat-label">Play Count</div>
-                        <div class="profile-stat-val">${u.play_count}</div>
-                    </div>
-                    <div class="profile-stat-item">
-                        <div class="profile-stat-label">Total Score</div>
-                        <div class="profile-stat-val">${u.total_score}</div>
-                    </div>
-                    <div class="profile-stat-item">
-                        <div class="profile-stat-label">Total Hits</div>
-                        <div class="profile-stat-val">${u.total_hits.toLocaleString()}</div>
-                    </div>
-                    <div class="profile-stat-item">
-                        <div class="profile-stat-label">Max Combo</div>
-                        <div class="profile-stat-val">${u.max_combo}</div>
-                    </div>
-                    <div class="profile-stat-item">
-                        <div class="profile-stat-label">Replays Watched</div>
-                        <div class="profile-stat-val">${u.replays_watched.toLocaleString()}</div>
-                    </div>
-                    <div class="profile-stat-item flex flex-col justify-center">
-                        <div class="flex justify-between text-xs mb-1 font-bold"><span class="text-white">Level ${u.level}</span><span class="text-yellow-400">${u.level_progress}%</span></div>
-                        <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden"><div class="h-full bg-yellow-400" style="width: ${u.level_progress}%"></div></div>
+                    <div class="profile-stats-grid">
+                        <div class="profile-stat-card"><div class="profile-stat-label">Ranked Score</div><div class="profile-stat-val">${parseInt(u.ranked_score).toLocaleString()}</div></div>
+                        <div class="profile-stat-card"><div class="profile-stat-label">Hit Accuracy</div><div class="profile-stat-val">${u.accuracy}%</div></div>
+                        <div class="profile-stat-card"><div class="profile-stat-label">Play Count</div><div class="profile-stat-val">${u.play_count}</div></div>
+                        <div class="profile-stat-card"><div class="profile-stat-label">Total Score</div><div class="profile-stat-val text-xs text-gray-300">${parseInt(u.total_score).toLocaleString()}</div></div>
+                        <div class="profile-stat-card"><div class="profile-stat-label">Total Hits</div><div class="profile-stat-val">${parseInt(u.total_hits).toLocaleString()}</div></div>
+                        <div class="profile-stat-card"><div class="profile-stat-label">Max Combo</div><div class="profile-stat-val">${u.max_combo}</div></div>
+                        <div class="profile-stat-card"><div class="profile-stat-label">Replays Watched</div><div class="profile-stat-val">${u.replays_watched}</div></div>
+                        <div class="profile-stat-card flex justify-center">
+                            <div class="flex justify-between w-full text-[10px] mb-1"><span class="font-bold text-white">Lvl ${u.level}</span><span class="text-yellow-400 font-bold">${u.level_progress}%</span></div>
+                            <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden"><div class="h-full bg-yellow-400 rounded-full" style="width: ${u.level_progress}%"></div></div>
+                            <div class="mt-2 text-[10px] font-bold text-gray-500 uppercase text-right">${playTimeFormatted}</div>
+                        </div>
                     </div>
                 </div>
             </div>`;
@@ -353,53 +306,148 @@ async function loadUserStats() {
     }
 }
 
-function switchTab(t) {
-    const act = () => {
-        document.querySelectorAll('.tab-content, .nav-btn').forEach(e => e.classList.remove('active'));
-        document.getElementById('tab-' + t).classList.add('active');
-        document.getElementById('btn-' + t).classList.add('active');
-        if (t === 'stream' && typeof resize === 'function') setTimeout(resize, 100);
+function drawRankGraph(history) {
+    const canvas = document.getElementById('rank-history-chart');
+    const tooltip = document.getElementById('chart-tooltip');
+    if (!canvas || !history || history.length < 2) return;
+
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
+
+    const w = rect.width;
+    const h = rect.height;
+    const minRank = Math.min(...history);
+    const maxRank = Math.max(...history);
+    const range = maxRank - minRank || 1;
+    const padding = 5;
+
+    // Draw Grid
+    ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for(let i=1; i<4; i++) {
+        const y = (h / 4) * i;
+        ctx.moveTo(0, y); ctx.lineTo(w, y);
+    }
+    ctx.stroke();
+
+    // Draw Line
+    ctx.beginPath();
+    ctx.strokeStyle = '#fbbf24'; // Amber-400
+    ctx.lineWidth = 2;
+    ctx.lineJoin = 'round';
+
+    const getPoint = (i) => {
+        const x = (i / (history.length - 1)) * w;
+        // Invert Y because lower rank is better (top)
+        const y = padding + ( (history[i] - minRank) / range ) * (h - padding*2); 
+        return {x, y: h - y}; // Re-invert for display (High Y = Bottom) ?? No wait.
+        // Rank 1 (min) should be at TOP (y=0). Rank 1000 (max) at BOTTOM (y=h).
+        // normalized (0-1) where 0 is minRank.
+        // y = (val - min) / range * h.  If val = min, y=0 (TOP). If val=max, y=h (BOTTOM). Correct.
     };
-    document.startViewTransition ? document.startViewTransition(act) : act();
+
+    history.forEach((val, i) => {
+        const x = (i / (history.length - 1)) * w;
+        const normalized = (val - minRank) / range;
+        const y = padding + normalized * (h - padding * 2);
+        if(i===0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+
+    // Gradient Fill
+    const grad = ctx.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, 'rgba(251, 191, 36, 0.2)');
+    grad.addColorStop(1, 'rgba(251, 191, 36, 0)');
+    ctx.lineTo(w, h); ctx.lineTo(0, h); 
+    ctx.fillStyle = grad; 
+    ctx.fill();
+
+    // Interactive Tooltip
+    canvas.onmousemove = (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const idx = Math.round( (x / w) * (history.length - 1) );
+        
+        if (idx >= 0 && idx < history.length) {
+            const rank = history[idx];
+            const daysAgo = 90 - idx; // Approx
+            tooltip.style.opacity = 1;
+            tooltip.style.left = `${x}px`;
+            tooltip.style.top = `${padding + ((rank - minRank) / range * (h - padding*2))}px`;
+            tooltip.innerHTML = `<span class="font-bold text-yellow-400">#${rank.toLocaleString()}</span><br><span class="text-xs text-gray-400">${daysAgo} days ago</span>`;
+        }
+    };
+    canvas.onmouseleave = () => { tooltip.style.opacity = 0; };
 }
 
-function copyDiscord() { navigator.clipboard.writeText(".morgun.").then(() => { const t=document.getElementById("toast"); t.className="show"; setTimeout(()=>t.className="",3000); }); }
-
-async function fetchLanyard() {
+// ... ОСТАЛЬНЫЕ ФУНКЦИИ (switchTab, copyDiscord, Lanyard) БЕЗ ИЗМЕНЕНИЙ ...
+function switchTab(t) { 
+    if (document.startViewTransition) { document.startViewTransition(() => performSwitch(t)); } else { performSwitch(t); }
+}
+function performSwitch(t) {
+    document.querySelectorAll('.tab-content').forEach(e=>e.classList.remove('active')); 
+    document.querySelectorAll('.nav-btn').forEach(e=>e.classList.remove('active')); 
+    document.getElementById('tab-'+t).classList.add('active'); 
+    document.getElementById('btn-'+t).classList.add('active');
+    if (t === 'stream' && typeof resize === 'function') setTimeout(resize, 100);
+}
+function copyDiscord() { navigator.clipboard.writeText(".morgun.").then(()=>{ var t=document.getElementById("toast"); t.className="show"; setTimeout(()=>t.className=t.className.replace("show",""),3000); }); }
+function toggleFilter(id, btn) { const d = document.getElementById(id); d.classList.toggle('open'); btn.classList.toggle('active'); }
+function setLang(lang) { localStorage.setItem('lang', lang); }
+async function fetchLanyardStatus() {
     try {
         const res = await fetch(`https://api.lanyard.rest/v1/users/${DISCORD_ID}`);
         const data = await res.json();
-        if (data.success) updateStatus(data.data);
-    } catch {}
+        if (data.success) updateStatusBadges(data.data);
+    } catch (e) { console.error(e); }
 }
+function updateStatusBadges(discordData) {
+    const status = discordData.discord_status;
+    const activities = discordData.activities || [];
+    const profileWrapper = document.getElementById('profile-status-wrapper');
 
-function updateStatus(d) {
-    const act = (d.activities || []).find(a => a.name.toLowerCase().includes('osu') || a.type <= 2);
-    const wrap = document.getElementById('profile-status-wrapper');
-    if (!wrap) return;
+    let activity = activities.find(a => a.name.toLowerCase().includes('osu'));
+    if (!activity) activity = activities.find(a => a.type === 0);
+    if (!activity) activity = activities.find(a => a.type === 1);
+    if (!activity) activity = activities.find(a => a.type === 2);
 
-    let cls = "inline-flex items-center rounded-2xl border mb-6 backdrop-blur-md transition-colors duration-300 max-w-full px-4 py-2 ", html = "";
-    
-    if (act) {
-        let url;
-        if (act.assets?.large_image) url = act.assets.large_image.startsWith('mp:') ? act.assets.large_image.replace('mp:', 'https://media.discordapp.net/') : `https://cdn.discordapp.com/app-assets/${act.application_id}/${act.assets.large_image}.png`;
-        
-        const isOsu = act.name.toLowerCase().includes('osu');
-        cls += isOsu ? "bg-pink-500/10 border-pink-500/30" : "bg-indigo-500/10 border-indigo-500/30";
-        const txtCol = isOsu ? "text-pink-400" : "text-indigo-400";
-        
-        html = `${url ? `<img src="${url}" class="w-10 h-10 rounded-md mr-3 object-cover shadow-lg">` : ''}
-                <div class="flex flex-col min-w-0"><span class="text-xs font-bold ${txtCol} leading-none mb-1">${act.name}</span>
-                ${act.details ? `<span class="text-[10px] text-gray-300 truncate w-full">${act.details}</span>` : ''}
-                ${act.state ? `<span class="text-[10px] text-gray-400 truncate w-full">${act.state}</span>` : ''}</div>`;
+    let htmlContent = '', wrapperClasses = "inline-flex items-center rounded-2xl border mb-6 backdrop-blur-md transition-colors duration-300 max-w-full";
+    let color = 'text-gray-400', bg = 'bg-gray-500/10', border = 'border-gray-500/30', dotColor = 'bg-gray-400';
+
+    if (activity) {
+        let iconUrl = null;
+        if (activity.id === 'spotify:1' && activity.assets?.large_image) iconUrl = `https://i.scdn.co/image/${activity.assets.large_image.replace('spotify:', '')}`;
+        else if (activity.assets?.large_image) {
+            let img = activity.assets.large_image;
+            if (img.startsWith('mp:')) iconUrl = img.replace('mp:', 'https://media.discordapp.net/');
+            else iconUrl = `https://cdn.discordapp.com/app-assets/${activity.application_id}/${img}.png`;
+        }
+        const name = activity.name;
+        const details = activity.details || "";
+        const state = activity.state || "";
+
+        if (name.toLowerCase().includes('osu')) { color='text-pink-400'; bg='bg-pink-500/10'; border='border-pink-500/30'; }
+        else if (activity.type === 2) { color='text-green-400'; bg='bg-green-500/10'; border='border-green-500/30'; }
+        else { color='text-indigo-400'; bg='bg-indigo-500/10'; border='border-indigo-500/30'; }
+
+        wrapperClasses += ` px-4 py-2 ${bg} ${border}`;
+        htmlContent = `${iconUrl ? `<img src="${iconUrl}" class="w-10 h-10 rounded-md mr-3 object-cover shadow-lg">` : ''}<div class="flex flex-col min-w-0"><span class="text-xs font-bold ${color} leading-none mb-1">${name}</span>${details ? `<span class="text-[10px] text-gray-300 leading-tight truncate w-full">${details}</span>` : ''}${state ? `<span class="text-[10px] text-gray-400 leading-tight truncate w-full">${state}</span>` : ''}</div>`;
     } else {
-        const s = d.discord_status;
-        const col = s === 'online' ? 'green' : s === 'dnd' ? 'red' : 'gray';
-        cls += `bg-${col}-500/10 border-${col}-500/30 px-3 py-1`;
-        html = `<span class="w-2 h-2 rounded-full mr-2 bg-${col}-400 ${s === 'online' ? 'animate-pulse' : ''}"></span><span class="text-xs font-bold text-${col}-400">${s.toUpperCase()}</span>`;
+        if (status === 'online') { color='text-green-400'; bg='bg-green-500/10'; border='border-green-500/30'; dotColor='bg-green-400'; }
+        else if (status === 'dnd') { color='text-red-400'; bg='bg-red-500/10'; border='border-red-500/30'; dotColor='bg-red-400'; }
+        wrapperClasses += ` px-3 py-1 ${bg} ${border}`;
+        htmlContent = `<span class="w-2 h-2 rounded-full mr-2 ${dotColor} ${status === 'online' ? 'animate-pulse' : ''}"></span><span class="text-xs font-bold ${color}">${status.toUpperCase()}</span>`;
     }
-    wrap.className = cls; wrap.innerHTML = html;
+    if(profileWrapper) { profileWrapper.className = wrapperClasses; profileWrapper.innerHTML = htmlContent; }
 }
 
-fetchLanyard(); setInterval(fetchLanyard, 10000);
-loadTopScores(); loadUserStats();
+fetchLanyardStatus(); 
+setInterval(fetchLanyardStatus, 10000);
+loadTopScores(); 
+loadUserStats();
