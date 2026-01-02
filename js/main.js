@@ -341,7 +341,14 @@ function updateLanyardUI(d) {
     const w = document.getElementById('profile-status-wrapper');
     if (!w) return;
 
-    const activity = d.activities ? d.activities.find(a => a.name.toLowerCase().includes('osu')) : null;
+    let activity = null;
+    if (d.activities && d.activities.length > 0) {
+        activity = d.activities.find(a => 
+            (a.name && a.name.toLowerCase().includes('osu')) || 
+            (a.state && a.state.toLowerCase().includes('osu')) ||
+            (a.details && a.details.toLowerCase().includes('osu'))
+        );
+    }
     const status = d.discord_status;
 
     if (activity) {
