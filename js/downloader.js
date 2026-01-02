@@ -1,4 +1,4 @@
-function downloadResults() {
+window.downloadResults = function() {
     const history = window.fullTestHistory || [];
     const bpm = document.getElementById('val-bpm').innerText;
     const ur = document.getElementById('val-ur').innerText;
