@@ -4,7 +4,7 @@ let mouseX = 0, mouseY = 0, isMoving = false;
 let cursorEnabled = localStorage.getItem('customCursor') !== 'false';
 window.topScoresData = [];
 window.visibleScoresCount = 5;
-let activityTimerInterval = null;
+let globalTimerInterval = null;
 
 const Utils = {
     getAccColor: (a) => a >= 99 ? 'text-[#22c55e]' : a >= 97 ? 'text-[#8fbfff]' : a >= 94 ? 'text-[#ffcc22]' : 'text-[#ff4444]',
@@ -327,60 +327,75 @@ function initLanyard() {
 function updateLanyardUI(d) {
     const w = document.getElementById('profile-status-wrapper');
     if (!w) return;
-    if (activityTimerInterval) { clearInterval(activityTimerInterval); activityTimerInterval = null; }
+    
+    if (globalTimerInterval) { clearInterval(globalTimerInterval); globalTimerInterval = null; }
 
     const status = d.discord_status;
-    let activity = d.activities.find(a => a.type !== 4);
+    
+    const activities = d.activities.filter(a => a.type !== 4);
 
-    if (activity) {
-        let largeImage = '';
-        if (activity.assets && activity.assets.large_image) {
-            const img = activity.assets.large_image;
-            if (img.startsWith("spotify:")) {
-                largeImage = `https://i.scdn.co/image/${img.replace("spotify:", "")}`;
-            } else if (img.startsWith("mp:")) {
-                largeImage = `https://media.discordapp.net/${img.replace("mp:", "")}`;
-            } else {
-                largeImage = `https://cdn.discordapp.com/app-assets/${activity.application_id}/${img}.png`;
+    if (activities.length > 0) {
+        w.className = "flex flex-wrap gap-2 mb-6 max-w-full";
+        
+        let html = '';
+        activities.forEach(activity => {
+            let largeImage = '';
+            if (activity.assets && activity.assets.large_image) {
+                const img = activity.assets.large_image;
+                if (img.startsWith("spotify:")) largeImage = `https://i.scdn.co/image/${img.replace("spotify:", "")}`;
+                else if (img.startsWith("mp:")) largeImage = `https://media.discordapp.net/${img.replace("mp:", "")}`;
+                else largeImage = `https://cdn.discordapp.com/app-assets/${activity.application_id}/${img}.png`;
             }
-        }
 
-        const name = activity.name;
-        const details = activity.details || '';
-        const state = activity.state || '';
-        const hasTime = activity.timestamps && activity.timestamps.start;
-        
-        let contentHtml = `
-            <div class="flex items-center gap-3">
-                ${largeImage ? `<img src="${largeImage}" class="w-8 h-8 rounded-md shadow-sm object-cover">` : `<div class="w-8 h-8 rounded-md bg-indigo-500/20 flex items-center justify-center"><i class="fas fa-gamepad text-indigo-400"></i></div>`}
-                <div class="flex flex-col justify-center text-left">
-                    <span class="text-[10px] font-bold text-white leading-tight line-clamp-1">${name}</span>
-                    ${details ? `<span class="text-[9px] text-gray-400 leading-tight line-clamp-1">${details}</span>` : ''}
-                    ${state ? `<span class="text-[9px] text-gray-400 leading-tight line-clamp-1">${state}</span>` : ''}
-                    ${hasTime ? `<span id="activity-timer" class="text-[9px] text-gray-500 font-mono leading-tight mt-0.5">00:00</span>` : ''}
+            const name = activity.name;
+            const details = activity.details || '';
+            const state = activity.state || '';
+            const hasTime = activity.timestamps && activity.timestamps.start;
+            const startTime = hasTime ? activity.timestamps.start : 0;
+            
+            let linkUrl = '';
+            if (activity.id === 'spotify:1' && activity.sync_id) {
+                linkUrl = `https://open.spotify.com/track/${activity.sync_id}`;
+            } else {
+                linkUrl = `https://www.google.com/search?q=${encodeURIComponent(name)}`;
+            }
+
+            html += `
+            <a href="${linkUrl}" target="_blank" class="inline-flex items-center rounded-xl border backdrop-blur-md transition-all duration-300 w-fit px-3 py-2 bg-[#141417]/80 border-white/10 shadow-lg hover:bg-[#1f1f23] hover:border-indigo-500/30 hover:scale-[1.02] cursor-pointer group/activity">
+                <div class="flex items-center gap-3">
+                    ${largeImage ? `<img src="${largeImage}" class="w-8 h-8 rounded-md shadow-sm object-cover">` : `<div class="w-8 h-8 rounded-md bg-indigo-500/20 flex items-center justify-center"><i class="fas fa-gamepad text-indigo-400"></i></div>`}
+                    <div class="flex flex-col justify-center text-left">
+                        <span class="text-[10px] font-bold text-white leading-tight line-clamp-1 group-hover/activity:text-indigo-400 transition-colors">${name}</span>
+                        ${details ? `<span class="text-[9px] text-gray-400 leading-tight line-clamp-1">${details}</span>` : ''}
+                        ${state ? `<span class="text-[9px] text-gray-400 leading-tight line-clamp-1">${state}</span>` : ''}
+                        ${hasTime ? `<span class="activity-timer text-[9px] text-gray-500 font-mono leading-tight mt-0.5" data-start="${startTime}">00:00</span>` : ''}
+                    </div>
                 </div>
-            </div>`;
-        
-        w.className = "inline-flex items-center rounded-xl border mb-6 backdrop-blur-md transition-colors duration-300 max-w-full px-3 py-2 bg-[#141417]/80 border-white/10 shadow-lg";
-        w.innerHTML = contentHtml;
+            </a>`;
+        });
+        w.innerHTML = html;
 
-        if (hasTime) {
-            const start = activity.timestamps.start;
-            const updateTimer = () => {
-                const el = document.getElementById('activity-timer');
-                if (!el) return;
+        if (activities.some(a => a.timestamps && a.timestamps.start)) {
+            const updateTimers = () => {
+                const els = document.querySelectorAll('.activity-timer');
+                if (els.length === 0) return;
                 const now = Date.now();
-                const diff = now - start;
-                const hrs = Math.floor(diff / 3600000);
-                const mins = Math.floor((diff % 3600000) / 60000);
-                const secs = Math.floor((diff % 60000) / 1000);
-                el.innerText = hrs > 0 
-                    ? `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}` 
-                    : `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                els.forEach(el => {
+                    const start = parseInt(el.getAttribute('data-start'));
+                    if (!start) return;
+                    const diff = now - start;
+                    const hrs = Math.floor(diff / 3600000);
+                    const mins = Math.floor((diff % 3600000) / 60000);
+                    const secs = Math.floor((diff % 60000) / 1000);
+                    el.innerText = hrs > 0 
+                        ? `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}` 
+                        : `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                });
             };
-            updateTimer();
-            activityTimerInterval = setInterval(updateTimer, 1000);
+            updateTimers();
+            globalTimerInterval = setInterval(updateTimers, 1000);
         }
+
     } else {
         const color = status === 'online' ? 'green' : status === 'dnd' ? 'red' : status === 'idle' ? 'yellow' : 'gray';
         const bgClass = status === 'online' ? 'bg-green-400' : status === 'dnd' ? 'bg-red-400' : status === 'idle' ? 'bg-yellow-400' : 'bg-gray-400';
