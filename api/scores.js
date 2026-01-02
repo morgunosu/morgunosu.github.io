@@ -3,7 +3,7 @@ export default async function handler(req, res) {
     const USER_ID = "13017880";
 
     if (!OSU_CLIENT_ID || !OSU_CLIENT_SECRET) {
-        return res.status(500).json({ error: "Server config missing" });
+        return res.status(500).json({ error: "Config missing" });
     }
 
     res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=30');
@@ -20,7 +20,7 @@ export default async function handler(req, res) {
             })
         });
 
-        if (!tokenRes.ok) throw new Error("Failed to get token");
+        if (!tokenRes.ok) throw new Error("Token error");
         const { access_token } = await tokenRes.json();
 
         const headers = {
@@ -37,7 +37,7 @@ export default async function handler(req, res) {
         if (type === 'recent') endpoint = `users/${USER_ID}/scores/recent?include_fails=1&limit=15`;
 
         const apiRes = await fetch(`https://osu.ppy.sh/api/v2/${endpoint}`, { headers });
-        if (!apiRes.ok) throw new Error("Osu API Error");
+        if (!apiRes.ok) throw new Error("API error");
         
         const data = await apiRes.json();
 
@@ -83,7 +83,6 @@ export default async function handler(req, res) {
         return res.status(200).json(Array.isArray(data) ? data.map(mapScore) : []);
 
     } catch (e) {
-        console.error(e);
-        return res.status(500).json({ error: "Internal Server Error" });
+        return res.status(500).json({ error: "Internal error" });
     }
 }
