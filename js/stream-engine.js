@@ -41,7 +41,7 @@ function resize() {
 window.addEventListener('resize', resize);
 if (dom.bpmChart) resize();
 
-function setLimitType(type) {
+window.setLimitType = function(type) {
     ['none', 'time', 'clicks'].forEach(t => {
         const btn = document.getElementById('lim-' + t);
         if(btn) btn.className = (t === type) ? "px-3 py-1.5 rounded-md text-[10px] font-bold uppercase transition-all bg-indigo-500 text-white shadow-lg transform scale-105" : "px-3 py-1.5 rounded-md text-[10px] font-bold uppercase transition-all text-gray-500 hover:text-white hover:bg-white/5";
@@ -53,7 +53,7 @@ function setLimitType(type) {
     }
 }
 
-function toggleInputMode() {
+window.toggleInputMode = function() {
     inputMode = inputMode === 'keyboard' ? 'mouse' : 'keyboard';
     const isMouse = inputMode === 'mouse';
     document.getElementById('mode-icon').className = isMouse ? "fas fa-mouse" : "fas fa-keyboard";
@@ -63,7 +63,7 @@ function toggleInputMode() {
     ['bind-k1', 'bind-k2'].forEach(id => document.getElementById(id).style.display = isMouse ? 'none' : 'block');
 }
 
-function bindKey(k) {
+window.bindKey = function(k) {
     if (inputMode === 'mouse') return;
     binding = k;
     const btn = document.getElementById('bind-' + k);
@@ -71,7 +71,7 @@ function bindKey(k) {
     btn.classList.add('binding');
 }
 
-function toggleTestState() {
+window.toggleTestState = function() {
     isTesting = !isTesting;
     if (isTesting) {
         let type = 'none';
@@ -96,7 +96,7 @@ function toggleTestState() {
     }
 }
 
-function manualReset() {
+window.manualReset = function() {
     if (isTesting) toggleTestState();
     resetTest();
 }
