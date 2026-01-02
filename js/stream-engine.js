@@ -2,6 +2,7 @@ let clickTimes = [], hitErrors = [], liveHitErrors = [], chartData = [];
 let keys = { k1: 'KeyZ', k2: 'KeyX' }, keyNames = { k1: 'Z', k2: 'X' };
 let counts = { k1: 0, k2: 0 }, binding = null, isTesting = false, inputMode = 'keyboard';
 let testSettings = { mode: 'none', value: 0 }, beginTime = -1, keyStates = {};
+window.fullTestHistory = [];
 
 const dom = {
     bpmChart: document.getElementById('bpmChart'),
@@ -16,12 +17,15 @@ const dom = {
     historyList: document.getElementById('input-history-list'),
     historyPlaceholder: document.getElementById('history-placeholder'),
     btnStart: document.getElementById('btn-start'),
+    btnDownload: document.getElementById('btn-download'),
     limitVal: document.getElementById('limit-value')
 };
 
 const chartCtx = dom.bpmChart?.getContext('2d', { alpha: false });
 const errCtx = dom.errorBar?.getContext('2d', { alpha: true });
 let width, height, errW, errH;
+let lastDrawTime = 0;
+const FPS_LIMIT = 1000 / 60;
 
 function resize() {
     if (!dom.bpmChart || !dom.bpmChart.parentElement) return;
@@ -83,12 +87,14 @@ function toggleTestState() {
         resetTest();
         dom.btnStart.className = "bg-red-500 hover:bg-red-400 text-black px-8 py-2 rounded-lg transition-all text-xs font-black uppercase tracking-widest shadow-[0_0_20px_rgba(239,68,68,0.3)] hover:shadow-[0_0_30px_rgba(239,68,68,0.5)] transform hover:scale-105 active:scale-95";
         span.innerText = "STOP"; icon.className = "fas fa-stop mr-2";
+        dom.btnDownload.disabled = true;
         beginTime = performance.now();
-        loop();
+        loop(0);
     } else {
         dom.btnStart.className = "bg-green-500 hover:bg-green-400 text-black px-8 py-2 rounded-lg transition-all text-xs font-black uppercase tracking-widest shadow-[0_0_20px_rgba(34,197,94,0.3)] hover:shadow-[0_0_30px_rgba(34,197,94,0.5)] transform hover:scale-105 active:scale-95";
         span.innerText = "START"; icon.className = "fas fa-play mr-2";
         beginTime = -1;
+        dom.btnDownload.disabled = window.fullTestHistory.length === 0;
         drawFinalResults();
     }
 }
@@ -100,8 +106,10 @@ function manualReset() {
 
 function resetTest() {
     clickTimes = []; chartData = []; hitErrors = []; liveHitErrors = []; counts = { k1: 0, k2: 0 }; keyStates = {};
+    window.fullTestHistory = [];
     dom.bpmVal.innerText = "0"; dom.urVal.innerText = "0.00"; dom.timeVal.innerText = "0.000 s";
     dom.countK1.innerText = "0"; dom.countK2.innerText = "0";
+    dom.btnDownload.disabled = true;
     if (width) chartCtx.clearRect(0, 0, width, height);
     if (errW) errCtx.clearRect(0, 0, errW, errH);
     dom.historyList.innerHTML = `<div id="history-placeholder" class="text-center text-xs text-gray-600 italic py-10">Waiting for input...</div>`;
@@ -137,7 +145,12 @@ function handleInput(type, isDown) {
     } else {
         const start = keyStates[type];
         if (start) {
-            requestAnimationFrame(() => addHistoryRow(type, now - start));
+            const duration = now - start;
+            const pressTime = start - beginTime;
+            const label = type === 'k1' ? (inputMode === 'mouse' ? 'LMB' : keyNames.k1) : (inputMode === 'mouse' ? 'RMB' : keyNames.k2);
+            
+            window.fullTestHistory.push({ key: label, timestamp: pressTime.toFixed(2), duration: duration.toFixed(1) });
+            requestAnimationFrame(() => addHistoryRow(type, duration));
             delete keyStates[type];
         }
         if(type === 'k1') dom.visualK1.classList.remove('active');
@@ -146,25 +159,17 @@ function handleInput(type, isDown) {
 }
 
 function addHistoryRow(type, duration) {
-    if (dom.historyList.children.length > 50) {
+    if (dom.historyList.children.length > 30) {
         dom.historyList.lastElementChild.remove();
     }
 
     const row = document.createElement('div');
     row.className = "flex items-center gap-3 bg-white/5 px-3 py-2 rounded-lg border border-white/5";
-    
     const label = type === 'k1' ? (inputMode === 'mouse' ? 'LMB' : keyNames.k1) : (inputMode === 'mouse' ? 'RMB' : keyNames.k2);
     const color = type === 'k1' ? 'text-indigo-400' : 'text-fuchsia-400';
     const bg = type === 'k1' ? 'bg-indigo-500' : 'bg-fuchsia-500';
     
-    row.innerHTML = `
-        <div class="w-8 text-xs font-bold ${color}">${label}</div>
-        <div class="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
-            <div class="h-full ${bg} rounded-full" style="width: ${Math.min((duration/150)*100, 100)}%"></div>
-        </div>
-        <div class="w-12 text-right text-xs font-mono text-gray-400">${Math.round(duration)}ms</div>
-    `;
-    
+    row.innerHTML = `<div class="w-8 text-xs font-bold ${color}">${label}</div><div class="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden"><div class="h-full ${bg} rounded-full" style="width: ${Math.min((duration/150)*100, 100)}%"></div></div><div class="w-12 text-right text-xs font-mono text-gray-400">${Math.round(duration)}ms</div>`;
     dom.historyList.prepend(row);
 }
 
@@ -186,7 +191,7 @@ function calculateStats(now) {
     chartData.push(bpm);
     if (chartData.length > 100) chartData.shift();
 
-    if (clickTimes.length % 5 === 0 || clickTimes.length < 100) {
+    if (clickTimes.length % 5 === 0 || clickTimes.length < 50) {
         let allIntervals = [];
         for (let i = 1; i < clickTimes.length; i++) allIntervals.push(clickTimes[i] - clickTimes[i-1]);
         const totalAvg = allIntervals.reduce((a,b)=>a+b,0) / allIntervals.length;
@@ -206,14 +211,16 @@ function checkLimits(now) {
     else if (testSettings.mode === 'time' && (now - beginTime)/1000 >= testSettings.value) toggleTestState();
 }
 
-function loop() {
+function loop(timestamp) {
     if (!isTesting) return;
-    const now = performance.now();
     
-    dom.timeVal.innerText = ((now - beginTime) / 1000).toFixed(3) + " s";
-    
-    drawChart();
-    drawLiveHitErrors(now);
+    if (timestamp - lastDrawTime >= FPS_LIMIT) {
+        const now = performance.now();
+        dom.timeVal.innerText = ((now - beginTime) / 1000).toFixed(3) + " s";
+        drawChart();
+        drawLiveHitErrors(now);
+        lastDrawTime = timestamp;
+    }
     
     requestAnimationFrame(loop);
 }
@@ -224,7 +231,7 @@ function drawChart() {
     if (chartData.length < 2) return;
     
     chartCtx.beginPath(); 
-    chartCtx.lineWidth = 2; 
+    chartCtx.lineWidth = 1; 
     chartCtx.strokeStyle = '#6366f1';
     
     let min = 1000, max = 0;
@@ -242,14 +249,6 @@ function drawChart() {
         chartCtx.lineTo(i * step, height - ((chartData[i] - min) / range * height));
     }
     chartCtx.stroke();
-    
-    chartCtx.lineTo(width, height); 
-    chartCtx.lineTo(0, height);
-    const grad = chartCtx.createLinearGradient(0, 0, 0, height);
-    grad.addColorStop(0, 'rgba(99, 102, 241, 0.3)'); 
-    grad.addColorStop(1, 'rgba(99, 102, 241, 0)');
-    chartCtx.fillStyle = grad; 
-    chartCtx.fill();
 }
 
 function drawLiveHitErrors(now) {
@@ -259,9 +258,7 @@ function drawLiveHitErrors(now) {
     errCtx.fillStyle = 'rgba(255, 255, 255, 0.8)'; 
     errCtx.fillRect(Math.floor(errW/2)-1, 0, 2, errH);
     
-    if (liveHitErrors.length > 0 && now - liveHitErrors[0].time > 1000) {
-        liveHitErrors.shift();
-    }
+    if (liveHitErrors.length > 0 && now - liveHitErrors[0].time > 1000) liveHitErrors.shift();
 
     for (let i = 0; i < liveHitErrors.length; i++) {
         const e = liveHitErrors[i];
@@ -315,26 +312,22 @@ document.addEventListener('keydown', e => {
         else if (e.code === keys.k2) { e.preventDefault(); handleInput('k2', true); }
     }
 });
-
 document.addEventListener('keyup', e => {
     if (inputMode === 'keyboard') {
         if (e.code === keys.k1) handleInput('k1', false);
         if (e.code === keys.k2) handleInput('k2', false);
     }
 });
-
 document.addEventListener('mousedown', e => {
     if (inputMode === 'mouse') {
         if (e.button === 0) handleInput('k1', true);
         if (e.button === 2) handleInput('k2', true);
     }
 });
-
 document.addEventListener('mouseup', e => {
     if (inputMode === 'mouse') {
         if (e.button === 0) handleInput('k1', false);
         if (e.button === 2) handleInput('k2', false);
     }
 });
-
 document.addEventListener('contextmenu', e => { if (inputMode === 'mouse' && isTesting) e.preventDefault(); });
