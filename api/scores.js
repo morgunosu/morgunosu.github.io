@@ -51,14 +51,18 @@ export default async function handler(request, response) {
                 level_progress: stats.level?.progress || 0,
                 country: user.country?.code || "XX",
                 country_name: user.country?.name || "Unknown",
-                medal_count: user.badges?.length || 0,
+                // Считаем медали (achievements)
+                medal_count: (user.user_achievements || []).length, 
                 replays_watched: stats.replays_watched_by_others || 0,
                 total_hits: stats.total_hits || 0,
+                // Оценки
                 grades: stats.grade_counts || { ssh: 0, ss: 0, sh: 0, s: 0, a: 0 },
+                // История ранга (последние 90 дней)
                 rank_history: user.rank_history?.data || []
             });
         }
 
+        // Логика для скоров (оставляем как было для скорости)
         const scoresRes = await fetch(`https://osu.ppy.sh/api/v2/users/${USER_ID}/scores/best?limit=50`, { headers });
         const scores = await scoresRes.json();
 
