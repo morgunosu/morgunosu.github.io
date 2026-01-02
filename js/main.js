@@ -223,13 +223,11 @@ async function loadUserStats() {
         if (!res.ok) throw new Error();
         const u = await res.json();
         
-        // --- Calculate Play Time ---
         const d = Math.floor(u.play_time_seconds / 86400);
         const h = Math.floor((u.play_time_seconds % 86400) / 3600);
         const m = Math.floor((u.play_time_seconds % 3600) / 60);
         const playTimeFormatted = `${d}d ${h}h ${m}m`;
 
-        // --- Render Rank Graph (Canvas) ---
         setTimeout(() => {
             const chartCanvas = document.getElementById('rank-history-chart');
             if(chartCanvas && u.rank_history && u.rank_history.length > 1) {
@@ -248,12 +246,11 @@ async function loadUserStats() {
                 
                 ranks.forEach((r, i) => {
                     const x = (i / (ranks.length - 1)) * w;
-                    const y = h - ((maxRank - r) / range * (h * 0.8) + (h * 0.1)); // Invert Y (lower rank is higher)
+                    const y = h - ((maxRank - r) / range * (h * 0.8) + (h * 0.1)); 
                     if(i===0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
                 });
                 ctx.stroke();
                 
-                // Gradient Fill
                 const grad = ctx.createLinearGradient(0, 0, 0, h);
                 grad.addColorStop(0, 'rgba(255, 215, 0, 0.2)');
                 grad.addColorStop(1, 'rgba(255, 215, 0, 0)');
