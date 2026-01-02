@@ -11,7 +11,7 @@ export default async function handler(request, response) {
     }
 
     try {
-        const tokenRes = await fetch("https://osu.ppy.sh/oauth/token", {
+        const tokenResponse = await fetch("https://osu.ppy.sh/oauth/token", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -22,9 +22,9 @@ export default async function handler(request, response) {
             })
         });
 
-        const { access_token } = await tokenRes.json();
+        const tokenData = await tokenResponse.json();
         const headers = {
-            "Authorization": `Bearer ${access_token}`,
+            "Authorization": `Bearer ${tokenData.access_token}`,
             "Content-Type": "application/json",
             "x-api-version": "20240130"
         };
@@ -32,24 +32,30 @@ export default async function handler(request, response) {
         if (type === 'user') {
             const userRes = await fetch(`https://osu.ppy.sh/api/v2/users/${USER_ID}/osu`, { headers });
             const user = await userRes.json();
-            const s = user.statistics || {};
+            const stats = user.statistics || {};
             
             return response.status(200).json({
                 username: user.username,
                 avatar_url: user.avatar_url,
                 cover_url: user.cover?.url || "", 
-                global_rank: s.global_rank || 0,
-                country_rank: s.country_rank || 0,
-                pp: Math.round(s.pp || 0),
-                accuracy: (s.hit_accuracy || 0).toFixed(2),
-                play_count: (s.play_count || 0).toLocaleString(),
-                play_time: ((s.play_time || 0) / 3600).toFixed(0),
-                total_score: (s.total_score || 0).toLocaleString(),
-                max_combo: s.maximum_combo || 0,
-                level: s.level?.current || 0,
-                level_progress: s.level?.progress || 0,
+                global_rank: stats.global_rank || 0,
+                country_rank: stats.country_rank || 0,
+                pp: Math.round(stats.pp || 0),
+                accuracy: (stats.hit_accuracy || 0).toFixed(2),
+                play_count: (stats.play_count || 0).toLocaleString(),
+                play_time_seconds: stats.play_time || 0,
+                total_score: (stats.total_score || 0).toLocaleString(),
+                ranked_score: (stats.ranked_score || 0).toLocaleString(),
+                max_combo: stats.maximum_combo || 0,
+                level: stats.level?.current || 0,
+                level_progress: stats.level?.progress || 0,
                 country: user.country?.code || "XX",
                 country_name: user.country?.name || "Unknown",
+                medal_count: user.badges?.length || 0,
+                replays_watched: stats.replays_watched_by_others || 0,
+                total_hits: stats.total_hits || 0,
+                grades: stats.grade_counts || { ssh: 0, ss: 0, sh: 0, s: 0, a: 0 },
+                rank_history: user.rank_history?.data || []
             });
         }
 
@@ -57,10 +63,12 @@ export default async function handler(request, response) {
         const scores = await scoresRes.json();
 
         const detailedScores = scores.map(s => {
-            const mods = s.mods?.length ? s.mods.map(m => m.acronym || m) : ["NM"];
+            const mods = s.mods && s.mods.length > 0 ? s.mods.map(m => m.acronym || m) : ["NM"];
             const st = s.statistics;
-            const b = s.beatmap;
-            const bs = s.beatmapset;
+            const count300 = (st.great || 0) + (st.perfect || 0); 
+            const count100 = (st.ok || 0) + (st.good || 0);
+            const count50  = st.meh || 0;
+            const countMiss = st.miss || 0;
 
             return {
                 id: s.id,
@@ -70,26 +78,26 @@ export default async function handler(request, response) {
                 score_classic: s.classic_score || s.score || 0, 
                 score_lazer: s.total_score || s.score || 0,
                 max_combo: s.max_combo,
-                mods,
+                mods: mods,
                 date_iso: s.created_at,
-                stats: { great: (st.great || 0) + (st.perfect || 0), ok: (st.ok || 0) + (st.good || 0), meh: st.meh || 0, miss: st.miss || 0 },
+                stats: { great: count300, ok: count100, meh: count50, miss: countMiss },
                 beatmap: {
-                    id: b.id,
-                    title: bs.title,
-                    artist: bs.artist,
-                    version: b.version,
-                    stars: b.difficulty_rating,
-                    cover: bs.covers['cover@2x'] || bs.covers.cover,
-                    url: b.url,
-                    status: bs.status,
-                    creator: bs.creator,
-                    cs: b.cs,
-                    ar: b.ar,
-                    od: b.accuracy,
-                    hp: b.drain,
-                    bpm: b.bpm,
-                    length: b.total_length,
-                    max_combo: b.count_sliders + b.count_circles + b.count_spinners 
+                    id: s.beatmap.id,
+                    title: s.beatmapset.title,
+                    artist: s.beatmapset.artist,
+                    version: s.beatmap.version,
+                    stars: s.beatmap.difficulty_rating,
+                    cover: s.beatmapset.covers['cover@2x'] || s.beatmapset.covers.cover,
+                    url: s.beatmap.url,
+                    status: s.beatmapset.status,
+                    creator: s.beatmapset.creator,
+                    cs: s.beatmap.cs,
+                    ar: s.beatmap.ar,
+                    od: s.beatmap.accuracy,
+                    hp: s.beatmap.drain,
+                    bpm: s.beatmap.bpm,
+                    length: s.beatmap.total_length,
+                    max_combo: s.beatmap.count_sliders + s.beatmap.count_circles + s.beatmap.count_spinners 
                 }
             };
         });
