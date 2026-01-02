@@ -45,7 +45,6 @@
         ctxErr.scale(dpr, dpr);
     }
     
-    // Debounced resize
     let resizeTimeout;
     window.addEventListener('resize', () => { clearTimeout(resizeTimeout); resizeTimeout = setTimeout(resize, 100); });
     setTimeout(resize, 0);
@@ -99,11 +98,9 @@
     function reset() {
         state.clickTimes = []; state.chartData = []; state.hitErrors = []; state.liveHitErrors = [];
         state.counts = { k1: 0, k2: 0 }; state.keyStates = {}; state.fullHistory = [];
-        
         dom.bpmVal.innerText = "0"; dom.urVal.innerText = "0.00"; dom.timeVal.innerText = "0.000 s";
         dom.counts.k1.innerText = "0"; dom.counts.k2.innerText = "0";
         dom.history.innerHTML = `<div id="history-placeholder" class="text-center text-xs text-gray-600 italic py-10">Waiting for input...</div>`;
-        
         if (ctxChart) ctxChart.clearRect(0, 0, w, h);
         if (ctxErr) ctxErr.clearRect(0, 0, ew, eh);
     }
@@ -120,11 +117,9 @@
             state.counts[type]++;
             dom.counts[type].innerText = state.counts[type];
             dom.visuals[type].classList.add('active');
-            
             state.clickTimes.push(now);
             const ph = document.getElementById('history-placeholder');
             if (ph) ph.remove();
-            
             calcStats(now);
             checkLimits(now);
         } else {
@@ -153,8 +148,6 @@
     function calcStats(now) {
         const ct = state.clickTimes;
         if (ct.length < 2) return;
-        
-        // BPM
         const recent = ct.slice(-12);
         if (recent.length > 1) {
             let sum = 0;
@@ -164,8 +157,6 @@
             state.chartData.push(bpm);
             if (state.chartData.length > 100) state.chartData.shift();
         }
-
-        // UR
         if (ct.length % 5 === 0 || ct.length < 50) {
             let intervals = [];
             for (let i = 1; i < ct.length; i++) intervals.push(ct[i] - ct[i-1]);
@@ -173,7 +164,6 @@
             const variance = intervals.reduce((a,b)=>a+Math.pow(b-avg,2),0) / intervals.length;
             const ur = Math.sqrt(variance) * 10;
             dom.urVal.innerText = isNaN(ur) ? "0.00" : ur.toFixed(2);
-            
             const err = (ct[ct.length-1] - ct[ct.length-2]) - avg;
             state.hitErrors.push(err);
             state.liveHitErrors.push({ offset: err, time: now });
@@ -189,11 +179,8 @@
         if (!state.isTesting) return;
         animId = requestAnimationFrame(loop);
         if (time - lastDraw < FPS) return;
-        
         const now = performance.now();
         dom.timeVal.innerText = ((now - state.beginTime) / 1000).toFixed(3) + " s";
-        
-        // Chart
         if (w && ctxChart && state.chartData.length > 1) {
             ctxChart.clearRect(0, 0, w, h);
             ctxChart.beginPath(); ctxChart.lineWidth = 1; ctxChart.strokeStyle = '#6366f1';
@@ -204,13 +191,10 @@
             for (let i = 1; i < state.chartData.length; i++) ctxChart.lineTo(i * step, h - ((state.chartData[i] - min) / (max-min) * h));
             ctxChart.stroke();
         }
-
-        // Live Errors
         if (ew && ctxErr) {
             ctxErr.clearRect(0, 0, ew, eh);
             ctxErr.fillStyle = 'rgba(255, 255, 255, 0.8)'; ctxErr.fillRect((ew/2)-1, 0, 2, eh);
             while (state.liveHitErrors.length && now - state.liveHitErrors[0].time > 1000) state.liveHitErrors.shift();
-            
             for (const e of state.liveHitErrors) {
                 const alpha = 1 - ((now - e.time) / 1000);
                 const x = (ew / 2) + (e.offset * 3);
@@ -235,15 +219,12 @@
         }
     }
 
-    // Events
     dom.btnStart.addEventListener('click', toggleTest);
     document.getElementById('btn-reset').addEventListener('click', () => { if(state.isTesting) toggleTest(); reset(); });
     document.getElementById('btn-mode').addEventListener('click', toggleMode);
-    
     document.getElementById('limit-controls').addEventListener('click', e => {
         if(e.target.tagName === 'BUTTON') updateLimitUI(e.target.dataset.limit);
     });
-
     Object.keys(dom.binds).forEach(k => {
         dom.binds[k].addEventListener('click', () => {
             if (state.inputMode === 'mouse') return;
@@ -252,7 +233,6 @@
             dom.binds[k].classList.add('binding');
         });
     });
-
     dom.btnDownload.addEventListener('click', () => {
         if (!state.fullHistory.length) return;
         const txt = `MORGUN STREAM TEST\nBPM: ${dom.bpmVal.innerText} | UR: ${dom.urVal.innerText}\n\nKEY\t| TIME\t| HOLD\n` + 
@@ -262,7 +242,6 @@
         a.download = `stream_test_${Date.now()}.txt`;
         a.click();
     });
-
     document.addEventListener('keydown', e => {
         if (e.repeat) return;
         if (state.binding && state.inputMode === 'keyboard') {
@@ -281,27 +260,23 @@
             else if (e.code === state.keys.k2) { e.preventDefault(); input('k2', true); }
         }
     });
-    
     document.addEventListener('keyup', e => {
         if (state.inputMode === 'keyboard') {
             if (e.code === state.keys.k1) input('k1', false);
             if (e.code === state.keys.k2) input('k2', false);
         }
     });
-
     document.addEventListener('mousedown', e => {
         if (state.inputMode === 'mouse') {
             if (e.button === 0) input('k1', true);
             if (e.button === 2) input('k2', true);
         }
     });
-
     document.addEventListener('mouseup', e => {
         if (state.inputMode === 'mouse') {
             if (e.button === 0) input('k1', false);
             if (e.button === 2) input('k2', false);
         }
     });
-
     document.addEventListener('contextmenu', e => { if (state.inputMode === 'mouse' && state.isTesting) e.preventDefault(); });
 })();
