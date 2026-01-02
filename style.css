@@ -109,7 +109,7 @@ body.system-cursor { cursor: auto; }
 .score-row.open .score-details-container { max-height: 500px; opacity: 1; transition: max-height 0.5s ease-in-out, opacity 0.4s ease; }
 .score-row.open { background-color: rgba(255, 255, 255, 0.03); border-color: rgba(99, 102, 241, 0.3); }
 
-.rank-text { font-family: 'Space Grotesk', sans-serif; font-weight: 900; font-style: italic; line-height: 1; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+.rank-text { font-family: 'Space Grotesk', sans-serif; font-weight: 900; line-height: 1; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
 .rank-XH, .rank-X { color: #e4e4e4; text-shadow: 0 0 15px rgba(255,255,255,0.6); }
 .rank-SH, .rank-S { color: #ffd700; text-shadow: 0 0 15px rgba(255, 215, 0, 0.6); }
 .rank-A { color: #22c55e; }
