@@ -5,6 +5,34 @@ let cursorEnabled = localStorage.getItem('customCursor') !== 'false';
 window.topScoresData = [];
 window.visibleScoresCount = 5;
 
+const Utils = {
+    getAccColor: (a) => a >= 99 ? 'text-[#22c55e]' : a >= 97 ? 'text-[#8fbfff]' : a >= 94 ? 'text-[#ffcc22]' : 'text-[#ff4444]',
+    getRelativeTime: (dateString) => {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diff = Math.floor((now - date) / 1000);
+        if (isNaN(diff)) return "";
+        if (diff < 60) return 'just now';
+        const min = Math.floor(diff / 60);
+        if (min < 60) return `${min}m ago`;
+        const h = Math.floor(min / 60);
+        if (h < 24) return `${h}h ago`;
+        const d = Math.floor(h / 24);
+        return `${d}d ago`;
+    },
+    calculateMapStats: (b, mods) => {
+        let cs = b.cs, ar = b.ar, od = b.od, hp = b.hp, bpm = b.bpm, len = b.length;
+        if (mods.includes('HR')) { cs = Math.min(10, cs * 1.3); ar = Math.min(10, ar * 1.4); od = Math.min(10, od * 1.4); hp = Math.min(10, hp * 1.4); }
+        else if (mods.includes('EZ')) { cs *= 0.5; ar *= 0.5; od *= 0.5; hp *= 0.5; }
+        if (mods.includes('DT') || mods.includes('NC')) { bpm *= 1.5; len /= 1.5; ar = ar > 5 ? Math.min(11, ar + (11 - ar)/1.5) : Math.min(10, ar + 2); od = Math.min(11, od + (11 - od)/1.5); } 
+        else if (mods.includes('HT')) { bpm *= 0.75; len /= 0.75; ar = ar > 5 ? ar - (ar - 5)/1.5 : ar - 2; od = Math.max(0, od - 2); }
+        const m = Math.floor(len/60);
+        const ss = Math.floor(len%60).toString().padStart(2,'0');
+        return { cs, ar, od, hp, bpm, time: `${m}:${ss}` };
+    },
+    formatNumber: (num) => num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")
+};
+
 document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; isMoving = true; });
 
 function updateCursorLoop() {
@@ -55,7 +83,7 @@ function performSwitch(t) {
     document.querySelectorAll('.nav-btn').forEach(e=>e.classList.remove('active')); 
     document.getElementById('tab-'+t).classList.add('active'); 
     document.getElementById('btn-'+t).classList.add('active');
-    if (t === 'stream' && typeof resize === 'function') setTimeout(resize, 100);
+    if (t === 'stream' && typeof window.resize === 'function') setTimeout(window.resize, 100);
 }
 
 window.copyDiscord = function() { 
@@ -64,34 +92,6 @@ window.copyDiscord = function() {
         setTimeout(()=>t.className=t.className.replace("show",""),3000); 
     }); 
 }
-
-const Utils = {
-    getAccColor: (a) => a>=99 ? 'text-[#22c55e]' : a>=97 ? 'text-[#8fbfff]' : a>=94 ? 'text-[#ffcc22]' : 'text-[#ff4444]',
-    getRelativeTime: (dateString) => {
-        const date = new Date(dateString);
-        const now = new Date();
-        const diff = Math.floor((now - date) / 1000);
-        if (isNaN(diff)) return "";
-        if (diff < 60) return 'just now';
-        const min = Math.floor(diff / 60);
-        if (min < 60) return `${min}m ago`;
-        const h = Math.floor(min / 60);
-        if (h < 24) return `${h}h ago`;
-        const d = Math.floor(h / 24);
-        return `${d}d ago`;
-    },
-    calculateMapStats: (b, mods) => {
-        let cs = b.cs, ar = b.ar, od = b.accuracy, hp = b.drain, bpm = b.bpm, len = b.total_length;
-        if (mods.includes('HR')) { cs = Math.min(10, cs * 1.3); ar = Math.min(10, ar * 1.4); od = Math.min(10, od * 1.4); hp = Math.min(10, hp * 1.4); }
-        else if (mods.includes('EZ')) { cs *= 0.5; ar *= 0.5; od *= 0.5; hp *= 0.5; }
-        if (mods.includes('DT') || mods.includes('NC')) { bpm *= 1.5; len /= 1.5; ar = ar > 5 ? Math.min(11, ar + (11 - ar)/1.5) : Math.min(10, ar + 2); od = Math.min(11, od + (11 - od)/1.5); } 
-        else if (mods.includes('HT')) { bpm *= 0.75; len /= 0.75; ar = ar > 5 ? ar - (ar - 5)/1.5 : ar - 2; od = Math.max(0, od - 2); }
-        const m = Math.floor(len/60);
-        const ss = Math.floor(len%60).toString().padStart(2,'0');
-        return { cs, ar, od, hp, bpm, time: `${m}:${ss}` };
-    },
-    formatNumber: (num) => num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")
-};
 
 async function loadTopScores() {
     const c = document.getElementById('scores-container');
@@ -123,7 +123,7 @@ function renderScoresList() {
         const mapStats = Utils.calculateMapStats(s.beatmap, mods);
         return `
         <div id="score-row-${i}" class="score-row group relative w-full bg-[#121214] border border-white/5 rounded-xl overflow-hidden transition-all duration-300">
-            <div onclick="toggleScoreDetails(${i})" class="relative h-20 w-full flex items-center cursor-pointer z-10 bg-[#121214]">
+            <div onclick="window.toggleScoreDetails(${i})" class="relative h-20 w-full flex items-center cursor-pointer z-10 bg-[#121214]">
                 <div class="absolute inset-0 bg-cover bg-center opacity-[0.07] group-hover:opacity-[0.15] transition-opacity duration-500 grayscale group-hover:grayscale-0" style="background-image: url('${s.beatmap.cover}')"></div>
                 <div class="absolute inset-0 bg-gradient-to-r from-[#121214] via-[#121214]/90 to-transparent z-0"></div>
                 <div class="relative z-10 w-14 h-full flex items-center justify-center border-r border-white/5 flex-shrink-0"><span class="rank-text text-3xl ${rankClass}">${s.rank.replace('X', 'SS')}</span></div>
@@ -314,32 +314,6 @@ function drawRankGraph(history) {
     canvas.onmouseleave = () => { tooltip.style.opacity = 0; };
 }
 
-window.downloadResults = function() {
-    const history = window.fullTestHistory || [];
-    const bpm = document.getElementById('val-bpm').innerText;
-    const ur = document.getElementById('val-ur').innerText;
-    if (history.length === 0) return;
-    let content = "MORGUN STREAM TEST RESULT\n";
-    content += "---------------------------------\n";
-    content += `Date: ${new Date().toLocaleString()}\n`;
-    content += `Final BPM: ${bpm}\n`;
-    content += `Unstable Rate: ${ur}\n`;
-    content += `Total Inputs: ${history.length}\n`;
-    content += "---------------------------------\n";
-    content += "KEY\t|\tTIME (ms)\t|\tHOLD (ms)\n";
-    content += "---------------------------------\n";
-    history.forEach(item => { content += `${item.key}\t|\t${item.timestamp}\t\t|\t${item.duration}\n`; });
-    const blob = new Blob([content], { type: 'text/plain' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `morgun_bpm_test_${Date.now()}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
-}
-
 async function fetchLanyardStatus() {
     try {
         const res = await fetch(`https://api.lanyard.rest/v1/users/${DISCORD_ID}`);
@@ -361,5 +335,7 @@ async function fetchLanyardStatus() {
     } catch {}
 }
 
-fetchLanyardStatus(); setInterval(fetchLanyardStatus, 10000);
-loadTopScores(); loadUserStats();
+fetchLanyardStatus(); 
+setInterval(fetchLanyardStatus, 10000);
+loadTopScores(); 
+loadUserStats();
