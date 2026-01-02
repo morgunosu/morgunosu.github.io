@@ -67,9 +67,7 @@ function getRelativeTime(dateString) {
     const date = new Date(dateString);
     const now = new Date();
     const diff = Math.floor((now - date) / 1000);
-
     if (isNaN(diff)) return "Recently";
-
     if (diff < 60) return 'just now';
     const min = Math.floor(diff / 60);
     if (min < 60) return `${min}m ago`;
@@ -89,97 +87,58 @@ function toggleScoreDetails(index) {
 
 function calculateMapStats(beatmap, mods) {
     let cs = beatmap.cs, ar = beatmap.ar, od = beatmap.od, hp = beatmap.hp, bpm = beatmap.bpm, len = beatmap.length;
-
     if (mods.includes('HR')) { cs = Math.min(10, cs * 1.3); ar = Math.min(10, ar * 1.4); od = Math.min(10, od * 1.4); hp = Math.min(10, hp * 1.4); }
     else if (mods.includes('EZ')) { cs *= 0.5; ar *= 0.5; od *= 0.5; hp *= 0.5; }
-
-    if (mods.includes('DT') || mods.includes('NC')) {
-        bpm *= 1.5; len /= 1.5;
-        ar = ar > 5 ? Math.min(11, ar + (11 - ar)/1.5) : Math.min(10, ar + 2);
-        od = Math.min(11, od + (11 - od)/1.5);
-    } else if (mods.includes('HT')) {
-        bpm *= 0.75; len /= 0.75;
-        ar = ar > 5 ? ar - (ar - 5)/1.5 : ar - 2; 
-        od = Math.max(0, od - 2); 
-    }
-
+    if (mods.includes('DT') || mods.includes('NC')) { bpm *= 1.5; len /= 1.5; ar = ar > 5 ? Math.min(11, ar + (11 - ar)/1.5) : Math.min(10, ar + 2); od = Math.min(11, od + (11 - od)/1.5); } 
+    else if (mods.includes('HT')) { bpm *= 0.75; len /= 0.75; ar = ar > 5 ? ar - (ar - 5)/1.5 : ar - 2; od = Math.max(0, od - 2); }
     const m = Math.floor(len/60);
     const ss = Math.floor(len%60).toString().padStart(2,'0');
-
     return { cs, ar, od, hp, bpm, time: `${m}:${ss}` };
 }
 
 function renderScoresList() {
     const c = document.getElementById('scores-container');
     const data = window.topScoresData.slice(0, window.visibleScoresCount);
-    
     let html = `
         <div class="flex items-center justify-between px-1 py-3 mb-2 border-b border-white/5">
-            <div class="flex gap-3 items-center">
-                <i class="fas fa-trophy text-indigo-400"></i>
-                <span class="text-sm font-bold text-white uppercase tracking-widest">Best Performance</span>
-            </div>
+            <div class="flex gap-3 items-center"><i class="fas fa-trophy text-indigo-400"></i><span class="text-sm font-bold text-white uppercase tracking-widest">Best Performance</span></div>
             <div class="text-[10px] text-gray-500 font-bold uppercase tracking-wider bg-white/5 px-2 py-1 rounded">Score V2</div>
-        </div>
-        <div class="flex flex-col gap-2">`;
-
+        </div><div class="flex flex-col gap-2">`;
     html += data.map((s, i) => {
         const score = Math.round(s.score_lazer).toLocaleString(); 
         const mods = s.mods;
-        const modsHTML = mods.length > 0 
-            ? mods.map(m => `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-white/10 text-yellow-300 border border-white/5">${m}</span>`).join('') 
-            : `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-white/5 text-gray-500 border border-white/5">NM</span>`;
-        
+        const modsHTML = mods.length > 0 ? mods.map(m => `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-white/10 text-yellow-300 border border-white/5">${m}</span>`).join('') : `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-white/5 text-gray-500 border border-white/5">NM</span>`;
         const timeAgo = getRelativeTime(s.date_iso);
         const rankClass = `rank-${s.rank.replace('H', 'H')}`;
         const mapStats = calculateMapStats(s.beatmap, mods);
-
         return `
         <div id="score-row-${i}" class="score-row group relative w-full bg-[#121214] border border-white/5 rounded-xl overflow-hidden transition-all duration-300">
             <div onclick="toggleScoreDetails(${i})" class="relative h-20 w-full flex items-center cursor-pointer z-10 bg-[#121214]">
                 <div class="absolute inset-0 bg-cover bg-center opacity-[0.07] group-hover:opacity-[0.15] transition-opacity duration-500 grayscale group-hover:grayscale-0" style="background-image: url('${s.beatmap.cover}')"></div>
                 <div class="absolute inset-0 bg-gradient-to-r from-[#121214] via-[#121214]/90 to-transparent z-0"></div>
-                
-                <div class="relative z-10 w-14 h-full flex items-center justify-center border-r border-white/5 flex-shrink-0">
-                    <span class="rank-text text-3xl ${rankClass}">${s.rank.replace('X', 'SS')}</span>
-                </div>
-
+                <div class="relative z-10 w-14 h-full flex items-center justify-center border-r border-white/5 flex-shrink-0"><span class="rank-text text-3xl ${rankClass}">${s.rank.replace('X', 'SS')}</span></div>
                 <div class="relative z-10 flex-grow min-w-0 px-4 py-2 flex flex-col justify-center h-full">
-                    <div class="flex items-baseline gap-2 truncate w-full">
-                        <span class="text-sm font-bold text-white group-hover:text-indigo-300 transition-colors truncate">${s.beatmap.title}</span>
-                    </div>
-                    <div class="text-[10px] text-gray-400 truncate mb-1">
-                        by ${s.beatmap.artist} <span class="text-gray-600 mx-1">•</span> <span class="text-gray-300">[${s.beatmap.version}]</span>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <div class="flex gap-1">${modsHTML}</div>
-                    </div>
+                    <div class="flex items-baseline gap-2 truncate w-full"><span class="text-sm font-bold text-white group-hover:text-indigo-300 transition-colors truncate">${s.beatmap.title}</span></div>
+                    <div class="text-[10px] text-gray-400 truncate mb-1">by ${s.beatmap.artist} <span class="text-gray-600 mx-1">•</span> <span class="text-gray-300">[${s.beatmap.version}]</span></div>
+                    <div class="flex items-center gap-3"><div class="flex gap-1">${modsHTML}</div></div>
                 </div>
-
                 <div class="relative z-10 flex-shrink-0 w-24 sm:w-32 h-full flex flex-col items-end justify-center pr-4 border-l border-white/5 bg-black/10 backdrop-blur-sm">
                     <div class="text-lg sm:text-xl font-black text-indigo-400 leading-none mb-0.5 text-shadow">${s.pp}<span class="text-xs text-indigo-500/70 ml-0.5">pp</span></div>
                     <div class="text-xs font-bold ${getAccColor(s.accuracy)}">${s.accuracy}%</div>
                     <div class="text-[9px] text-gray-600 mt-1">${timeAgo}</div>
                 </div>
             </div>
-
             <div class="score-details-container bg-black/40 border-t border-white/5">
                 <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <h4 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">Hit Statistics</h4>
                         <div class="flex justify-between items-center bg-white/5 rounded-lg p-3 border border-white/5">
-                            <div class="text-center"><div class="text-blue-300 font-bold text-lg leading-none">${s.stats.great}</div><div class="text-[9px] text-gray-500 font-bold mt-1">300</div></div>
-                            <div class="w-px h-6 bg-white/10"></div>
-                            <div class="text-center"><div class="text-green-300 font-bold text-lg leading-none">${s.stats.ok}</div><div class="text-[9px] text-gray-500 font-bold mt-1">100</div></div>
-                            <div class="w-px h-6 bg-white/10"></div>
-                            <div class="text-center"><div class="text-yellow-300 font-bold text-lg leading-none">${s.stats.meh}</div><div class="text-[9px] text-gray-500 font-bold mt-1">50</div></div>
-                            <div class="w-px h-6 bg-white/10"></div>
+                            <div class="text-center"><div class="text-blue-300 font-bold text-lg leading-none">${s.stats.great}</div><div class="text-[9px] text-gray-500 font-bold mt-1">300</div></div><div class="w-px h-6 bg-white/10"></div>
+                            <div class="text-center"><div class="text-green-300 font-bold text-lg leading-none">${s.stats.ok}</div><div class="text-[9px] text-gray-500 font-bold mt-1">100</div></div><div class="w-px h-6 bg-white/10"></div>
+                            <div class="text-center"><div class="text-yellow-300 font-bold text-lg leading-none">${s.stats.meh}</div><div class="text-[9px] text-gray-500 font-bold mt-1">50</div></div><div class="w-px h-6 bg-white/10"></div>
                             <div class="text-center"><div class="text-red-500 font-bold text-lg leading-none">${s.stats.miss}</div><div class="text-[9px] text-gray-500 font-bold mt-1">MISS</div></div>
                         </div>
-                        <div class="mt-3 flex justify-between text-xs font-mono text-gray-400 px-1">
-                            <span>Combo: <span class="text-white font-bold">${s.max_combo}x</span></span>
-                            <span>Score: <span class="text-white">${score}</span></span>
-                        </div>
+                        <div class="mt-3 flex justify-between text-xs font-mono text-gray-400 px-1"><span>Combo: <span class="text-white font-bold">${s.max_combo}x</span></span><span>Score: <span class="text-white">${score}</span></span></div>
                     </div>
                     <div>
                         <h4 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">Map Attributes (Modded)</h4>
@@ -195,20 +154,13 @@ function renderScoresList() {
                         </div>
                     </div>
                 </div>
-                <div class="px-4 pb-4 flex justify-end">
-                    <a href="${s.beatmap.url}" target="_blank" class="text-[10px] font-bold bg-indigo-500 hover:bg-indigo-400 text-white px-4 py-1.5 rounded-full transition-colors">Open Beatmap Page</a>
-                </div>
+                <div class="px-4 pb-4 flex justify-end"><a href="${s.beatmap.url}" target="_blank" class="text-[10px] font-bold bg-indigo-500 hover:bg-indigo-400 text-white px-4 py-1.5 rounded-full transition-colors">Open Beatmap Page</a></div>
             </div>
         </div>`;
     }).join('');
     html += `</div>`;
-
     if (window.topScoresData.length > 5) {
-        html += `
-        <button onclick="${window.visibleScoresCount < window.topScoresData.length ? 'showMoreScores' : 'showLessScores'}()" 
-            class="w-full mt-3 py-2.5 text-[10px] font-bold text-gray-500 hover:text-white bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl transition-all uppercase tracking-widest">
-            ${window.visibleScoresCount < window.topScoresData.length ? '<i class="fas fa-chevron-down mr-1"></i> Show More' : '<i class="fas fa-chevron-up mr-1"></i> Show Less'}
-        </button>`;
+        html += `<button onclick="${window.visibleScoresCount < window.topScoresData.length ? 'showMoreScores' : 'showLessScores'}()" class="w-full mt-3 py-2.5 text-[10px] font-bold text-gray-500 hover:text-white bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl transition-all uppercase tracking-widest">${window.visibleScoresCount < window.topScoresData.length ? '<i class="fas fa-chevron-down mr-1"></i> Show More' : '<i class="fas fa-chevron-up mr-1"></i> Show Less'}</button>`;
     }
     c.innerHTML = html;
 }
@@ -223,82 +175,107 @@ async function loadUserStats() {
         if (!res.ok) throw new Error();
         const u = await res.json();
         
-        // Time Calc
         const d = Math.floor(u.play_time_seconds / 86400);
         const h = Math.floor((u.play_time_seconds % 86400) / 3600);
         const m = Math.floor((u.play_time_seconds % 3600) / 60);
         const playTimeFormatted = `${d}d ${h}h ${m}m`;
 
-        // Render Graph
         setTimeout(() => { drawRankGraph(u.rank_history); }, 100);
 
         c.innerHTML = `
-            <div class="flex flex-col gap-4">
-                <div class="glass-panel relative overflow-hidden p-6 group">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                
+                <div class="bento-card col-span-2 md:col-span-4 p-6 relative group overflow-hidden">
                     <div class="absolute inset-0 bg-cover bg-center opacity-30 group-hover:opacity-40 transition-opacity duration-700" style="background-image: url('${u.cover_url}');"></div>
                     <div class="absolute inset-0 bg-gradient-to-r from-[#141417] via-[#141417]/95 to-transparent"></div>
                     
-                    <div class="relative z-10 flex items-center gap-6">
-                        <img src="${u.avatar_url}" class="w-20 h-20 rounded-xl border border-white/10 shadow-xl">
-                        <div>
-                            <div class="flex items-center gap-3">
-                                <h2 class="text-3xl font-black text-white tracking-tight">${u.username}</h2>
-                                <img src="https://flagcdn.com/24x18/${u.country.toLowerCase()}.png" class="rounded-[2px] opacity-80">
+                    <div class="relative z-10 flex flex-col md:flex-row items-center gap-6">
+                        <img src="${u.avatar_url}" class="w-24 h-24 rounded-2xl border-2 border-white/10 shadow-2xl">
+                        <div class="flex-grow text-center md:text-left">
+                            <div class="flex items-center justify-center md:justify-start gap-3">
+                                <h2 class="text-4xl font-black text-white tracking-tight">${u.username}</h2>
+                                <img src="https://flagcdn.com/24x18/${u.country.toLowerCase()}.png" class="rounded shadow-sm">
                             </div>
-                            <div class="flex items-center gap-2 mt-2 text-sm">
-                                <span class="text-indigo-400 font-bold">#${u.global_rank.toLocaleString()}</span>
-                                <span class="text-gray-600">•</span>
-                                <span class="text-white font-bold">${u.pp.toLocaleString()}pp</span>
+                            <div class="mt-3 flex flex-wrap justify-center md:justify-start gap-3">
+                                <div class="bg-indigo-500/20 border border-indigo-500/30 px-3 py-1.5 rounded-lg text-sm font-bold text-indigo-300">Global #${u.global_rank.toLocaleString()}</div>
+                                <div class="bg-white/10 border border-white/10 px-3 py-1.5 rounded-lg text-sm font-bold text-white">${u.country} #${u.country_rank.toLocaleString()}</div>
+                                <div class="bg-white/10 border border-white/10 px-3 py-1.5 rounded-lg text-sm font-bold text-pink-300">${u.pp.toLocaleString()} pp</div>
+                                <div class="bg-yellow-500/10 border border-yellow-500/20 px-3 py-1.5 rounded-lg text-sm font-bold text-yellow-300">${u.medal_count} Medals</div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="glass-panel p-4 relative group">
-                    <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNSkiLz48L3N2Zz4=')] opacity-50"></div>
-                    <div class="relative z-10 h-32 w-full">
+                <div class="bento-card col-span-2 md:col-span-4 p-0 relative h-48 group">
+                    <div class="absolute top-4 left-4 z-10 flex items-center gap-2">
+                        <i class="fas fa-chart-line text-yellow-400"></i>
+                        <span class="text-xs font-bold text-white uppercase tracking-widest">Rank History (90 Days)</span>
+                    </div>
+                    <div class="absolute inset-0 top-10 bottom-2 left-0 right-0">
                         <canvas id="rank-history-chart" class="w-full h-full"></canvas>
                         <div id="chart-tooltip"></div>
                     </div>
                 </div>
 
-                <div class="glass-panel p-6">
-                    <div class="flex flex-wrap justify-between items-center gap-4 mb-6 pb-6 border-b border-white/5">
-                        <div class="flex gap-4">
-                            <div class="text-center px-2">
-                                <div class="text-rank-XH font-bold text-xl leading-none mb-1">SS</div>
-                                <div class="text-xs text-gray-500 font-bold">${u.grades.ssh + u.grades.ss}</div>
-                            </div>
-                            <div class="text-center px-2">
-                                <div class="text-rank-SH font-bold text-xl leading-none mb-1">S</div>
-                                <div class="text-xs text-gray-500 font-bold">${u.grades.sh + u.grades.s}</div>
-                            </div>
-                            <div class="text-center px-2">
-                                <div class="text-rank-A font-bold text-xl leading-none mb-1">A</div>
-                                <div class="text-xs text-gray-500 font-bold">${u.grades.a}</div>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-[10px] text-gray-500 uppercase font-bold mb-1">Medals</div>
-                            <div class="text-xl font-black text-white">${u.medal_count}</div>
-                        </div>
+                <div class="bento-card col-span-2 md:col-span-4 p-5 flex justify-between items-center gap-2 overflow-x-auto">
+                    <div class="flex items-center gap-3 px-4 border-r border-white/5 last:border-0 min-w-fit">
+                        <span class="text-2xl font-black text-rank-XH drop-shadow-md">SS</span>
+                        <div class="flex flex-col"><span class="text-[9px] text-gray-500 font-bold uppercase">Silver</span><span class="text-lg font-bold text-white leading-none">${u.grades.ssh.toLocaleString()}</span></div>
                     </div>
-
-                    <div class="profile-stats-grid">
-                        <div class="profile-stat-card"><div class="profile-stat-label">Ranked Score</div><div class="profile-stat-val">${parseInt(u.ranked_score).toLocaleString()}</div></div>
-                        <div class="profile-stat-card"><div class="profile-stat-label">Hit Accuracy</div><div class="profile-stat-val">${u.accuracy}%</div></div>
-                        <div class="profile-stat-card"><div class="profile-stat-label">Play Count</div><div class="profile-stat-val">${u.play_count}</div></div>
-                        <div class="profile-stat-card"><div class="profile-stat-label">Total Score</div><div class="profile-stat-val text-xs text-gray-300">${parseInt(u.total_score).toLocaleString()}</div></div>
-                        <div class="profile-stat-card"><div class="profile-stat-label">Total Hits</div><div class="profile-stat-val">${parseInt(u.total_hits).toLocaleString()}</div></div>
-                        <div class="profile-stat-card"><div class="profile-stat-label">Max Combo</div><div class="profile-stat-val">${u.max_combo}</div></div>
-                        <div class="profile-stat-card"><div class="profile-stat-label">Replays Watched</div><div class="profile-stat-val">${u.replays_watched}</div></div>
-                        <div class="profile-stat-card flex justify-center">
-                            <div class="flex justify-between w-full text-[10px] mb-1"><span class="font-bold text-white">Lvl ${u.level}</span><span class="text-yellow-400 font-bold">${u.level_progress}%</span></div>
-                            <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden"><div class="h-full bg-yellow-400 rounded-full" style="width: ${u.level_progress}%"></div></div>
-                            <div class="mt-2 text-[10px] font-bold text-gray-500 uppercase text-right">${playTimeFormatted}</div>
-                        </div>
+                    <div class="flex items-center gap-3 px-4 border-r border-white/5 last:border-0 min-w-fit">
+                        <span class="text-2xl font-black text-rank-X drop-shadow-md">SS</span>
+                        <div class="flex flex-col"><span class="text-[9px] text-gray-500 font-bold uppercase">Gold</span><span class="text-lg font-bold text-white leading-none">${u.grades.ss.toLocaleString()}</span></div>
+                    </div>
+                    <div class="flex items-center gap-3 px-4 border-r border-white/5 last:border-0 min-w-fit">
+                        <span class="text-2xl font-black text-rank-SH drop-shadow-md">S</span>
+                        <div class="flex flex-col"><span class="text-[9px] text-gray-500 font-bold uppercase">Silver</span><span class="text-lg font-bold text-white leading-none">${u.grades.sh.toLocaleString()}</span></div>
+                    </div>
+                    <div class="flex items-center gap-3 px-4 border-r border-white/5 last:border-0 min-w-fit">
+                        <span class="text-2xl font-black text-rank-S drop-shadow-md">S</span>
+                        <div class="flex flex-col"><span class="text-[9px] text-gray-500 font-bold uppercase">Gold</span><span class="text-lg font-bold text-white leading-none">${u.grades.s.toLocaleString()}</span></div>
+                    </div>
+                    <div class="flex items-center gap-3 px-4 min-w-fit">
+                        <span class="text-2xl font-black text-rank-A drop-shadow-md">A</span>
+                        <div class="flex flex-col"><span class="text-[9px] text-gray-500 font-bold uppercase">Rank A</span><span class="text-lg font-bold text-white leading-none">${u.grades.a.toLocaleString()}</span></div>
                     </div>
                 </div>
+
+                <div class="bento-card col-span-1 p-4 flex flex-col justify-center border-l-4 border-l-blue-500">
+                    <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Ranked Score</p>
+                    <h4 class="text-lg font-bold text-white truncate">${parseInt(u.ranked_score).toLocaleString()}</h4>
+                </div>
+                <div class="bento-card col-span-1 p-4 flex flex-col justify-center border-l-4 border-l-green-500">
+                    <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Hit Accuracy</p>
+                    <h4 class="text-lg font-bold text-white">${u.accuracy}%</h4>
+                </div>
+                <div class="bento-card col-span-1 p-4 flex flex-col justify-center border-l-4 border-l-yellow-500">
+                    <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Play Count</p>
+                    <h4 class="text-lg font-bold text-white">${parseInt(u.play_count).toLocaleString()}</h4>
+                </div>
+                <div class="bento-card col-span-1 p-4 flex flex-col justify-center border-l-4 border-l-purple-500">
+                    <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Total Hits</p>
+                    <h4 class="text-lg font-bold text-white">${parseInt(u.total_hits).toLocaleString()}</h4>
+                </div>
+                
+                <div class="bento-card col-span-1 p-4 flex flex-col justify-center">
+                    <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Max Combo</p>
+                    <h4 class="text-lg font-bold text-white">${u.max_combo}x</h4>
+                </div>
+                <div class="bento-card col-span-1 p-4 flex flex-col justify-center">
+                    <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Replays Watched</p>
+                    <h4 class="text-lg font-bold text-white">${u.replays_watched.toLocaleString()}</h4>
+                </div>
+                <div class="bento-card col-span-2 p-4 flex flex-col justify-center relative overflow-hidden">
+                    <div class="flex justify-between items-end mb-2 relative z-10">
+                        <div><p class="text-[10px] text-gray-500 uppercase font-bold">Current Level</p><h4 class="text-xl font-bold text-white leading-none">${u.level}</h4></div>
+                        <div class="text-right"><p class="text-[10px] text-gray-500 uppercase font-bold">Play Time</p><h4 class="text-sm font-bold text-white leading-none">${playTimeFormatted}</h4></div>
+                    </div>
+                    <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden relative z-10">
+                        <div class="h-full bg-yellow-400 rounded-full" style="width: ${u.level_progress}%"></div>
+                    </div>
+                    <div class="text-[10px] text-yellow-400 font-bold mt-1 text-right relative z-10">${u.level_progress}%</div>
+                </div>
+
             </div>`;
     } catch(e) {
         console.error(e);
@@ -324,51 +301,44 @@ function drawRankGraph(history) {
     const minRank = Math.min(...history);
     const maxRank = Math.max(...history);
     const range = maxRank - minRank || 1;
-    const padding = 5;
+    const padding = 20;
 
-    // Draw Grid
+    // Draw Grid (Horizontal lines)
     ctx.strokeStyle = 'rgba(255,255,255,0.05)';
     ctx.lineWidth = 1;
     ctx.beginPath();
     for(let i=1; i<4; i++) {
-        const y = (h / 4) * i;
+        const y = padding + ((h - padding*2) / 4) * i;
         ctx.moveTo(0, y); ctx.lineTo(w, y);
     }
     ctx.stroke();
 
-    // Draw Line
+    // Draw Graph Line
     ctx.beginPath();
     ctx.strokeStyle = '#fbbf24'; // Amber-400
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 3;
     ctx.lineJoin = 'round';
-
-    const getPoint = (i) => {
-        const x = (i / (history.length - 1)) * w;
-        // Invert Y because lower rank is better (top)
-        const y = padding + ( (history[i] - minRank) / range ) * (h - padding*2); 
-        return {x, y: h - y}; // Re-invert for display (High Y = Bottom) ?? No wait.
-        // Rank 1 (min) should be at TOP (y=0). Rank 1000 (max) at BOTTOM (y=h).
-        // normalized (0-1) where 0 is minRank.
-        // y = (val - min) / range * h.  If val = min, y=0 (TOP). If val=max, y=h (BOTTOM). Correct.
-    };
+    ctx.lineCap = 'round';
 
     history.forEach((val, i) => {
         const x = (i / (history.length - 1)) * w;
-        const normalized = (val - minRank) / range;
-        const y = padding + normalized * (h - padding * 2);
+        // Invert: Low rank = High Y position (top)
+        // Normalize 0..1
+        const norm = (val - minRank) / range; 
+        const y = padding + norm * (h - padding * 2);
         if(i===0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
     });
     ctx.stroke();
 
-    // Gradient Fill
-    const grad = ctx.createLinearGradient(0, 0, 0, h);
-    grad.addColorStop(0, 'rgba(251, 191, 36, 0.2)');
-    grad.addColorStop(1, 'rgba(251, 191, 36, 0)');
+    // Fill Gradient under line
     ctx.lineTo(w, h); ctx.lineTo(0, h); 
+    const grad = ctx.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, 'rgba(251, 191, 36, 0.15)');
+    grad.addColorStop(1, 'rgba(251, 191, 36, 0)');
     ctx.fillStyle = grad; 
     ctx.fill();
 
-    // Interactive Tooltip
+    // Interactive Tooltip Logic (Fixed Positioning)
     canvas.onmousemove = (e) => {
         const rect = canvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
@@ -376,17 +346,19 @@ function drawRankGraph(history) {
         
         if (idx >= 0 && idx < history.length) {
             const rank = history[idx];
-            const daysAgo = 90 - idx; // Approx
+            const daysAgo = 90 - idx; 
+            
             tooltip.style.opacity = 1;
-            tooltip.style.left = `${x}px`;
-            tooltip.style.top = `${padding + ((rank - minRank) / range * (h - padding*2))}px`;
+            // FIXED positioning based on screen coordinates to avoid clipping
+            tooltip.style.left = `${e.clientX}px`; 
+            tooltip.style.top = `${e.clientY - 40}px`; // Shift up slightly
             tooltip.innerHTML = `<span class="font-bold text-yellow-400">#${rank.toLocaleString()}</span><br><span class="text-xs text-gray-400">${daysAgo} days ago</span>`;
         }
     };
+    
     canvas.onmouseleave = () => { tooltip.style.opacity = 0; };
 }
 
-// ... ОСТАЛЬНЫЕ ФУНКЦИИ (switchTab, copyDiscord, Lanyard) БЕЗ ИЗМЕНЕНИЙ ...
 function switchTab(t) { 
     if (document.startViewTransition) { document.startViewTransition(() => performSwitch(t)); } else { performSwitch(t); }
 }
