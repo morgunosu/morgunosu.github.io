@@ -222,31 +222,138 @@ async function loadUserStats() {
         const res = await fetch('/api/scores?type=user');
         if (!res.ok) throw new Error();
         const u = await res.json();
-        c.className = "grid grid-cols-2 md:grid-cols-4 gap-3 mt-0";
+        
+        // --- Calculate Play Time ---
+        const d = Math.floor(u.play_time_seconds / 86400);
+        const h = Math.floor((u.play_time_seconds % 86400) / 3600);
+        const m = Math.floor((u.play_time_seconds % 3600) / 60);
+        const playTimeFormatted = `${d}d ${h}h ${m}m`;
+
+        // --- Render Rank Graph (Canvas) ---
+        setTimeout(() => {
+            const chartCanvas = document.getElementById('rank-history-chart');
+            if(chartCanvas && u.rank_history && u.rank_history.length > 1) {
+                const ctx = chartCanvas.getContext('2d');
+                const w = chartCanvas.width;
+                const h = chartCanvas.height;
+                const ranks = u.rank_history;
+                const minRank = Math.min(...ranks);
+                const maxRank = Math.max(...ranks);
+                const range = maxRank - minRank || 1;
+                
+                ctx.clearRect(0, 0, w, h);
+                ctx.beginPath();
+                ctx.strokeStyle = '#ffd700';
+                ctx.lineWidth = 2;
+                
+                ranks.forEach((r, i) => {
+                    const x = (i / (ranks.length - 1)) * w;
+                    const y = h - ((maxRank - r) / range * (h * 0.8) + (h * 0.1)); // Invert Y (lower rank is higher)
+                    if(i===0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+                });
+                ctx.stroke();
+                
+                // Gradient Fill
+                const grad = ctx.createLinearGradient(0, 0, 0, h);
+                grad.addColorStop(0, 'rgba(255, 215, 0, 0.2)');
+                grad.addColorStop(1, 'rgba(255, 215, 0, 0)');
+                ctx.lineTo(w, h); ctx.lineTo(0, h); ctx.fillStyle = grad; ctx.fill();
+            }
+        }, 100);
+
         c.innerHTML = `
-            <div class="col-span-2 md:col-span-4 bg-[#1a1a1d] border border-white/5 rounded-2xl p-0 relative overflow-hidden group">
-                <div class="absolute inset-0 h-full w-full bg-cover bg-center opacity-40 group-hover:opacity-30 transition-opacity duration-500" style="background-image: url('${u.cover_url}');"></div>
-                <div class="absolute inset-0 bg-gradient-to-r from-[#141417] via-[#141417]/90 to-transparent"></div>
-                <div class="relative z-10 flex items-center p-5 gap-5">
-                    <img src="${u.avatar_url}" class="w-20 h-20 rounded-2xl border-2 border-white/10 shadow-2xl">
-                    <div class="flex-grow">
-                        <div class="flex items-center gap-3"><h2 class="text-3xl font-black text-white tracking-tight">${u.username}</h2><div class="bg-black/40 backdrop-blur-md px-2 py-1 rounded border border-white/10 flex items-center gap-1.5"><img src="https://flagcdn.com/20x15/${u.country.toLowerCase()}.png" class="rounded-[2px]"></div></div>
-                        <div class="flex items-center gap-2 mt-2">
-                            <div class="bg-indigo-500/10 border border-indigo-500/20 px-3 py-1 rounded-lg"><span class="text-[10px] text-indigo-300 font-bold uppercase">Global</span><span class="text-sm font-bold text-white ml-1">#${u.global_rank}</span></div>
-                            <div class="bg-white/5 border border-white/10 px-3 py-1 rounded-lg"><span class="text-[10px] text-gray-400 font-bold uppercase">${u.country}</span><span class="text-sm font-bold text-white ml-1">#${u.country_rank}</span></div>
+            <div class="col-span-2 md:col-span-4 bg-[#1a1a1d] border border-white/5 rounded-2xl overflow-hidden relative group p-6">
+                <div class="absolute inset-0 bg-cover bg-center opacity-20" style="background-image: url('${u.cover_url}');"></div>
+                <div class="absolute inset-0 bg-gradient-to-r from-[#141417] via-[#141417]/95 to-transparent"></div>
+                
+                <div class="relative z-10 flex flex-col md:flex-row gap-8">
+                    <div class="flex items-center gap-6 md:w-1/3">
+                        <img src="${u.avatar_url}" class="w-24 h-24 rounded-2xl border-2 border-white/10 shadow-2xl">
+                        <div>
+                            <div class="flex items-center gap-3">
+                                <h2 class="text-4xl font-black text-white tracking-tight">${u.username}</h2>
+                                <img src="https://flagcdn.com/24x18/${u.country.toLowerCase()}.png" class="rounded shadow-sm">
+                            </div>
+                            <div class="mt-3 flex flex-wrap gap-2">
+                                <div class="bg-indigo-500/20 border border-indigo-500/30 px-3 py-1 rounded text-xs font-bold text-indigo-300">Global #${u.global_rank}</div>
+                                <div class="bg-white/10 border border-white/10 px-3 py-1 rounded text-xs font-bold text-white">${u.country} #${u.country_rank}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 grid grid-cols-2 md:grid-cols-4 gap-4 text-center items-center">
+                        <div class="bg-white/5 rounded-xl p-3 border border-white/5">
+                            <div class="text-[10px] text-gray-500 uppercase font-bold">Medals</div>
+                            <div class="text-2xl font-black text-white">${u.medal_count}</div>
+                        </div>
+                        <div class="bg-white/5 rounded-xl p-3 border border-white/5">
+                            <div class="text-[10px] text-gray-500 uppercase font-bold">PP</div>
+                            <div class="text-2xl font-black text-indigo-400">${u.pp}</div>
+                        </div>
+                        <div class="bg-white/5 rounded-xl p-3 border border-white/5 col-span-2">
+                            <div class="text-[10px] text-gray-500 uppercase font-bold">Play Time</div>
+                            <div class="text-xl font-bold text-white">${playTimeFormatted}</div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="bg-[#1a1a1d] border border-white/5 rounded-xl p-4 flex flex-col justify-center hover:border-osu/30 transition-colors"><div class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">PP</div><div class="text-2xl font-black text-osu">${u.pp}</div></div>
-            <div class="bg-[#1a1a1d] border border-white/5 rounded-xl p-4 flex flex-col justify-center hover:border-green-500/30 transition-colors"><div class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Accuracy</div><div class="text-2xl font-black text-white">${u.accuracy}<span class="text-sm text-gray-500 ml-0.5">%</span></div></div>
-            <div class="bg-[#1a1a1d] border border-white/5 rounded-xl p-4 flex flex-col justify-center hover:border-blue-500/30 transition-colors"><div class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Play Count</div><div class="text-2xl font-black text-white">${u.play_count}</div><div class="text-[10px] text-gray-500 font-mono mt-1">${u.play_time}h played</div></div>
-            <div class="bg-[#1a1a1d] border border-white/5 rounded-xl p-4 flex flex-col justify-center hover:border-yellow-500/30 transition-colors">
-                <div class="flex justify-between items-end mb-1"><div class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Level ${u.level}</div><div class="text-[10px] font-bold text-yellow-400">${u.level_progress}%</div></div>
-                <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden"><div class="h-full bg-yellow-400 rounded-full" style="width: ${u.level_progress}%"></div></div>
-                <div class="text-[10px] text-gray-500 mt-2 text-right">Score: ${u.total_score}</div>
+
+                <div class="relative z-10 mt-8 mb-4 h-24 w-full border-b border-white/5">
+                    <canvas id="rank-history-chart" class="w-full h-full" width="800" height="100"></canvas>
+                </div>
+
+                <div class="relative z-10 flex justify-between items-center gap-2 mb-8 overflow-x-auto">
+                    <div class="flex items-center gap-2"><span class="rank-text text-xl text-rank-XH">SS</span><span class="font-bold text-white">${u.grades.ssh}</span></div>
+                    <div class="w-px h-4 bg-white/10"></div>
+                    <div class="flex items-center gap-2"><span class="rank-text text-xl text-rank-X">S</span><span class="font-bold text-white">${u.grades.ss}</span></div>
+                    <div class="w-px h-4 bg-white/10"></div>
+                    <div class="flex items-center gap-2"><span class="rank-text text-xl text-rank-SH">S</span><span class="font-bold text-white">${u.grades.sh}</span></div>
+                    <div class="w-px h-4 bg-white/10"></div>
+                    <div class="flex items-center gap-2"><span class="rank-text text-xl text-rank-S">S</span><span class="font-bold text-white">${u.grades.s}</span></div>
+                    <div class="w-px h-4 bg-white/10"></div>
+                    <div class="flex items-center gap-2"><span class="rank-text text-xl text-rank-A">A</span><span class="font-bold text-white">${u.grades.a}</span></div>
+                </div>
+
+                <div class="relative z-10 border-t border-white/10 pt-6"></div>
+
+                <div class="relative z-10 profile-stats-grid">
+                    <div class="profile-stat-item">
+                        <div class="profile-stat-label">Ranked Score</div>
+                        <div class="profile-stat-val">${u.ranked_score}</div>
+                    </div>
+                    <div class="profile-stat-item">
+                        <div class="profile-stat-label">Hit Accuracy</div>
+                        <div class="profile-stat-val">${u.accuracy}%</div>
+                    </div>
+                    <div class="profile-stat-item">
+                        <div class="profile-stat-label">Play Count</div>
+                        <div class="profile-stat-val">${u.play_count}</div>
+                    </div>
+                    <div class="profile-stat-item">
+                        <div class="profile-stat-label">Total Score</div>
+                        <div class="profile-stat-val">${u.total_score}</div>
+                    </div>
+                    <div class="profile-stat-item">
+                        <div class="profile-stat-label">Total Hits</div>
+                        <div class="profile-stat-val">${u.total_hits.toLocaleString()}</div>
+                    </div>
+                    <div class="profile-stat-item">
+                        <div class="profile-stat-label">Max Combo</div>
+                        <div class="profile-stat-val">${u.max_combo}</div>
+                    </div>
+                    <div class="profile-stat-item">
+                        <div class="profile-stat-label">Replays Watched</div>
+                        <div class="profile-stat-val">${u.replays_watched.toLocaleString()}</div>
+                    </div>
+                    <div class="profile-stat-item flex flex-col justify-center">
+                        <div class="flex justify-between text-xs mb-1 font-bold"><span class="text-white">Level ${u.level}</span><span class="text-yellow-400">${u.level_progress}%</span></div>
+                        <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden"><div class="h-full bg-yellow-400" style="width: ${u.level_progress}%"></div></div>
+                    </div>
+                </div>
             </div>`;
-    } catch { c.innerHTML = '<div class="col-span-4 text-center text-xs text-red-400 py-4">Failed to load stats</div>'; }
+    } catch(e) {
+        console.error(e);
+        c.innerHTML = '<div class="col-span-4 text-center text-xs text-red-400 py-4">Failed to load stats</div>';
+    }
 }
 
 function switchTab(t) {
