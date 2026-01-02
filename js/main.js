@@ -4,6 +4,7 @@ let mouseX = 0, mouseY = 0, isMoving = false;
 let cursorEnabled = localStorage.getItem('customCursor') !== 'false';
 window.topScoresData = [];
 window.visibleScoresCount = 5;
+window.userRankHistory = []; 
 let globalTimerInterval = null;
 
 const Utils = {
@@ -84,7 +85,11 @@ function performSwitch(t) {
     document.querySelectorAll('.nav-btn').forEach(e=>e.classList.remove('active')); 
     document.getElementById('tab-'+t).classList.add('active'); 
     document.getElementById('btn-'+t).classList.add('active');
+    
     if (t === 'stream' && typeof window.resize === 'function') setTimeout(window.resize, 100);
+    if (t === 'stats' && window.userRankHistory.length > 0) {
+        setTimeout(() => drawRankGraph(window.userRankHistory), 50);
+    }
 }
 
 window.copyDiscord = function() { 
@@ -177,6 +182,8 @@ async function loadUserStats() {
         if (!res.ok) throw new Error();
         const u = await res.json();
         
+        window.userRankHistory = u.rank_history || [];
+
         const d = Math.floor(u.play_time_seconds / 86400);
         const h = Math.floor((u.play_time_seconds % 86400) / 3600);
         const m = Math.floor((u.play_time_seconds % 3600) / 60);
@@ -274,10 +281,14 @@ async function loadRecentActivity() {
 function drawRankGraph(history) {
     const canvas = document.getElementById('rank-history-chart');
     const tooltip = document.getElementById('chart-tooltip');
+    
     if (!canvas || !history || history.length < 2) return;
+    
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return;
+
     const ctx = canvas.getContext('2d');
     const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.getBoundingClientRect();
     canvas.width = rect.width * dpr; canvas.height = rect.height * dpr;
     ctx.scale(dpr, dpr);
     const w = rect.width; const h = rect.height;
@@ -355,7 +366,7 @@ function updateLanyardUI(d) {
             
             let linkUrl = '';
             if (activity.id === 'spotify:1' && activity.sync_id) {
-                linkUrl = `https://open.spotify.com/track/${activity.sync_id}`;
+                linkUrl = `http://open.spotify.com/track/${activity.sync_id}`;
             } else {
                 linkUrl = `https://www.google.com/search?q=${encodeURIComponent(name)}`;
             }
