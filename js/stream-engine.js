@@ -46,13 +46,17 @@ if (dom.bpmChart) resize();
 function setLimitType(type) {
     ['none', 'time', 'clicks'].forEach(t => {
         const btn = document.getElementById('lim-' + t);
-        btn.className = (t === type) 
-            ? "px-3 py-1.5 rounded-md text-[10px] font-bold uppercase transition-all bg-indigo-500 text-white shadow-lg transform scale-105" 
-            : "px-3 py-1.5 rounded-md text-[10px] font-bold uppercase transition-all text-gray-500 hover:text-white hover:bg-white/5";
+        if(btn) {
+            btn.className = (t === type) 
+                ? "px-3 py-1.5 rounded-md text-[10px] font-bold uppercase transition-all bg-indigo-500 text-white shadow-lg transform scale-105" 
+                : "px-3 py-1.5 rounded-md text-[10px] font-bold uppercase transition-all text-gray-500 hover:text-white hover:bg-white/5";
+        }
     });
-    dom.limitVal.disabled = type === 'none';
-    if (type === 'none') { dom.limitVal.value = ''; dom.limitVal.classList.add('opacity-50', 'cursor-not-allowed'); dom.limitVal.placeholder = '-'; } 
-    else { dom.limitVal.classList.remove('opacity-50', 'cursor-not-allowed'); dom.limitVal.focus(); dom.limitVal.placeholder = '0'; }
+    if(dom.limitVal) {
+        dom.limitVal.disabled = type === 'none';
+        if (type === 'none') { dom.limitVal.value = ''; dom.limitVal.classList.add('opacity-50', 'cursor-not-allowed'); dom.limitVal.placeholder = '-'; } 
+        else { dom.limitVal.classList.remove('opacity-50', 'cursor-not-allowed'); dom.limitVal.focus(); dom.limitVal.placeholder = '0'; }
+    }
 }
 
 function toggleInputMode() {
@@ -75,26 +79,34 @@ function bindKey(k) {
 
 function toggleTestState() {
     isTesting = !isTesting;
-    const span = dom.btnStart.querySelector('span'), icon = dom.btnStart.querySelector('i');
     
     if (isTesting) {
         let type = 'none';
-        if (document.getElementById('lim-time').classList.contains('bg-indigo-500')) type = 'time';
-        if (document.getElementById('lim-clicks').classList.contains('bg-indigo-500')) type = 'clicks';
+        const limTime = document.getElementById('lim-time');
+        const limClicks = document.getElementById('lim-clicks');
+        
+        if (limTime && limTime.classList.contains('bg-indigo-500')) type = 'time';
+        if (limClicks && limClicks.classList.contains('bg-indigo-500')) type = 'clicks';
+        
         const val = parseInt(dom.limitVal.value);
         testSettings = { mode: type, value: (isNaN(val) || val <= 0) ? 0 : val };
 
         resetTest();
+        
+        // Смена кнопки на STOP (Красная)
         dom.btnStart.className = "bg-red-500 hover:bg-red-400 text-black px-8 py-2 rounded-lg transition-all text-xs font-black uppercase tracking-widest shadow-[0_0_20px_rgba(239,68,68,0.3)] hover:shadow-[0_0_30px_rgba(239,68,68,0.5)] transform hover:scale-105 active:scale-95";
-        span.innerText = "STOP"; icon.className = "fas fa-stop mr-2";
-        dom.btnDownload.disabled = true;
+        dom.btnStart.innerHTML = '<i class="fas fa-stop mr-2"></i><span>STOP</span>';
+        
+        if(dom.btnDownload) dom.btnDownload.disabled = true;
         beginTime = performance.now();
         loop(0);
     } else {
+        // Смена кнопки на START (Зеленая)
         dom.btnStart.className = "bg-green-500 hover:bg-green-400 text-black px-8 py-2 rounded-lg transition-all text-xs font-black uppercase tracking-widest shadow-[0_0_20px_rgba(34,197,94,0.3)] hover:shadow-[0_0_30px_rgba(34,197,94,0.5)] transform hover:scale-105 active:scale-95";
-        span.innerText = "START"; icon.className = "fas fa-play mr-2";
+        dom.btnStart.innerHTML = '<i class="fas fa-play mr-2"></i><span>START</span>';
+        
         beginTime = -1;
-        dom.btnDownload.disabled = window.fullTestHistory.length === 0;
+        if(dom.btnDownload) dom.btnDownload.disabled = window.fullTestHistory.length === 0;
         drawFinalResults();
     }
 }
@@ -109,7 +121,7 @@ function resetTest() {
     window.fullTestHistory = [];
     dom.bpmVal.innerText = "0"; dom.urVal.innerText = "0.00"; dom.timeVal.innerText = "0.000 s";
     dom.countK1.innerText = "0"; dom.countK2.innerText = "0";
-    dom.btnDownload.disabled = true;
+    if(dom.btnDownload) dom.btnDownload.disabled = true;
     if (width) chartCtx.clearRect(0, 0, width, height);
     if (errW) errCtx.clearRect(0, 0, errW, errH);
     dom.historyList.innerHTML = `<div id="history-placeholder" class="text-center text-xs text-gray-600 italic py-10">Waiting for input...</div>`;
@@ -135,10 +147,8 @@ function handleInput(type, isDown) {
 
         clickTimes.push(now);
         
-        if (dom.historyPlaceholder) {
-            dom.historyPlaceholder.remove();
-            dom.historyPlaceholder = null;
-        }
+        const ph = document.getElementById('history-placeholder');
+        if (ph) ph.remove();
         
         calculateStats(now);
         checkLimits(now);
