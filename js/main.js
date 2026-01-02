@@ -4,6 +4,7 @@ let mouseX = 0, mouseY = 0, isMoving = false;
 let cursorEnabled = localStorage.getItem('customCursor') !== 'false';
 window.topScoresData = [];
 window.visibleScoresCount = 5;
+let activityTimerInterval = null;
 
 const Utils = {
     getAccColor: (a) => a >= 99 ? 'text-[#22c55e]' : a >= 97 ? 'text-[#8fbfff]' : a >= 94 ? 'text-[#ffcc22]' : 'text-[#ff4444]',
@@ -315,61 +316,72 @@ function drawRankGraph(history) {
 
 function initLanyard() {
     const ws = new WebSocket('wss://api.lanyard.rest/socket');
-
-    ws.onopen = () => {
-        ws.send(JSON.stringify({
-            op: 2,
-            d: { subscribe_to_id: DISCORD_ID }
-        }));
-    };
-
+    ws.onopen = () => { ws.send(JSON.stringify({ op: 2, d: { subscribe_to_id: DISCORD_ID } })); };
     ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        const { t, d } = data;
-
-        if (t === 'INIT_STATE' || t === 'PRESENCE_UPDATE') {
-            updateLanyardUI(d);
-        }
+        if (data.t === 'INIT_STATE' || data.t === 'PRESENCE_UPDATE') { updateLanyardUI(data.d); }
     };
-
-    ws.onclose = () => {
-        setTimeout(initLanyard, 5000);
-    };
+    ws.onclose = () => { setTimeout(initLanyard, 5000); };
 }
 
 function updateLanyardUI(d) {
     const w = document.getElementById('profile-status-wrapper');
     if (!w) return;
+    if (activityTimerInterval) { clearInterval(activityTimerInterval); activityTimerInterval = null; }
 
-    let activity = null;
-    if (d.activities && d.activities.length > 0) {
-        activity = d.activities.find(a => 
-            (a.name && a.name.toLowerCase().includes('osu')) || 
-            (a.state && a.state.toLowerCase().includes('osu')) ||
-            (a.details && a.details.toLowerCase().includes('osu'))
-        );
-    }
     const status = d.discord_status;
+    let activity = d.activities.find(a => a.type !== 4);
 
     if (activity) {
-        w.className = "inline-flex items-center rounded-2xl border mb-6 backdrop-blur-md transition-colors duration-300 max-w-full px-4 py-2 bg-pink-500/10 border-pink-500/30";
-        w.innerHTML = `<span class="text-xs font-bold text-pink-400">Playing osu!</span>`;
+        let largeImage = '';
+        if (activity.assets && activity.assets.large_image) {
+            if (activity.assets.large_image.startsWith("mp:")) largeImage = `https://media.discordapp.net/${activity.assets.large_image.replace("mp:", "")}`;
+            else largeImage = `https://cdn.discordapp.com/app-assets/${activity.application_id}/${activity.assets.large_image}.png`;
+        } else if (activity.id === 'spotify:' && activity.album_art_url) {
+            largeImage = activity.album_art_url;
+        }
+
+        const name = activity.name;
+        const details = activity.details || '';
+        const state = activity.state || '';
+        const hasTime = activity.timestamps && activity.timestamps.start;
+        
+        let contentHtml = `
+            <div class="flex items-center gap-3">
+                ${largeImage ? `<img src="${largeImage}" class="w-8 h-8 rounded-md shadow-sm object-cover">` : `<div class="w-8 h-8 rounded-md bg-indigo-500/20 flex items-center justify-center"><i class="fas fa-gamepad text-indigo-400"></i></div>`}
+                <div class="flex flex-col justify-center text-left">
+                    <span class="text-[10px] font-bold text-white leading-tight line-clamp-1">${name}</span>
+                    ${details ? `<span class="text-[9px] text-gray-400 leading-tight line-clamp-1">${details}</span>` : ''}
+                    ${state ? `<span class="text-[9px] text-gray-400 leading-tight line-clamp-1">${state}</span>` : ''}
+                    ${hasTime ? `<span id="activity-timer" class="text-[9px] text-gray-500 font-mono leading-tight mt-0.5">00:00</span>` : ''}
+                </div>
+            </div>`;
+        
+        w.className = "inline-flex items-center rounded-xl border mb-6 backdrop-blur-md transition-colors duration-300 max-w-full px-3 py-2 bg-[#141417]/80 border-white/10 shadow-lg";
+        w.innerHTML = contentHtml;
+
+        if (hasTime) {
+            const start = activity.timestamps.start;
+            const updateTimer = () => {
+                const el = document.getElementById('activity-timer');
+                if (!el) return;
+                const now = Date.now();
+                const diff = now - start;
+                const hrs = Math.floor(diff / 3600000);
+                const mins = Math.floor((diff % 3600000) / 60000);
+                const secs = Math.floor((diff % 60000) / 1000);
+                el.innerText = hrs > 0 
+                    ? `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}` 
+                    : `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            };
+            updateTimer();
+            activityTimerInterval = setInterval(updateTimer, 1000);
+        }
     } else {
         const color = status === 'online' ? 'green' : status === 'dnd' ? 'red' : status === 'idle' ? 'yellow' : 'gray';
-        const colorClass = 
-            status === 'online' ? 'text-green-400 bg-green-500/10 border-green-500/30' : 
-            status === 'dnd' ? 'text-red-400 bg-red-500/10 border-red-500/30' :
-            status === 'idle' ? 'text-yellow-400 bg-yellow-500/10 border-yellow-500/30' :
-            'text-gray-400 bg-gray-500/10 border-gray-500/30';
-        
-        const bgClass = 
-             status === 'online' ? 'bg-green-400' : 
-             status === 'dnd' ? 'bg-red-400' :
-             status === 'idle' ? 'bg-yellow-400' :
-             'bg-gray-400';
-
-        w.className = `inline-flex items-center rounded-2xl border mb-6 backdrop-blur-md transition-colors duration-300 max-w-full px-3 py-1 ${colorClass}`;
-        w.innerHTML = `<span class="w-2 h-2 rounded-full mr-2 ${bgClass} ${status==='online'?'animate-pulse':''}"></span><span class="text-xs font-bold">${status ? status.toUpperCase() : 'OFFLINE'}</span>`;
+        const bgClass = status === 'online' ? 'bg-green-400' : status === 'dnd' ? 'bg-red-400' : status === 'idle' ? 'bg-yellow-400' : 'bg-gray-400';
+        w.className = `inline-flex items-center rounded-2xl border mb-6 backdrop-blur-md transition-colors duration-300 max-w-full px-3 py-1 bg-${color}-500/10 border-${color}-500/30`;
+        w.innerHTML = `<span class="w-2 h-2 rounded-full mr-2 ${bgClass} ${status==='online'?'animate-pulse':''}"></span><span class="text-xs font-bold text-${color}-400">${status ? status.toUpperCase() : 'OFFLINE'}</span>`;
     }
 }
 
