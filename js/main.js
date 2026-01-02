@@ -107,7 +107,6 @@ async function loadTopScores() {
 
 window.showMoreScores = function() { window.visibleScoresCount = window.topScoresData.length; renderScoresList(); }
 window.showLessScores = function() { window.visibleScoresCount = 5; renderScoresList(); }
-
 window.toggleScoreDetails = function(index) { document.getElementById(`score-row-${index}`).classList.toggle('open'); }
 
 function renderScoresList() {
@@ -314,28 +313,59 @@ function drawRankGraph(history) {
     canvas.onmouseleave = () => { tooltip.style.opacity = 0; };
 }
 
-async function fetchLanyardStatus() {
-    try {
-        const res = await fetch(`https://api.lanyard.rest/v1/users/${DISCORD_ID}`);
-        const data = await res.json();
-        if (data.success) {
-            const status = data.data.discord_status;
-            const activity = data.data.activities.find(a => a.name.toLowerCase().includes('osu'));
-            const w = document.getElementById('profile-status-wrapper');
-            if (!w) return;
-            if (activity) {
-                w.className = "inline-flex items-center rounded-2xl border mb-6 backdrop-blur-md transition-colors duration-300 max-w-full px-4 py-2 bg-pink-500/10 border-pink-500/30";
-                w.innerHTML = `<span class="text-xs font-bold text-pink-400">Playing osu!</span>`;
-            } else {
-                const color = status === 'online' ? 'green' : 'gray';
-                w.className = `inline-flex items-center rounded-2xl border mb-6 backdrop-blur-md transition-colors duration-300 max-w-full px-3 py-1 bg-${color}-500/10 border-${color}-500/30`;
-                w.innerHTML = `<span class="w-2 h-2 rounded-full mr-2 bg-${color}-400 ${status==='online'?'animate-pulse':''}"></span><span class="text-xs font-bold text-${color}-400">${status.toUpperCase()}</span>`;
-            }
+function initLanyard() {
+    const ws = new WebSocket('wss://api.lanyard.rest/socket');
+
+    ws.onopen = () => {
+        ws.send(JSON.stringify({
+            op: 2,
+            d: { subscribe_to_id: DISCORD_ID }
+        }));
+    };
+
+    ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        const { t, d } = data;
+
+        if (t === 'INIT_STATE' || t === 'PRESENCE_UPDATE') {
+            updateLanyardUI(d);
         }
-    } catch {}
+    };
+
+    ws.onclose = () => {
+        setTimeout(initLanyard, 5000);
+    };
 }
 
-fetchLanyardStatus(); 
-setInterval(fetchLanyardStatus, 10000);
+function updateLanyardUI(d) {
+    const w = document.getElementById('profile-status-wrapper');
+    if (!w) return;
+
+    const activity = d.activities ? d.activities.find(a => a.name.toLowerCase().includes('osu')) : null;
+    const status = d.discord_status;
+
+    if (activity) {
+        w.className = "inline-flex items-center rounded-2xl border mb-6 backdrop-blur-md transition-colors duration-300 max-w-full px-4 py-2 bg-pink-500/10 border-pink-500/30";
+        w.innerHTML = `<span class="text-xs font-bold text-pink-400">Playing osu!</span>`;
+    } else {
+        const color = status === 'online' ? 'green' : status === 'dnd' ? 'red' : status === 'idle' ? 'yellow' : 'gray';
+        const colorClass = 
+            status === 'online' ? 'text-green-400 bg-green-500/10 border-green-500/30' : 
+            status === 'dnd' ? 'text-red-400 bg-red-500/10 border-red-500/30' :
+            status === 'idle' ? 'text-yellow-400 bg-yellow-500/10 border-yellow-500/30' :
+            'text-gray-400 bg-gray-500/10 border-gray-500/30';
+        
+        const bgClass = 
+             status === 'online' ? 'bg-green-400' : 
+             status === 'dnd' ? 'bg-red-400' :
+             status === 'idle' ? 'bg-yellow-400' :
+             'bg-gray-400';
+
+        w.className = `inline-flex items-center rounded-2xl border mb-6 backdrop-blur-md transition-colors duration-300 max-w-full px-3 py-1 ${colorClass}`;
+        w.innerHTML = `<span class="w-2 h-2 rounded-full mr-2 ${bgClass} ${status==='online'?'animate-pulse':''}"></span><span class="text-xs font-bold">${status ? status.toUpperCase() : 'OFFLINE'}</span>`;
+    }
+}
+
+initLanyard();
 loadTopScores(); 
 loadUserStats();
