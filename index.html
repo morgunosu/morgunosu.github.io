@@ -90,10 +90,14 @@
             <div class="flex items-center justify-between mb-8 px-2">
                 <div class="flex items-center gap-3"><i class="fas fa-tachometer-alt text-indigo-400 text-xl"></i><h2 class="text-3xl font-bold">BPM Test</h2></div>
             </div>
+            
             <div class="mb-6 p-4 bg-yellow-500/5 border border-yellow-500/20 rounded-2xl flex gap-4 items-start backdrop-blur-md">
                 <i class="fas fa-exclamation-triangle text-yellow-400 mt-0.5 text-lg"></i>
-                <p class="text-xs text-yellow-100/80 leading-relaxed font-mono">WARNING: This test is not correct relative to osu! and most likely your indicators will be either higher or lower. UR directly works from AR, OD which this BPM test does not provide, so do not rely on these results, they are incorrect regarding osu!</p>
+                <p class="text-xs text-yellow-100/80 leading-relaxed font-mono">
+                    NOTICE: This test is not correct relative to osu! and most likely your indicators will be either higher or lower. UR directly works from AR, OD which this BPM test does not provide, so do not rely on these results, they are incorrect regarding osu!.
+                </p>
             </div>
+
             <div class="bento-card p-6 relative overflow-hidden">
                 <div class="flex flex-col justify-between items-center mb-8 border-b border-white/5 pb-6 gap-6 w-full">
                     <div class="flex flex-wrap gap-4 w-full justify-between items-center">
@@ -103,6 +107,9 @@
                             </button>
                             <button onclick="manualReset()" class="bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/10 px-4 py-2 rounded-lg transition-all text-xs font-bold uppercase tracking-wider">
                                 <i class="fas fa-undo mr-2"></i><span>RESET</span>
+                            </button>
+                            <button id="btn-download" onclick="downloadResults()" class="bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed border border-white/10 px-4 py-2 rounded-lg transition-all text-xs font-bold uppercase tracking-wider" disabled>
+                                <i class="fas fa-file-download mr-2"></i><span>SAVE .TXT</span>
                             </button>
                             <button id="btn-start" onclick="toggleTestState()" class="bg-green-500 hover:bg-green-400 text-black px-8 py-2 rounded-lg transition-all text-xs font-black uppercase tracking-widest shadow-[0_0_20px_rgba(34,197,94,0.3)] hover:shadow-[0_0_30px_rgba(34,197,94,0.5)] transform hover:scale-105 active:scale-95">
                                 <i class="fas fa-play mr-2"></i> <span>START</span>
@@ -151,7 +158,7 @@
             <div class="bento-card p-6 mt-4 relative overflow-hidden flex flex-col h-[400px]">
                 <div class="flex justify-between items-center mb-4 border-b border-white/5 pb-2">
                     <div class="flex items-center gap-3"><i class="fas fa-history text-indigo-400 text-lg"></i><h2 class="text-lg font-bold uppercase">Input History</h2></div>
-                    <div class="text-[10px] text-gray-500 font-mono">LATEST 1000 INPUTS</div>
+                    <div class="text-[10px] text-gray-500 font-mono">LATEST 30 INPUTS</div>
                 </div>
                 <div id="input-history-list" class="flex-1 overflow-y-auto space-y-1.5 pr-2 custom-scrollbar relative">
                     <div id="history-placeholder" class="text-center text-xs text-gray-600 italic py-10">Waiting for input...</div>
@@ -185,7 +192,6 @@
                     </div>
                     <div class="flex justify-between items-end"><div><h3 class="font-bold text-lg text-gray-100 group-hover:text-indigo-400 transition-colors">Current Skin</h3><div class="flex gap-2 mt-1"><span class="text-[10px] bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded">MAIN</span></div></div><div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 group-hover:bg-indigo-500 group-hover:text-white transition-all"><i class="fas fa-download text-xs"></i></div></div>
                 </a>
-                
                 <a href="https://skins.osuck.net/skins/4245?v=0" target="_blank" class="group relative bg-white/5 border border-white/5 rounded-2xl p-3 hover:bg-white/10 hover:border-indigo-500/30 transition-all duration-300 cursor-pointer">
                     <div class="h-40 w-full rounded-xl overflow-hidden relative mb-4 border border-white/5 shadow-lg group-hover:shadow-indigo-500/20 transition-all duration-500">
                         <img src="https://skins.osuck.net/images/screenshots/942f0131248d07d4426ed6882545d7d1.webp" class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500">
@@ -194,7 +200,6 @@
                     </div>
                     <div class="flex justify-between items-end"><div><h3 class="font-bold text-lg text-gray-100 group-hover:text-indigo-400 transition-colors">Ashecho v1</h3><div class="flex gap-2 mt-1"><span class="text-[10px] bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded">MAIN</span></div></div><div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 group-hover:bg-indigo-500 group-hover:text-white transition-all"><i class="fas fa-download text-xs"></i></div></div>
                 </a>
-
                 <a href="https://skins.osuck.net/skins/166?v=0" target="_blank" class="group relative bg-white/5 border border-white/5 rounded-2xl p-3 hover:bg-white/10 hover:border-pink-500/30 transition-all duration-300 cursor-pointer">
                     <div class="h-40 w-full rounded-xl overflow-hidden relative mb-4 border border-white/5 shadow-lg group-hover:shadow-pink-500/20 transition-all duration-500">
                         <img src="https://skins.osuck.net/images/screenshots/562f42b4af68706e5a6d079fc627937d.webp" class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500">
@@ -296,5 +301,3 @@
     <script>window.addEventListener('load', () => { document.body.style.visibility = 'visible'; document.body.style.opacity = '1'; });</script>
 </body>
 </html>
-
-
