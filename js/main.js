@@ -335,10 +335,14 @@ function updateLanyardUI(d) {
     if (activity) {
         let largeImage = '';
         if (activity.assets && activity.assets.large_image) {
-            if (activity.assets.large_image.startsWith("mp:")) largeImage = `https://media.discordapp.net/${activity.assets.large_image.replace("mp:", "")}`;
-            else largeImage = `https://cdn.discordapp.com/app-assets/${activity.application_id}/${activity.assets.large_image}.png`;
-        } else if (activity.id === 'spotify:' && activity.album_art_url) {
-            largeImage = activity.album_art_url;
+            const img = activity.assets.large_image;
+            if (img.startsWith("spotify:")) {
+                largeImage = `https://i.scdn.co/image/${img.replace("spotify:", "")}`;
+            } else if (img.startsWith("mp:")) {
+                largeImage = `https://media.discordapp.net/${img.replace("mp:", "")}`;
+            } else {
+                largeImage = `https://cdn.discordapp.com/app-assets/${activity.application_id}/${img}.png`;
+            }
         }
 
         const name = activity.name;
