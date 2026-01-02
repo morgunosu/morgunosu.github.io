@@ -215,60 +215,65 @@ async function loadUserStats() {
                     </div>
                 </div>
 
-                <div class="bento-card col-span-2 md:col-span-4 p-5 flex justify-between items-center gap-2 overflow-x-auto">
-                    <div class="flex items-center gap-3 px-4 border-r border-white/5 last:border-0 min-w-fit">
-                        <span class="text-3xl font-black text-rank-XH drop-shadow-md">SS</span>
-                        <div class="flex flex-col"><span class="text-[9px] text-gray-500 font-bold uppercase">Silver</span><span class="text-lg font-bold text-white leading-none">${u.grades.ssh.toLocaleString()}</span></div>
+                <div class="col-span-2 md:col-span-4 flex justify-between items-center gap-2 overflow-x-auto py-2">
+                    <div class="stat-panel-clean flex-1 min-w-[80px] items-center">
+                        <span class="text-2xl font-black text-rank-XH leading-none">SS</span>
+                        <span class="text-[9px] text-gray-500 font-bold uppercase mt-1">Silver</span>
+                        <span class="text-sm font-bold text-white">${u.grades.ssh.toLocaleString()}</span>
                     </div>
-                    <div class="flex items-center gap-3 px-4 border-r border-white/5 last:border-0 min-w-fit">
-                        <span class="text-3xl font-black text-rank-X drop-shadow-md">SS</span>
-                        <div class="flex flex-col"><span class="text-[9px] text-gray-500 font-bold uppercase">Gold</span><span class="text-lg font-bold text-white leading-none">${u.grades.ss.toLocaleString()}</span></div>
+                    <div class="stat-panel-clean flex-1 min-w-[80px] items-center">
+                        <span class="text-2xl font-black text-rank-X leading-none">SS</span>
+                        <span class="text-[9px] text-gray-500 font-bold uppercase mt-1">Gold</span>
+                        <span class="text-sm font-bold text-white">${u.grades.ss.toLocaleString()}</span>
                     </div>
-                    <div class="flex items-center gap-3 px-4 border-r border-white/5 last:border-0 min-w-fit">
-                        <span class="text-3xl font-black text-rank-SH drop-shadow-md">S</span>
-                        <div class="flex flex-col"><span class="text-[9px] text-gray-500 font-bold uppercase">Silver</span><span class="text-lg font-bold text-white leading-none">${u.grades.sh.toLocaleString()}</span></div>
+                    <div class="stat-panel-clean flex-1 min-w-[80px] items-center">
+                        <span class="text-2xl font-black text-rank-SH leading-none">S</span>
+                        <span class="text-[9px] text-gray-500 font-bold uppercase mt-1">Silver</span>
+                        <span class="text-sm font-bold text-white">${u.grades.sh.toLocaleString()}</span>
                     </div>
-                    <div class="flex items-center gap-3 px-4 border-r border-white/5 last:border-0 min-w-fit">
-                        <span class="text-3xl font-black text-rank-S drop-shadow-md">S</span>
-                        <div class="flex flex-col"><span class="text-[9px] text-gray-500 font-bold uppercase">Gold</span><span class="text-lg font-bold text-white leading-none">${u.grades.s.toLocaleString()}</span></div>
+                    <div class="stat-panel-clean flex-1 min-w-[80px] items-center">
+                        <span class="text-2xl font-black text-rank-S leading-none">S</span>
+                        <span class="text-[9px] text-gray-500 font-bold uppercase mt-1">Gold</span>
+                        <span class="text-sm font-bold text-white">${u.grades.s.toLocaleString()}</span>
                     </div>
-                    <div class="flex items-center gap-3 px-4 min-w-fit">
-                        <span class="text-3xl font-black text-rank-A drop-shadow-md">A</span>
-                        <div class="flex flex-col"><span class="text-[9px] text-gray-500 font-bold uppercase">Rank A</span><span class="text-lg font-bold text-white leading-none">${u.grades.a.toLocaleString()}</span></div>
+                    <div class="stat-panel-clean flex-1 min-w-[80px] items-center">
+                        <span class="text-2xl font-black text-rank-A leading-none">A</span>
+                        <span class="text-[9px] text-gray-500 font-bold uppercase mt-1">Rank A</span>
+                        <span class="text-sm font-bold text-white">${u.grades.a.toLocaleString()}</span>
                     </div>
                 </div>
 
-                <div class="bento-card col-span-1 p-4 flex flex-col justify-center border-l-4 border-l-blue-500 bg-[#1a1a1d]">
+                <div class="stat-panel-clean col-span-1">
                     <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Ranked Score</p>
                     <h4 class="text-lg font-bold text-white truncate">${parseInt(u.ranked_score).toLocaleString()}</h4>
                 </div>
-                <div class="bento-card col-span-1 p-4 flex flex-col justify-center border-l-4 border-l-green-500 bg-[#1a1a1d]">
+                <div class="stat-panel-clean col-span-1">
                     <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Hit Accuracy</p>
                     <h4 class="text-lg font-bold text-white">${u.accuracy}%</h4>
                 </div>
-                <div class="bento-card col-span-1 p-4 flex flex-col justify-center border-l-4 border-l-yellow-500 bg-[#1a1a1d]">
+                <div class="stat-panel-clean col-span-1">
                     <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Play Count</p>
                     <h4 class="text-lg font-bold text-white">${parseInt(u.play_count).toLocaleString()}</h4>
                 </div>
-                <div class="bento-card col-span-1 p-4 flex flex-col justify-center border-l-4 border-l-purple-500 bg-[#1a1a1d]">
+                <div class="stat-panel-clean col-span-1">
                     <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Total Hits</p>
                     <h4 class="text-lg font-bold text-white">${parseInt(u.total_hits).toLocaleString()}</h4>
                 </div>
                 
-                <div class="bento-card col-span-1 p-4 flex flex-col justify-center bg-[#1a1a1d]">
+                <div class="stat-panel-clean col-span-1">
                     <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Max Combo</p>
                     <h4 class="text-lg font-bold text-white">${u.max_combo.toLocaleString()}x</h4>
                 </div>
-                <div class="bento-card col-span-1 p-4 flex flex-col justify-center bg-[#1a1a1d]">
+                <div class="stat-panel-clean col-span-1">
                     <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Total Score</p>
                     <h4 class="text-sm font-bold text-gray-300 break-all">${parseInt(u.total_score).toLocaleString()}</h4>
                 </div>
-                <div class="bento-card col-span-1 p-4 flex flex-col justify-center bg-[#1a1a1d]">
+                <div class="stat-panel-clean col-span-1">
                     <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Replays Watched</p>
                     <h4 class="text-lg font-bold text-white">${u.replays_watched.toLocaleString()}</h4>
                 </div>
                 
-                <div class="bento-card col-span-1 p-4 flex flex-col justify-center relative overflow-hidden bg-[#1a1a1d]">
+                <div class="stat-panel-clean col-span-1 relative overflow-hidden">
                     <div class="flex justify-between items-end mb-2 relative z-10">
                         <div><p class="text-[10px] text-gray-500 uppercase font-bold">Lvl ${u.level}</p></div>
                         <div class="text-right"><p class="text-[10px] text-gray-500 uppercase font-bold">Time</p></div>
@@ -329,7 +334,6 @@ function drawRankGraph(history) {
 
     history.forEach((val, i) => {
         const x = (i / (history.length - 1)) * w;
-        // Invert Y axis: Lower rank (better) is Higher on screen (y=0)
         const norm = (val - minRank) / range; 
         const y = padding + norm * (h - padding * 2);
         if(i===0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
@@ -355,7 +359,6 @@ function drawRankGraph(history) {
             const daysAgo = 90 - idx;
             
             tooltip.style.opacity = 1;
-            // Используем clientX/Y для fixed позиционирования относительно окна, а не канваса
             tooltip.style.left = `${e.clientX + 15}px`; 
             tooltip.style.top = `${e.clientY - 15}px`;
             tooltip.innerHTML = `<div class="text-center"><span class="font-bold text-yellow-400 text-lg">#${rank.toLocaleString()}</span><br><span class="text-[10px] text-gray-400 uppercase tracking-widest">${daysAgo} days ago</span></div>`;
