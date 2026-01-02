@@ -111,7 +111,7 @@
                             <button onclick="manualReset()" class="bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/10 px-4 py-2 rounded-lg transition-all text-xs font-bold uppercase tracking-wider">
                                 <i class="fas fa-undo mr-2"></i><span>RESET</span>
                             </button>
-                            <button id="btn-download" onclick="downloadResults()" class="bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed border border-white/10 px-4 py-2 rounded-lg transition-all text-xs font-bold uppercase tracking-wider" disabled>
+                            <button id="btn-download" onclick="window.downloadResults()" class="bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed border border-white/10 px-4 py-2 rounded-lg transition-all text-xs font-bold uppercase tracking-wider" disabled>
                                 <i class="fas fa-file-download mr-2"></i><span>SAVE .TXT</span>
                             </button>
                             <button id="btn-start" onclick="toggleTestState()" class="bg-green-500 hover:bg-green-400 text-black px-8 py-2 rounded-lg transition-all text-xs font-black uppercase tracking-widest shadow-[0_0_20px_rgba(34,197,94,0.3)] hover:shadow-[0_0_30px_rgba(34,197,94,0.5)] transform hover:scale-105 active:scale-95">
@@ -283,11 +283,8 @@
     
     <footer class="mt-12 mb-6 text-gray-600 text-xs font-mono uppercase tracking-widest z-10">MORGUN © 2026</footer>
 
-    <script src="js/utils.js"></script>
-    <script src="js/scores.js" type="module"></script>
-    <script src="js/main.js" type="module"></script>
-    <script src="js/downloader.js"></script>
-    <script src="js/stream-engine.js"></script>
+    <script src="js/main.js" defer></script>
+    <script src="js/stream-engine.js" defer></script>
     <script>window.addEventListener('load', () => { document.body.style.visibility = 'visible'; document.body.style.opacity = '1'; });</script>
 </body>
 </html>
