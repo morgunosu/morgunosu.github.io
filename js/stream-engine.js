@@ -26,7 +26,7 @@ let width, height, errW, errH;
 let lastDrawTime = 0;
 const FPS_LIMIT = 1000 / 60;
 
-function resize() {
+window.resize = function() {
     if (!dom.bpmChart || !dom.bpmChart.parentElement) return;
     const dpr = window.devicePixelRatio || 1;
     const p = dom.bpmChart.parentElement;
@@ -38,8 +38,8 @@ function resize() {
     dom.errorBar.width = errW * dpr; dom.errorBar.height = errH * dpr;
     errCtx.scale(dpr, dpr);
 }
-window.addEventListener('resize', resize);
-if (dom.bpmChart) resize();
+window.addEventListener('resize', window.resize);
+if (dom.bpmChart) window.resize();
 
 window.setLimitType = function(type) {
     ['none', 'time', 'clicks'].forEach(t => {
@@ -97,7 +97,7 @@ window.toggleTestState = function() {
 }
 
 window.manualReset = function() {
-    if (isTesting) toggleTestState();
+    if (isTesting) window.toggleTestState();
     resetTest();
 }
 
@@ -184,12 +184,18 @@ function calculateStats(now) {
 }
 
 function checkLimits(now) {
-    if (testSettings.mode === 'clicks' && (counts.k1 + counts.k2) >= testSettings.value) toggleTestState();
-    else if (testSettings.mode === 'time' && (now - beginTime)/1000 >= testSettings.value) toggleTestState();
+    if (testSettings.mode === 'clicks' && (counts.k1 + counts.k2) >= testSettings.value) window.toggleTestState();
+    else if (testSettings.mode === 'time' && (now - beginTime)/1000 >= testSettings.value) window.toggleTestState();
 }
 
 function loop(timestamp) {
     if (!isTesting) return;
+    const tabStream = document.getElementById('tab-stream');
+    if (!tabStream || !tabStream.classList.contains('active')) {
+        requestAnimationFrame(loop);
+        return;
+    }
+
     if (timestamp - lastDrawTime >= FPS_LIMIT) {
         const now = performance.now();
         dom.timeVal.innerText = ((now - beginTime) / 1000).toFixed(3) + " s";
@@ -201,7 +207,7 @@ function loop(timestamp) {
 }
 
 function drawChart() {
-    if (!width) resize();
+    if (!width) window.resize();
     chartCtx.clearRect(0, 0, width, height);
     if (chartData.length < 2) return;
     chartCtx.beginPath(); chartCtx.lineWidth = 1; chartCtx.strokeStyle = '#6366f1';
@@ -216,7 +222,7 @@ function drawChart() {
 }
 
 function drawLiveHitErrors(now) {
-    if (!errW) resize();
+    if (!errW) window.resize();
     errCtx.clearRect(0, 0, errW, errH);
     errCtx.fillStyle = 'rgba(255, 255, 255, 0.8)'; 
     errCtx.fillRect(Math.floor(errW/2)-1, 0, 2, errH);
@@ -236,7 +242,7 @@ function drawLiveHitErrors(now) {
 }
 
 function drawFinalResults() {
-    if (!errW) resize();
+    if (!errW) window.resize();
     errCtx.clearRect(0, 0, errW, errH);
     errCtx.fillStyle = 'rgba(255, 255, 255, 0.5)'; 
     errCtx.fillRect(Math.floor(errW/2)-1, 0, 2, errH);
@@ -250,6 +256,32 @@ function drawFinalResults() {
         else errCtx.fillStyle = "rgba(239, 68, 68, 0.6)";
         errCtx.fillRect(Math.floor(x) - 1, 5, 2, errH - 10);
     }
+}
+
+window.downloadResults = function() {
+    const history = window.fullTestHistory || [];
+    const bpm = document.getElementById('val-bpm').innerText;
+    const ur = document.getElementById('val-ur').innerText;
+    if (history.length === 0) return;
+    let content = "MORGUN STREAM TEST RESULT\n";
+    content += "---------------------------------\n";
+    content += `Date: ${new Date().toLocaleString()}\n`;
+    content += `Final BPM: ${bpm}\n`;
+    content += `Unstable Rate: ${ur}\n`;
+    content += `Total Inputs: ${history.length}\n`;
+    content += "---------------------------------\n";
+    content += "KEY\t|\tTIME (ms)\t|\tHOLD (ms)\n";
+    content += "---------------------------------\n";
+    history.forEach(item => { content += `${item.key}\t|\t${item.timestamp}\t\t|\t${item.duration}\n`; });
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `morgun_bpm_test_${Date.now()}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
 }
 
 document.addEventListener('keydown', e => {
