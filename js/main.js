@@ -11,11 +11,9 @@ function updateCursorLoop() {
     if (isMoving && cursorEnabled && cursor) {
         cursor.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0)`;
         if (Math.random() > 0.90 && !document.body.classList.contains('system-cursor')) {
-            const dot = document.createElement('div'); 
-            dot.className = 'trail-dot';
+            const dot = document.createElement('div'); dot.className = 'trail-dot';
             dot.style.left = mouseX+'px'; dot.style.top = mouseY+'px';
-            document.body.appendChild(dot); 
-            setTimeout(()=>dot.remove(), 300);
+            document.body.appendChild(dot); setTimeout(()=>dot.remove(), 300);
         }
     }
     isMoving = false;
@@ -46,6 +44,8 @@ function updateCursorUI() {
 }
 updateCursorUI();
 
+// --- DATA FETCHING ---
+
 async function loadTopScores() {
     const c = document.getElementById('scores-container');
     if (!c) return;
@@ -55,9 +55,44 @@ async function loadTopScores() {
         if (!res.ok) throw new Error();
         window.topScoresData = await res.json();
         renderScoresList();
-    } catch {
-        c.innerHTML = '<div class="text-center text-xs text-red-400 py-4">Failed to load scores.</div>';
-    }
+    } catch { c.innerHTML = '<div class="text-center text-xs text-red-400 py-4">Failed to load scores.</div>'; }
+}
+
+async function loadRecentActivity() {
+    const c = document.getElementById('activity-container');
+    if (!c) return;
+    try {
+        const res = await fetch('/api/scores?type=recent');
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        
+        let html = '';
+        if (data.length === 0) {
+            html = '<div class="text-center text-gray-500 py-4 text-xs">No recent activity found.</div>';
+        } else {
+            html = data.map(s => {
+                const time = getRelativeTime(s.created_at);
+                const rankClass = `rank-${s.rank.replace('H', 'H')}`;
+                const modsHTML = s.mods.length > 0 ? `+${s.mods.join('')}` : '';
+                const failClass = s.rank === 'F' ? 'opacity-60 grayscale' : '';
+                
+                return `
+                <div class="activity-item ${failClass}">
+                    <div class="w-10 text-center flex-shrink-0">
+                        <span class="text-2xl font-black ${rankClass} drop-shadow-sm">${s.rank.replace('X', 'SS')}</span>
+                    </div>
+                    <div class="flex-grow min-w-0 px-3">
+                        <div class="text-xs font-bold text-white truncate">${s.beatmap.title}</div>
+                        <div class="text-[10px] text-gray-400 truncate">${s.beatmap.version} <span class="text-yellow-300 ml-1">${modsHTML}</span></div>
+                    </div>
+                    <div class="text-right flex-shrink-0">
+                        <div class="text-[10px] font-mono text-gray-500">${time}</div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+        c.innerHTML = html;
+    } catch { c.innerHTML = '<div class="text-center text-red-400 py-4 text-xs">Failed to load activity.</div>'; }
 }
 
 function showMoreScores() { window.visibleScoresCount = window.topScoresData.length; renderScoresList(); }
@@ -67,17 +102,14 @@ function getRelativeTime(dateString) {
     const date = new Date(dateString);
     const now = new Date();
     const diff = Math.floor((now - date) / 1000);
-    if (isNaN(diff)) return "Recently";
+    if (isNaN(diff)) return "";
     if (diff < 60) return 'just now';
     const min = Math.floor(diff / 60);
     if (min < 60) return `${min}m ago`;
     const h = Math.floor(min / 60);
     if (h < 24) return `${h}h ago`;
     const d = Math.floor(h / 24);
-    if (d < 30) return `${d}d ago`;
-    const mo = Math.floor(d / 30);
-    if (mo < 12) return `${mo}mo ago`;
-    return `${Math.floor(mo / 12)}y ago`;
+    return `${d}d ago`;
 }
 
 function toggleScoreDetails(index) {
@@ -99,11 +131,7 @@ function calculateMapStats(beatmap, mods) {
 function renderScoresList() {
     const c = document.getElementById('scores-container');
     const data = window.topScoresData.slice(0, window.visibleScoresCount);
-    let html = `
-        <div class="flex items-center justify-between px-1 py-3 mb-2 border-b border-white/5">
-            <div class="flex gap-3 items-center"><i class="fas fa-trophy text-indigo-400"></i><span class="text-sm font-bold text-white uppercase tracking-widest">Best Performance</span></div>
-            <div class="text-[10px] text-gray-500 font-bold uppercase tracking-wider bg-white/5 px-2 py-1 rounded">Score V2</div>
-        </div><div class="flex flex-col gap-2">`;
+    let html = `<div class="flex flex-col gap-2">`;
     html += data.map((s, i) => {
         const score = Math.round(s.score_lazer).toLocaleString(); 
         const mods = s.mods;
@@ -186,7 +214,7 @@ async function loadUserStats() {
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 
                 <div class="bento-card col-span-2 md:col-span-4 p-6 relative group overflow-hidden">
-                    <div class="absolute inset-0 bg-cover bg-center opacity-30 group-hover:opacity-40 transition-opacity duration-700" style="background-image: url('${u.cover_url}');"></div>
+                    <div class="absolute inset-0 bg-cover bg-center opacity-30" style="background-image: url('${u.cover_url}');"></div>
                     <div class="absolute inset-0 bg-gradient-to-r from-[#141417] via-[#141417]/95 to-transparent"></div>
                     <div class="relative z-10 flex flex-col md:flex-row items-center gap-6">
                         <img src="${u.avatar_url}" class="w-24 h-24 rounded-2xl border-2 border-white/10 shadow-2xl">
@@ -196,10 +224,10 @@ async function loadUserStats() {
                                 <img src="https://flagcdn.com/24x18/${u.country.toLowerCase()}.png" class="rounded shadow-sm">
                             </div>
                             <div class="mt-3 flex flex-wrap justify-center md:justify-start gap-3">
-                                <div class="bg-indigo-500/20 border border-indigo-500/30 px-3 py-1.5 rounded-lg text-sm font-bold text-indigo-300">Global #${u.global_rank.toLocaleString()}</div>
+                                <div class="bg-indigo-500/20 border border-indigo-500/30 px-3 py-1.5 rounded-lg text-sm font-bold text-indigo-300">#${u.global_rank.toLocaleString()}</div>
                                 <div class="bg-white/10 border border-white/10 px-3 py-1.5 rounded-lg text-sm font-bold text-white">${u.country} #${u.country_rank.toLocaleString()}</div>
                                 <div class="bg-pink-500/10 border border-pink-500/30 px-3 py-1.5 rounded-lg text-sm font-bold text-pink-300">${u.pp.toLocaleString()} pp</div>
-                                <div class="bg-yellow-500/10 border border-yellow-500/20 px-3 py-1.5 rounded-lg text-sm font-bold text-yellow-300"><i class="fas fa-medal mr-1.5"></i>${u.medal_count} Medals</div>
+                                <div class="bg-yellow-500/10 border border-yellow-500/20 px-3 py-1.5 rounded-lg text-sm font-bold text-yellow-300">${u.medal_count} Medals</div>
                             </div>
                         </div>
                     </div>
@@ -208,7 +236,7 @@ async function loadUserStats() {
                 <div class="bento-card col-span-2 md:col-span-4 p-0 relative h-56 group overflow-hidden">
                     <div class="absolute top-4 left-4 z-10 flex items-center gap-2">
                         <i class="fas fa-chart-line text-yellow-400"></i>
-                        <span class="text-xs font-bold text-white uppercase tracking-widest">Rank History (90 Days)</span>
+                        <span class="text-xs font-bold text-white uppercase tracking-widest">Rank History</span>
                     </div>
                     <div class="absolute inset-0 top-12 bottom-0 left-0 right-0">
                         <canvas id="rank-history-chart" class="w-full h-full"></canvas>
@@ -245,32 +273,32 @@ async function loadUserStats() {
 
                 <div class="stat-panel-clean col-span-1">
                     <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Ranked Score</p>
-                    <h4 class="text-lg font-bold text-white truncate">${parseInt(u.ranked_score).toLocaleString()}</h4>
+                    <h4 class="text-base font-bold text-white truncate">${parseInt(u.ranked_score).toLocaleString()}</h4>
                 </div>
                 <div class="stat-panel-clean col-span-1">
                     <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Hit Accuracy</p>
-                    <h4 class="text-lg font-bold text-white">${u.accuracy}%</h4>
+                    <h4 class="text-base font-bold text-white">${u.accuracy}%</h4>
                 </div>
                 <div class="stat-panel-clean col-span-1">
                     <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Play Count</p>
-                    <h4 class="text-lg font-bold text-white">${parseInt(u.play_count).toLocaleString()}</h4>
+                    <h4 class="text-base font-bold text-white">${parseInt(u.play_count).toLocaleString()}</h4>
                 </div>
                 <div class="stat-panel-clean col-span-1">
                     <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Total Hits</p>
-                    <h4 class="text-lg font-bold text-white">${parseInt(u.total_hits).toLocaleString()}</h4>
+                    <h4 class="text-base font-bold text-white">${parseInt(u.total_hits).toLocaleString()}</h4>
                 </div>
                 
                 <div class="stat-panel-clean col-span-1">
                     <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Max Combo</p>
-                    <h4 class="text-lg font-bold text-white">${u.max_combo.toLocaleString()}x</h4>
+                    <h4 class="text-base font-bold text-white">${u.max_combo.toLocaleString()}x</h4>
                 </div>
                 <div class="stat-panel-clean col-span-1">
                     <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Total Score</p>
-                    <h4 class="text-sm font-bold text-gray-300 break-all">${parseInt(u.total_score).toLocaleString()}</h4>
+                    <h4 class="text-xs font-bold text-gray-300 break-all leading-tight">${parseInt(u.total_score).toLocaleString()}</h4>
                 </div>
                 <div class="stat-panel-clean col-span-1">
-                    <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Replays Watched</p>
-                    <h4 class="text-lg font-bold text-white">${u.replays_watched.toLocaleString()}</h4>
+                    <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Replays</p>
+                    <h4 class="text-base font-bold text-white">${u.replays_watched.toLocaleString()}</h4>
                 </div>
                 
                 <div class="stat-panel-clean col-span-1 relative overflow-hidden">
@@ -278,16 +306,29 @@ async function loadUserStats() {
                         <div><p class="text-[10px] text-gray-500 uppercase font-bold">Lvl ${u.level}</p></div>
                         <div class="text-right"><p class="text-[10px] text-gray-500 uppercase font-bold">Time</p></div>
                     </div>
-                    <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden relative z-10 mb-1">
+                    <div class="w-full h-1 bg-white/10 rounded-full overflow-hidden relative z-10 mb-1">
                         <div class="h-full bg-yellow-400 rounded-full" style="width: ${u.level_progress}%"></div>
                     </div>
-                    <div class="flex justify-between text-[10px] font-bold text-white relative z-10">
+                    <div class="flex justify-between text-[9px] font-bold text-white relative z-10">
                         <span>${u.level_progress}%</span>
                         <span>${playTimeFormatted}</span>
                     </div>
                 </div>
 
+                <div class="bento-card col-span-2 md:col-span-4 p-0 relative overflow-hidden">
+                    <div class="p-4 border-b border-white/5 flex items-center gap-2">
+                        <i class="fas fa-history text-indigo-400"></i>
+                        <span class="text-xs font-bold text-white uppercase tracking-widest">Recent Activity</span>
+                    </div>
+                    <div id="activity-container" class="flex flex-col">
+                        <div class="p-4 text-center text-xs text-gray-500">Loading activity...</div>
+                    </div>
+                </div>
+
             </div>`;
+            
+        loadRecentActivity(); // Load activity after rendering structure
+
     } catch(e) {
         console.error(e);
         c.innerHTML = '<div class="col-span-4 text-center text-xs text-red-400 py-4">Failed to load stats</div>';
@@ -334,6 +375,7 @@ function drawRankGraph(history) {
 
     history.forEach((val, i) => {
         const x = (i / (history.length - 1)) * w;
+        // Invert Y axis: Lower rank (better) is Higher on screen (y=0)
         const norm = (val - minRank) / range; 
         const y = padding + norm * (h - padding * 2);
         if(i===0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
