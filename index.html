@@ -14,11 +14,6 @@
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-    <style>
-        body { visibility: hidden; opacity: 0; transition: opacity 0.3s ease-in; }
-        details > summary { list-style: none; cursor: pointer; }
-        details > summary::-webkit-details-marker { display: none; }
-    </style>
     <script>
         setTimeout(() => { document.body.style.visibility = 'visible'; document.body.style.opacity = '1'; }, 2000);
         window.addEventListener('load', () => { document.body.style.visibility = 'visible'; document.body.style.opacity = '1'; });
@@ -27,7 +22,6 @@
 <body class="flex flex-col items-center justify-start p-4 md:p-8 relative selection:bg-indigo-500 selection:text-white">
     <div id="osu-cursor"><img src="data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='60' cy='60' r='22' fill='%23FF66AA' fill-opacity='0.9'/%3E%3Ccircle cx='60' cy='60' r='18' stroke='white' stroke-width='3'/%3E%3C/svg%3E"></div>
     <div id="toast"><i class="fas fa-check-circle text-green-400 mr-2"></i> <span>Copied!</span></div>
-    
     <div id="chart-tooltip"></div>
 
     <div class="fixed inset-0 overflow-hidden -z-10 pointer-events-none">
@@ -94,31 +88,19 @@
         </div>
 
         <div id="tab-stats" class="tab-content">
-            <div id="live-stats-container">
-                <div class="col-span-4 text-center text-xs text-gray-500 py-8 animate-pulse">Connecting to osu! servers...</div>
-            </div>
-            <div class="bento-card w-full mt-4 p-0 relative overflow-hidden group min-h-[200px]">
-                <div id="scores-container" class="flex flex-col h-full w-full">
-                    <div class="flex flex-col items-center justify-center py-12 gap-3">
-                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
-                        <div class="text-xs text-gray-500 font-mono animate-pulse">Fetching scores...</div>
-                    </div>
-                </div>
-            </div>
+            <div id="live-stats-container"></div>
         </div>
 
         <div id="tab-stream" class="tab-content">
             <div class="flex items-center justify-between mb-8 px-2">
                 <div class="flex items-center gap-3"><i class="fas fa-tachometer-alt text-indigo-400 text-xl"></i><h2 class="text-3xl font-bold">BPM Test</h2></div>
             </div>
-            
             <div class="mb-6 p-4 bg-yellow-500/5 border border-yellow-500/20 rounded-2xl flex gap-4 items-start backdrop-blur-md">
                 <i class="fas fa-exclamation-triangle text-yellow-400 mt-0.5 text-lg"></i>
                 <p class="text-xs text-yellow-100/80 leading-relaxed font-mono">
                     NOTICE: This test is not correct relative to osu! and most likely your indicators will be either higher or lower. UR directly works from AR, OD which this BPM test does not provide, so do not rely on these results, they are incorrect regarding osu!.
                 </p>
             </div>
-
             <div class="bento-card p-6 relative overflow-hidden">
                 <div class="flex flex-col justify-between items-center mb-8 border-b border-white/5 pb-6 gap-6 w-full">
                     <div class="flex flex-wrap gap-4 w-full justify-between items-center">
@@ -301,9 +283,11 @@
     
     <footer class="mt-12 mb-6 text-gray-600 text-xs font-mono uppercase tracking-widest z-10">MORGUN © 2026</footer>
 
-    <script src="js/main.js" defer></script>
-    <script src="js/downloader.js" defer></script>
-    <script src="js/stream-engine.js" defer></script>
+    <script src="js/utils.js"></script>
+    <script src="js/scores.js" type="module"></script>
+    <script src="js/main.js" type="module"></script>
+    <script src="js/downloader.js"></script>
+    <script src="js/stream-engine.js"></script>
     <script>window.addEventListener('load', () => { document.body.style.visibility = 'visible'; document.body.style.opacity = '1'; });</script>
 </body>
 </html>
