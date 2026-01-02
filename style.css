@@ -117,3 +117,8 @@ body.system-cursor { cursor: auto; }
 .rank-C { color: #a855f7; }
 .rank-D { color: #ef4444; }
 .rank-F { color: #6b7280; }
+
+.profile-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+.profile-stat-item { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; }
+.profile-stat-label { font-size: 10px; color: #888; text-transform: uppercase; font-weight: 700; margin-bottom: 4px; }
+.profile-stat-val { font-size: 16px; font-weight: 600; color: #fff; }
