@@ -353,9 +353,19 @@ function updateLanyardUI(d) {
             let largeImage = '';
             if (activity.assets && activity.assets.large_image) {
                 const img = activity.assets.large_image;
-                if (img.startsWith("spotify:")) largeImage = `https://i.scdn.co/image/${img.replace("spotify:", "")}`;
-                else if (img.startsWith("mp:")) largeImage = `https://media.discordapp.net/${img.replace("mp:", "")}`;
-                else largeImage = `https://cdn.discordapp.com/app-assets/${activity.application_id}/${img}.png`;
+                if (img.startsWith("spotify:")) {
+                    largeImage = `https://i.scdn.co/image/${img.replace("spotify:", "")}`;
+                } else if (img.startsWith("twitch:") || (activity.url && activity.url.includes("twitch.tv"))) {
+                    if (activity.url) {
+                        const parts = activity.url.split('/');
+                        const channel = parts[parts.length - 1];
+                        largeImage = `https://static-cdn.jtvnw.net/previews-ttv/live_user_${channel}-320x180.jpg`;
+                    }
+                } else if (img.startsWith("mp:")) {
+                    largeImage = `https://media.discordapp.net/${img.replace("mp:", "")}`;
+                } else {
+                    largeImage = `https://cdn.discordapp.com/app-assets/${activity.application_id}/${img}.png`;
+                }
             }
 
             const name = activity.name;
