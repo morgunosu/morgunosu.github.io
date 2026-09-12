@@ -425,6 +425,24 @@ function updateLanyardUI(d) {
     }
 }
 
+window.changeSkinImage = function(button, direction) {
+    const gallery = button.closest('.skin-gallery');
+    const images = gallery.dataset.images.split('|');
+    if (images.length < 2) return;
+
+    const image = gallery.querySelector('.skin-gallery-image');
+    const counter = gallery.querySelector('.skin-gallery-counter');
+    let index = Number(gallery.dataset.index || 0);
+    index = (index + direction + images.length) % images.length;
+    gallery.dataset.index = index;
+    image.src = images[index];
+    counter.textContent = `${index + 1} / ${images.length}`;
+};
+
+document.querySelectorAll('.skin-gallery').forEach(gallery => {
+    if (gallery.dataset.images.split('|').length < 2) {
+        gallery.querySelectorAll('button').forEach(button => button.classList.add('hidden'));
+    }
+});
+
 initLanyard();
-loadTopScores(); 
-loadUserStats();

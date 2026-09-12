@@ -65,7 +65,6 @@
 
     <nav class="sticky top-4 z-40 flex gap-4 mb-8 backdrop-blur-md p-2 rounded-full border border-white/5 bg-black/20 mx-auto w-fit shadow-lg shadow-black/20">
         <button onclick="switchTab('profile')" id="btn-profile" class="nav-btn active">PROFILE</button>
-        <button onclick="switchTab('stats')" id="btn-stats" class="nav-btn">STATS</button>
         <button onclick="switchTab('setup')" id="btn-setup" class="nav-btn">SETUP</button>
         <button onclick="switchTab('skins')" id="btn-skins" class="nav-btn">SKINS</button>
         <button onclick="switchTab('stream')" id="btn-stream" class="nav-btn">BPM TEST</button>
@@ -94,7 +93,7 @@
                 <a href="https://osu.ppy.sh/users/13017880" target="_blank" class="bento-card col-span-2 md:col-span-1 md:row-span-2 p-6 flex flex-col items-center justify-center text-center gap-4 group hover:border-osu/50 relative overflow-hidden cursor-pointer">
                     <div class="absolute inset-0 bg-osu/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                     <div class="w-24 h-24 flex items-center justify-center group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 z-10">
-                         <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Osu%21_Logo_2016.svg/2048px-Osu%21_Logo_2016.svg.png" alt="osu!" class="w-full h-full object-contain drop-shadow-2xl">
+                         <img src="img/osu-logo.png" alt="osu!" class="w-full h-full object-contain drop-shadow-2xl">
                     </div>
                     <div class="z-10"><h3 class="text-2xl font-bold text-pink-100">Profile</h3><p class="text-gray-400 text-sm mt-1">Check main stats</p></div>
                 </a>
@@ -107,11 +106,6 @@
                     <span class="font-bold text-lg mt-2">Twitch</span>
                 </a>
             </div>
-        </div>
-
-        <div id="tab-stats" class="tab-content">
-            <div id="live-stats-container"></div>
-            <div id="scores-container" class="mt-4"></div>
         </div>
 
         <div id="tab-setup" class="tab-content">
@@ -146,21 +140,7 @@
                     <div class="mt-3 text-right"><span class="text-[10px] text-gray-600 font-mono">OS: Windows 11 23H2</span></div>
                 </div>
                 
-                <div class="bento-card col-span-1 p-5 hover:border-yellow-500/50 group flex flex-col h-full">
-                    <div class="flex justify-between items-start"><i class="fas fa-keyboard text-2xl text-gray-600 group-hover:text-yellow-400 transition-colors"></i><span class="text-[9px] bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 px-1.5 py-0.5 rounded">RT ON</span></div>
-                    <div class="mt-2"><p class="text-[10px] text-gray-500 uppercase font-bold">Keypad</p><h4 class="font-bold text-white leading-tight">Wooting UwU</h4></div>
-                    <div class="relative h-[200px] w-full bg-black/20 rounded-xl mt-4 overflow-hidden border border-white/5"><img src="https://morgun.s-ul.eu/7uwtldqP" class="w-full h-full object-contain p-4"></div>
-                    <div class="mt-4 pt-4 border-t border-white/10">
-                        <div class="mb-3">
-                            <p class="text-[10px] font-bold text-yellow-400 mb-1 uppercase">Switches</p>
-                            <a href="https://www.gateron.com/products/gateron-magnetic-jade-pro-switch-set?VariantsId=11135" target="_blank" class="flex items-center justify-between w-full bg-yellow-500/10 hover:bg-yellow-500/20 border border-yellow-500/20 px-3 py-2 rounded-lg transition-all group/driver"><span class="text-xs text-yellow-300 font-bold">Gateron Jade Pro HE</span><i class="fas fa-external-link-alt text-[10px] text-yellow-400 group-hover/driver:text-white transition-colors"></i></a>
-                        </div>
-                        <p class="text-[10px] font-bold text-yellow-400 mb-2 uppercase">Rapid Trigger</p>
-                        <table class="specs-table"><tr><td>Actuation</td><td>1.00 mm</td></tr><tr><td>RT Press</td><td>0.50 mm</td></tr><tr><td>RT Release</td><td>0.50 mm</td></tr><tr><td>Tachyon</td><td>Enabled</td></tr></table>
-                    </div>
-                </div>
-                
-                <div class="bento-card col-span-1 p-5 hover:border-pink-500/50 group flex flex-col h-full">
+                <div class="bento-card col-span-2 p-5 hover:border-pink-500/50 group flex flex-col h-full">
                     <div class="flex justify-between"><i class="fas fa-pen-nib text-2xl text-gray-600 group-hover:text-pink-400 transition-colors mb-2"></i><div><p class="text-[10px] text-gray-500 uppercase font-bold">Tablet</p><h4 class="font-bold text-white leading-tight">Wacom CTL-472</h4></div></div>
                     <div class="relative h-[200px] w-full bg-black/20 rounded-xl mt-4 overflow-hidden border border-white/5"><img src="https://morgun.s-ul.eu/bFmoHgS9" class="w-full h-full object-contain p-4"></div>
                     <div class="mt-4 pt-4 border-t border-white/10">
@@ -169,17 +149,25 @@
                             <a href="https://opentabletdriver.net/" target="_blank" class="flex items-center justify-between w-full bg-pink-500/10 hover:bg-pink-500/20 border border-pink-500/20 px-3 py-2 rounded-lg transition-all group/driver"><span class="text-xs text-pink-300 font-bold">OpenTabletDriver</span><i class="fas fa-external-link-alt text-[10px] text-pink-400 group-hover/driver:text-white transition-colors"></i></a>
                         </div>
                         <p class="text-[10px] font-bold text-pink-400 mb-2 uppercase">Area Settings</p>
-                        <table class="specs-table"><tr><td>Width</td><td>94 mm</td></tr><tr><td>Height</td><td>52.875 mm</td></tr><tr><td>Mode</td><td>Absolute</td></tr><tr><td>Grip</td><td>Drag</td></tr></table>
+                        <table class="specs-table"><tr><td>Width</td><td>73 mm</td></tr><tr><td>Height</td><td>41.0625 mm</td></tr><tr><td>Mode</td><td>Absolute</td></tr><tr><td>Grip</td><td>Drag</td></tr></table>
                         <div class="mt-3">
                             <p class="text-[9px] text-gray-500 uppercase font-bold mb-1">Input Filters</p>
-                            <details class="group/details">
+                            <details class="group/details mt-1">
                                 <summary class="flex justify-between items-center bg-white/5 border border-white/10 px-2 py-1.5 rounded hover:bg-white/10 transition-colors text-xs cursor-pointer">
-                                    <span class="text-gray-300">Kuuube's Exterminator</span>
+                                    <span class="text-gray-300">AbstractObit's Radial Follow Smoothing</span>
                                     <i class="fas fa-chevron-down text-[8px] text-gray-500 group-open/details:rotate-180 transition-transform"></i>
                                 </summary>
-                                <div class="bg-black/20 p-2 mt-1 rounded border border-white/5">
-                                    <div class="flex justify-between items-center text-xs mb-1"><span class="text-gray-400">Strength (Raw)</span><span class="text-white font-bold bg-white/10 px-2 py-0.5 rounded">4</span></div>
-                                    <p class="text-[9px] text-gray-600 italic">Smoothing: Advanced</p>
+                                <div class="bg-black/20 p-2 mt-1 rounded border border-white/5 text-[10px]">
+                                    <div class="grid grid-cols-2 gap-x-3 gap-y-1"><span class="text-gray-400">Outer Radius</span><span class="text-white">0.3 mm</span><span class="text-gray-400">Inner Radius</span><span class="text-white">0.1 mm</span><span class="text-gray-400">Initial Coefficient</span><span class="text-white">0.35</span><span class="text-gray-400">Soft Knee Scale</span><span class="text-white">0.3</span><span class="text-gray-400">Leak Coefficient</span><span class="text-white">0</span></div>
+                                </div>
+                            </details>
+                            <details class="group/details mt-1">
+                                <summary class="flex justify-between items-center bg-white/5 border border-white/10 px-2 py-1.5 rounded hover:bg-white/10 transition-colors text-xs cursor-pointer">
+                                    <span class="text-gray-300">jaaakb's ScuffedInter/Extrapolator</span>
+                                    <i class="fas fa-chevron-down text-[8px] text-gray-500 group-open/details:rotate-180 transition-transform"></i>
+                                </summary>
+                                <div class="bg-black/20 p-2 mt-1 rounded border border-white/5 text-[10px]">
+                                    <div class="grid grid-cols-2 gap-x-3 gap-y-1"><span class="text-gray-400">Interpolation</span><span class="text-white">0.1</span><span class="text-gray-400">Major Path Correction</span><span class="text-white">Enabled</span><span class="text-gray-400">Half-Step Reports</span><span class="text-white">Enabled</span><span class="text-gray-400">Pen Lifting Fix</span><span class="text-white">2</span><span class="text-gray-400">Tablet Hz</span><span class="text-white">133</span><span class="text-gray-400">Frequency</span><span class="text-white">1000 Hz</span></div>
                                 </div>
                             </details>
                         </div>
@@ -187,9 +175,16 @@
                 </div>
                 
                 <div class="bento-card col-span-2 p-5 flex flex-col justify-between hover:border-blue-500/50 group">
-                    <div class="flex items-center gap-3"><i class="fas fa-keyboard text-gray-500 group-hover:text-blue-400 transition-colors"></i><div><p class="text-[10px] text-gray-500 uppercase font-bold">Typing Board</p><h4 class="font-bold text-white text-sm">AJAZZ AK680 MAX</h4></div></div>
-                    <div class="relative h-[200px] w-full bg-black/20 rounded-xl mt-4 overflow-hidden border border-white/5"><img src="https://morgun.s-ul.eu/gwns7oQl" class="w-full h-full object-contain p-4"></div>
-                    <div class="mt-4 text-xs text-gray-600 border border-white/5 px-2 py-1 rounded inline-block">Stock Switches</div>
+                    <div class="flex items-center justify-between"><div class="flex items-center gap-3"><i class="fas fa-keyboard text-gray-500 group-hover:text-blue-400 transition-colors"></i><div><p class="text-[10px] text-gray-500 uppercase font-bold">Typing Board</p><h4 class="font-bold text-white text-sm">WOMIER SK75 TMR</h4></div></div><span class="text-[9px] bg-blue-500/10 text-blue-400 border border-blue-500/20 px-1.5 py-0.5 rounded">RT ON</span></div>
+                    <a href="https://womierkeyboard.com/products/womier-sk75-tmr-magnetic-keyboard" target="_blank" rel="noopener noreferrer" class="relative h-[200px] w-full bg-black/20 rounded-xl mt-4 overflow-hidden border border-white/5 block cursor-pointer"><img src="img/keyboard.png" alt="Womier SK75 TMR keyboard" class="w-full h-full object-cover"></a>
+                    <div class="mt-4 pt-4 border-t border-white/10">
+                        <div class="mb-3">
+                            <p class="text-[10px] font-bold text-blue-400 mb-1 uppercase">Switches</p>
+                            <a href="https://womierkeyboard.com/products/womier-void-magnetic-switch-for-hall-effect-tmr-keyboard?variant=42164133625927" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between w-full bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 px-3 py-2 rounded-lg transition-all group/driver"><span class="text-xs text-blue-300 font-bold">Womier Void</span><i class="fas fa-external-link-alt text-[10px] text-blue-400 group-hover/driver:text-white transition-colors"></i></a>
+                        </div>
+                        <p class="text-[10px] font-bold text-blue-400 mb-2 uppercase">Rapid Trigger</p>
+                        <table class="specs-table"><tr><td>Actuation</td><td>0.40 mm</td></tr><tr><td>RT Press</td><td>0.40 mm</td></tr><tr><td>RT Release</td><td>0.45 mm</td></tr><tr><td>Full Travel Continuous RT</td><td>Enabled</td></tr></table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -197,39 +192,51 @@
         <div id="tab-skins" class="tab-content">
             <div class="flex items-center justify-between mb-8 px-2"><div class="flex items-center gap-3"><i class="fas fa-layer-group text-indigo-400 text-xl"></i><h2 class="text-3xl font-bold">Skin Library</h2></div><div class="text-sm font-mono text-gray-500 border border-white/10 px-3 py-1 rounded-full">v. 2025</div></div>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <a href="https://skins.osuck.net/skins/4892" target="_blank" class="group relative bg-white/5 border border-white/5 rounded-2xl p-3 hover:bg-white/10 hover:border-indigo-500/30 transition-all duration-300 cursor-pointer">
-                    <div class="h-40 w-full rounded-xl overflow-hidden relative mb-4 border border-white/5 shadow-lg group-hover:shadow-indigo-500/20 transition-all duration-500">
-                        <img src="https://skins.osuck.net/images/screenshots/102f21bb25da1c36781c75f45bd48950.webp" class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500">
+                <div class="group relative bg-white/5 border border-white/5 rounded-2xl p-3 hover:bg-white/10 hover:border-indigo-500/30 transition-all duration-300">
+                    <div class="skin-gallery aspect-video w-full rounded-xl overflow-hidden relative mb-4 border border-white/5 shadow-lg group-hover:shadow-indigo-500/20 transition-all duration-500" data-images="img/skin-minimalism.webp|img/skin-minimalism-2.webp|img/skin-minimalism-3.webp">
+                        <img src="img/skin-minimalism.webp" alt="morgun Minimalism osu! skin" class="skin-gallery-image object-cover w-full h-full scale-[1.2] transition-transform duration-500">
+                        <button type="button" aria-label="Previous image" onclick="event.preventDefault(); event.stopPropagation(); window.changeSkinImage(this, -1)" class="skin-gallery-prev absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/70 text-white opacity-0 group-hover:opacity-100 transition-opacity">&#8249;</button>
+                        <button type="button" aria-label="Next image" onclick="event.preventDefault(); event.stopPropagation(); window.changeSkinImage(this, 1)" class="skin-gallery-next absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/70 text-white opacity-0 group-hover:opacity-100 transition-opacity">&#8250;</button>
+                        <span class="skin-gallery-counter absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/70 text-[10px] px-2 py-0.5 rounded text-white">1 / 3</span>
                         <div class="absolute inset-0 bg-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         <div class="absolute top-2 right-2 bg-black/60 backdrop-blur-md text-[10px] font-bold px-2 py-1 rounded border border-white/10 text-gray-300">2026</div>
                     </div>
-                    <div class="flex justify-between items-end"><div><h3 class="font-bold text-lg text-gray-100 group-hover:text-indigo-400 transition-colors">morgun Minimalism</h3><div class="flex gap-2 mt-1"><span class="text-[10px] bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded">FRESH</span></div></div><div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 group-hover:bg-indigo-500 group-hover:text-white transition-all"><i class="fas fa-download text-xs"></i></div></div>
-                </a>
+                    <div class="flex justify-between items-end"><div><h3 class="font-bold text-lg text-gray-100 group-hover:text-indigo-400 transition-colors">morgun Minimalism</h3></div><a href="https://skins.osuck.net/skins/4892" target="_blank" rel="noopener noreferrer" aria-label="Install morgun Minimalism skin" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-indigo-500 hover:text-white transition-all"><i class="fas fa-download text-xs"></i></a></div>
+                </div>
                 
-                <a href="https://drive.google.com/file/d/1J4F-tMz2tU0lkuit2PNtHGXPqw-yx14-/view" target="_blank" class="group relative bg-white/5 border border-white/5 rounded-2xl p-3 hover:bg-white/10 hover:border-indigo-500/30 transition-all duration-300 cursor-pointer">
-                    <div class="h-40 w-full rounded-xl overflow-hidden relative mb-4 border border-white/5 shadow-lg group-hover:shadow-indigo-500/20 transition-all duration-500">
-                        <img src="https://i.ppy.sh/2bc89a082a8a3130e7cb916fc40c5c5113f84625/68747470733a2f2f692e6962622e636f2f71597036563753332f636972636c65732e706e67" class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500">
+                <div class="group relative bg-white/5 border border-white/5 rounded-2xl p-3 hover:bg-white/10 hover:border-indigo-500/30 transition-all duration-300">
+                    <div class="skin-gallery aspect-video w-full rounded-xl overflow-hidden relative mb-4 border border-white/5 shadow-lg group-hover:shadow-indigo-500/20 transition-all duration-500" data-images="img/skin-bubbleman.png|img/skin-bubbleman-2.jpg">
+                        <img src="img/skin-bubbleman.png" alt="Bubbleman osu! skin" class="skin-gallery-image object-cover w-full h-full scale-[1.2] transition-transform duration-500">
+                        <button type="button" aria-label="Previous image" onclick="event.preventDefault(); event.stopPropagation(); window.changeSkinImage(this, -1)" class="skin-gallery-prev absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/70 text-white opacity-0 group-hover:opacity-100 transition-opacity">&#8249;</button>
+                        <button type="button" aria-label="Next image" onclick="event.preventDefault(); event.stopPropagation(); window.changeSkinImage(this, 1)" class="skin-gallery-next absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/70 text-white opacity-0 group-hover:opacity-100 transition-opacity">&#8250;</button>
+                        <span class="skin-gallery-counter absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/70 text-[10px] px-2 py-0.5 rounded text-white">1 / 2</span>
                         <div class="absolute inset-0 bg-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         <div class="absolute top-2 right-2 bg-black/60 backdrop-blur-md text-[10px] font-bold px-2 py-1 rounded border border-white/10 text-gray-300">2020</div>
                     </div>
-                    <div class="flex justify-between items-end"><div><h3 class="font-bold text-lg text-gray-100 group-hover:text-indigo-400 transition-colors">Bubbleman</h3><div class="flex gap-2 mt-1"><span class="text-[10px] bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded">MAIN</span></div></div><div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 group-hover:bg-indigo-500 group-hover:text-white transition-all"><i class="fas fa-download text-xs"></i></div></div>
-                </a>
-                <a href="https://skins.osuck.net/skins/4245?v=0" target="_blank" class="group relative bg-white/5 border border-white/5 rounded-2xl p-3 hover:bg-white/10 hover:border-indigo-500/30 transition-all duration-300 cursor-pointer">
-                    <div class="h-40 w-full rounded-xl overflow-hidden relative mb-4 border border-white/5 shadow-lg group-hover:shadow-indigo-500/20 transition-all duration-500">
-                        <img src="https://skins.osuck.net/images/screenshots/942f0131248d07d4426ed6882545d7d1.webp" class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500">
+                    <div class="flex justify-between items-end"><div><h3 class="font-bold text-lg text-gray-100 group-hover:text-indigo-400 transition-colors">Bubbleman</h3></div><a href="https://drive.google.com/file/d/1J4F-tMz2tU0lkuit2PNtHGXPqw-yx14-/view" target="_blank" rel="noopener noreferrer" aria-label="Install Bubbleman skin" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-indigo-500 hover:text-white transition-all"><i class="fas fa-download text-xs"></i></a></div>
+                </div>
+                <div class="group relative bg-white/5 border border-white/5 rounded-2xl p-3 hover:bg-white/10 hover:border-indigo-500/30 transition-all duration-300">
+                    <div class="skin-gallery aspect-video w-full rounded-xl overflow-hidden relative mb-4 border border-white/5 shadow-lg group-hover:shadow-indigo-500/20 transition-all duration-500" data-images="img/skin-ashecho.webp|img/skin-ashecho-2.webp|img/skin-ashecho-3.webp">
+                        <img src="img/skin-ashecho.webp" alt="Ashecho v1 osu! skin" class="skin-gallery-image object-cover w-full h-full scale-[1.2] transition-transform duration-500">
+                        <button type="button" aria-label="Previous image" onclick="event.preventDefault(); event.stopPropagation(); window.changeSkinImage(this, -1)" class="skin-gallery-prev absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/70 text-white opacity-0 group-hover:opacity-100 transition-opacity">&#8249;</button>
+                        <button type="button" aria-label="Next image" onclick="event.preventDefault(); event.stopPropagation(); window.changeSkinImage(this, 1)" class="skin-gallery-next absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/70 text-white opacity-0 group-hover:opacity-100 transition-opacity">&#8250;</button>
+                        <span class="skin-gallery-counter absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/70 text-[10px] px-2 py-0.5 rounded text-white">1 / 3</span>
                         <div class="absolute inset-0 bg-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         <div class="absolute top-2 right-2 bg-black/60 backdrop-blur-md text-[10px] font-bold px-2 py-1 rounded border border-white/10 text-gray-300">2025</div>
                     </div>
-                    <div class="flex justify-between items-end"><div><h3 class="font-bold text-lg text-gray-100 group-hover:text-indigo-400 transition-colors">Ashecho v1</h3><div class="flex gap-2 mt-1"><span class="text-[10px] bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded">MAIN</span></div></div><div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 group-hover:bg-indigo-500 group-hover:text-white transition-all"><i class="fas fa-download text-xs"></i></div></div>
-                </a>
-                <a href="https://skins.osuck.net/skins/166?v=0" target="_blank" class="group relative bg-white/5 border border-white/5 rounded-2xl p-3 hover:bg-white/10 hover:border-pink-500/30 transition-all duration-300 cursor-pointer">
-                    <div class="h-40 w-full rounded-xl overflow-hidden relative mb-4 border border-white/5 shadow-lg group-hover:shadow-pink-500/20 transition-all duration-500">
-                        <img src="https://skins.osuck.net/images/screenshots/562f42b4af68706e5a6d079fc627937d.webp" class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500">
+                    <div class="flex justify-between items-end"><div><h3 class="font-bold text-lg text-gray-100 group-hover:text-indigo-400 transition-colors">Ashecho v1</h3></div><a href="https://skins.osuck.net/skins/4245?v=0" target="_blank" rel="noopener noreferrer" aria-label="Install Ashecho v1 skin" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-indigo-500 hover:text-white transition-all"><i class="fas fa-download text-xs"></i></a></div>
+                </div>
+                <div class="group relative bg-white/5 border border-white/5 rounded-2xl p-3 hover:bg-white/10 hover:border-pink-500/30 transition-all duration-300">
+                    <div class="skin-gallery aspect-video w-full rounded-xl overflow-hidden relative mb-4 border border-white/5 shadow-lg group-hover:shadow-pink-500/20 transition-all duration-500" data-images="img/skin-rafis.webp|img/skin-rafis-2.webp|img/skin-rafis-3.webp">
+                        <img src="img/skin-rafis.webp" alt="Rafis HDDT osu! skin" class="skin-gallery-image object-cover w-full h-full scale-[1.2] transition-transform duration-500">
+                        <button type="button" aria-label="Previous image" onclick="event.preventDefault(); event.stopPropagation(); window.changeSkinImage(this, -1)" class="skin-gallery-prev absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/70 text-white opacity-0 group-hover:opacity-100 transition-opacity">&#8249;</button>
+                        <button type="button" aria-label="Next image" onclick="event.preventDefault(); event.stopPropagation(); window.changeSkinImage(this, 1)" class="skin-gallery-next absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/70 text-white opacity-0 group-hover:opacity-100 transition-opacity">&#8250;</button>
+                        <span class="skin-gallery-counter absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/70 text-[10px] px-2 py-0.5 rounded text-white">1 / 3</span>
                         <div class="absolute inset-0 bg-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         <div class="absolute top-2 right-2 bg-black/60 backdrop-blur-md text-[10px] font-bold px-2 py-1 rounded border border-white/10 text-gray-300">2018</div>
                     </div>
-                    <div class="flex justify-between items-end"><div><h3 class="font-bold text-lg text-gray-100 group-hover:text-pink-400 transition-colors">Rafis HDDT</h3><div class="flex gap-2 mt-1"><span class="text-[10px] bg-pink-500/10 border border-pink-500/20 text-pink-300 px-2 py-0.5 rounded">SPEED</span></div></div><div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 group-hover:bg-pink-500 group-hover:text-white transition-all"><i class="fas fa-download text-xs"></i></div></div>
-                </a>
+                    <div class="flex justify-between items-end"><div><h3 class="font-bold text-lg text-gray-100 group-hover:text-pink-400 transition-colors">Rafis HDDT</h3></div><a href="https://skins.osuck.net/skins/166?v=0" target="_blank" rel="noopener noreferrer" aria-label="Install Rafis HDDT skin" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-pink-500 hover:text-white transition-all"><i class="fas fa-download text-xs"></i></a></div>
+                </div>
             </div>
         </div>
 

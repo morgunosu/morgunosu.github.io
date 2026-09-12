@@ -94,7 +94,7 @@ body.system-cursor {
 
 .bento-card {
     background-color: rgba(20, 20, 23, 0.7);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: none;
     backdrop-filter: blur(24px);
     border-radius: 24px;
     overflow: hidden;
@@ -105,9 +105,17 @@ body.system-cursor {
 .bento-card:hover {
     transform: translateY(-4px);
     background-color: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.15);
+    border-color: transparent;
     z-index: 10;
     box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+}
+
+.skin-gallery > div.absolute.inset-0 {
+    pointer-events: none;
+}
+
+body * {
+    border-color: transparent !important;
 }
 
 .nav-btn {
@@ -380,3 +388,4 @@ body.system-cursor {
         grid-template-columns: repeat(2, 1fr);
     }
 }
+
